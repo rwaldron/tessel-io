@@ -6,8 +6,9 @@ board.on("ready", function() {
   console.log("Ready");
 
   this.pinMode("a7", this.MODES.ANALOG);
+  this.pinMode("b7", this.MODES.PWM);
+
   this.analogRead("a7", function(data) {
-    // Connect a potentiometer or some similar variable resistance sensor
-    console.log(data);
+    this.pwmWrite("b7", data >> 2);
   });
 });

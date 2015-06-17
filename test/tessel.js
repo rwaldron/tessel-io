@@ -578,3 +578,79 @@ exports["Tessel.prototype.analogRead"] = {
   },
 };
 
+exports["Tessel.prototype.pwmWrite"] = {
+  setUp: function(done) {
+
+    this.write = sinon.spy(tessel.port.B.pin[7]._port.sock, "write");
+
+    this.tessel = new Tessel();
+
+    done();
+  },
+
+  tearDown: function(done) {
+    Tessel.reset();
+    restore(this);
+    done();
+  },
+
+  returns: function(test) {
+    test.expect(1);
+    test.equal(this.tessel.pwmWrite("b7", 255), this.tessel);
+    test.done();
+  },
+
+  upper: function(test) {
+    test.expect(1);
+
+    this.tessel.pinMode("b7", this.tessel.MODES.PWM);
+
+    this.write.reset();
+
+    this.tessel.pwmWrite("b7", 1);
+    this.tessel.pwmWrite("b7", 255);
+    this.tessel.pwmWrite("b7", true);
+
+    this.tessel.pwmWrite(15, 1);
+    this.tessel.pwmWrite(15, 255);
+    this.tessel.pwmWrite(15, true);
+
+    test.equal(this.write.callCount, 6);
+    test.done();
+  },
+
+  lower: function(test) {
+    test.expect(1);
+
+    this.tessel.pinMode("b7", this.tessel.MODES.PWM);
+
+    this.write.reset();
+
+    this.tessel.pwmWrite("b7", 0);
+    this.tessel.pwmWrite("b7", -1);
+    this.tessel.pwmWrite("b7", false);
+
+    this.tessel.pwmWrite(15, 0);
+    this.tessel.pwmWrite(15, -1);
+    this.tessel.pwmWrite(15, false);
+
+    test.equal(this.write.callCount, 6);
+    test.done();
+  },
+
+  scales: function(test) {
+    test.expect(2);
+
+    this.tessel.pinMode("b7", this.tessel.MODES.PWM);
+
+    this.write.reset();
+
+    this.tessel.pwmWrite("b7", 0);
+    this.tessel.pwmWrite("b7", 255);
+
+    test.equal(this.write.firstCall.args[0].readUInt16BE(1), 0);
+    test.equal(this.write.lastCall.args[0].readUInt16BE(1), 1023);
+
+    test.done();
+  },
+};
