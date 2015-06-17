@@ -1,0 +1,32 @@
+{
+  "name": "tessel-io",
+  "version": "0.0.1",
+  "description": "Tessel 2 IO Plugin for Johnny-Five JavaScript Robotics",
+  "main": "lib/tessel.js",
+  "scripts": {
+    "test": "grunt nodeunit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rwaldron/tessel-io"
+  },
+  "keywords": [
+    "Tessel"
+  ],
+  "author": "Rick Waldron",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rwaldron/tessel-io/issues"
+  },
+  "homepage": "https://github.com/rwaldron/tessel-io",
+  "dependencies": {
+    "array-includes": "^2.0.0",
+    "es6-shim": "^0.32.1"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-jshint": "^0.11.2",
+    "grunt-contrib-nodeunit": "^0.4.1",
+    "sinon": "^1.15.3"
+  }
+}
