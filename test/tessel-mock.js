@@ -10,8 +10,8 @@ function Tessel() {
     Tessel.instance = this;
   }
   this.ports = {
-    A: new Port("A", "/var/run/tessel/port_a", this),
-    B: new Port("B", "/var/run/tessel/port_b", this)
+    A: new Tessel.Port("A", "/var/run/tessel/port_a", this),
+    B: new Tessel.Port("B", "/var/run/tessel/port_b", this)
   };
   this.port = this.ports;
 
@@ -21,7 +21,9 @@ function Tessel() {
   this.version = 2;
 }
 
-function Port(name, socketPath, board) {
+Tessel.Port = function(name, socketPath, board) {
+  var port = this;
+
   this.name = name;
   this.board = board;
   // Connection to the SPI daemon
@@ -41,22 +43,46 @@ function Port(name, socketPath, board) {
   for (var i = 0; i < 8; i++) {
     var adcSupported = name === "B" || [4, 7].indexOf(i) !== -1 ? true : false;
     this.pin.push(
-      new Pin(i, this, [2, 5, 6, 7].indexOf(i) !== -1, adcSupported)
+      new Tessel.Pin(i, this, [2, 5, 6, 7].indexOf(i) !== -1, adcSupported)
     );
   }
 
   this.pwm = [];
-}
 
-Port.prototype.cork = function() {
+
+  this.I2C = function(addr, mode) {
+    return new Tessel.I2C({
+      addr: addr,
+      mode: mode,
+      port: port
+    });
+  };
+
+  this.SPI = function(format) {
+    if (!this._spi) {
+      this._spi = new Tessel.SPI(format === null ? {} : format, port);
+    }
+    return this._spi;
+  };
+
+  this.UART = function(format) {
+    if (!this._uart) {
+      this._uart = new Tessel.UART(port, format || {});
+    }
+    return this._uart;
+  };
+
+};
+
+Tessel.Port.prototype.cork = function() {
   this.sock.cork();
 };
 
-Port.prototype.uncork = function() {
+Tessel.Port.prototype.uncork = function() {
   this.sock.uncork();
 };
 
-Port.prototype.sync = function(cb) {
+Tessel.Port.prototype.sync = function(cb) {
   if (cb) {
     this.sock.write(new Buffer([CMD.ECHO, 1, 0x88]));
     this.replyQueue.push({
@@ -68,14 +94,14 @@ Port.prototype.sync = function(cb) {
   }
 };
 
-Port.prototype._simple_cmd = function(buf, cb) {
+Tessel.Port.prototype._simple_cmd = function(buf, cb) {
   this.cork();
   this.sock.write(new Buffer(buf));
   this.sync(cb);
   this.uncork();
 };
 
-Port.prototype._status_cmd = function(buf, cb) {
+Tessel.Port.prototype._status_cmd = function(buf, cb) {
   this.sock.write(new Buffer(buf));
   this.replyQueue.push({
     size: 0,
@@ -83,7 +109,7 @@ Port.prototype._status_cmd = function(buf, cb) {
   });
 };
 
-Port.prototype._tx = function(buf, cb) {
+Tessel.Port.prototype._tx = function(buf, cb) {
   if (buf.length === 0) {
     throw new Error("Length must be non-zero");
   } else if (buf.length > 255) {
@@ -98,7 +124,7 @@ Port.prototype._tx = function(buf, cb) {
   this.uncork();
 };
 
-Port.prototype._rx = function(len, cb) {
+Tessel.Port.prototype._rx = function(len, cb) {
   if (len === 0) {
     throw new Error("Length must be non-zero");
   } else if (len > 255) {
@@ -113,7 +139,7 @@ Port.prototype._rx = function(len, cb) {
   });
 };
 
-Port.prototype._txrx = function(buf, cb) {
+Tessel.Port.prototype._txrx = function(buf, cb) {
   if (buf.length === 0) {
     throw new Error("Length must be non-zero");
   } else if (buf.length > 255) {
@@ -131,43 +157,19 @@ Port.prototype._txrx = function(buf, cb) {
   this.uncork();
 };
 
-Port.prototype.I2C = function(addr, mode) {
-  if (!this._i2c) {
-    var params = {
-      addr: addr,
-      mode: mode
-    };
-    this._i2c = new I2C(params, this);
-  }
-  return this._i2c;
-};
 
-Port.prototype.SPI = function(format) {
-  if (!this._spi) {
-    this._spi = new SPI(format === null ? {} : format, this);
-  }
-  return this._spi;
-};
-
-Port.prototype.UART = function(format) {
-  if (!this._uart) {
-    this._uart = new UART(this, format || {});
-  }
-  return this._uart;
-};
-
-function Pin(pin, port, interruptSupported, analogSupported) {
+Tessel.Pin = function(pin, port, interruptSupported, analogSupported) {
   this.pin = pin;
   this._port = port;
   this.interruptSupported = interruptSupported || false;
   this.analogSupported = analogSupported || false;
   this.interruptMode = null;
   this.isPWM = false;
-}
+};
 
-util.inherits(Pin, Emitter);
+util.inherits(Tessel.Pin, Emitter);
 
-Pin.interruptModes = {
+Tessel.Pin.interruptModes = {
   "rise": 1,
   "fall": 2,
   "change": 3,
@@ -175,9 +177,9 @@ Pin.interruptModes = {
   "low": 5,
 };
 
-Pin.prototype.removeListener = function(event, listener) {
+Tessel.Pin.prototype.removeListener = function(event, listener) {
   // If it"s an interrupt event, remove as necessary
-  var emitter = Pin.super_.prototype.removeListener.apply(this, arguments);
+  var emitter = Tessel.Pin.super_.prototype.removeListener.apply(this, arguments);
 
   if (event === this.interruptMode && Emitter.listenerCount(this, event)) {
     this._setInterruptMode(null);
@@ -186,16 +188,16 @@ Pin.prototype.removeListener = function(event, listener) {
   return emitter;
 };
 
-Pin.prototype.removeAllListeners = function(event) {
+Tessel.Pin.prototype.removeAllListeners = function(event) {
   if (!event || event === this.interruptMode) {
     this._setInterruptMode(null);
   }
 
-  return Pin.super_.prototype.removeAllListeners.apply(this, arguments);
+  return Tessel.Pin.super_.prototype.removeAllListeners.apply(this, arguments);
 };
 
-Pin.prototype.addListener = function(mode, callback) {
-  if (mode in Pin.interruptModes) {
+Tessel.Pin.prototype.addListener = function(mode, callback) {
+  if (mode in Tessel.Pin.interruptModes) {
     if (!this.interruptSupported) {
       throw new Error("Interrupts are not supported on pin " + this.pin);
     }
@@ -213,28 +215,28 @@ Pin.prototype.addListener = function(mode, callback) {
   }
 
   // Add the event listener
-  Pin.super_.prototype.on.call(this, mode, callback);
+  Tessel.Pin.super_.prototype.on.call(this, mode, callback);
 };
-Pin.prototype.on = Pin.prototype.addListener;
+Tessel.Pin.prototype.on = Tessel.Pin.prototype.addListener;
 
-Pin.prototype._setInterruptMode = function(mode) {
+Tessel.Pin.prototype._setInterruptMode = function(mode) {
   this.interruptMode = mode;
-  var bits = mode ? Pin.interruptModes[mode] << 4 : 0;
+  var bits = mode ? Tessel.Pin.interruptModes[mode] << 4 : 0;
   this._port._simple_cmd([CMD.GPIO_INT, this.pin | bits]);
 };
 
-Pin.prototype.high = function(cb) {
+Tessel.Pin.prototype.high = function(cb) {
   this._port._simple_cmd([CMD.GPIO_HIGH, this.pin], cb);
   return this;
 };
 
-Pin.prototype.low = function(cb) {
+Tessel.Pin.prototype.low = function(cb) {
   this._port._simple_cmd([CMD.GPIO_LOW, this.pin], cb);
   return this;
 };
 
 // Deprecated. Added for tessel 1 lib compat
-Pin.prototype.rawWrite = function(value) {
+Tessel.Pin.prototype.rawWrite = function(value) {
   if (value) {
     this.high();
   } else {
@@ -243,12 +245,12 @@ Pin.prototype.rawWrite = function(value) {
   return this;
 };
 
-Pin.prototype.toggle = function(cb) {
+Tessel.Pin.prototype.toggle = function(cb) {
   this._port._simple_cmd([CMD.GPIO_TOGGLE, this.pin], cb);
   return this;
 };
 
-Pin.prototype.output = function output(initialValue, cb) {
+Tessel.Pin.prototype.output = function output(initialValue, cb) {
   if (initialValue) {
     this.high(cb);
   } else {
@@ -257,16 +259,16 @@ Pin.prototype.output = function output(initialValue, cb) {
   return this;
 };
 
-Pin.prototype.write = function(value, cb) {
+Tessel.Pin.prototype.write = function(value, cb) {
   // same as .output
   return this.output(value, cb);
 };
 
-Pin.prototype.rawDirection = function(isOutput, cb) {
-  throw new Error("Pin.rawDirection is deprecated. Use Pin.input or .output instead.");
+Tessel.Pin.prototype.rawDirection = function(isOutput, cb) {
+  throw new Error("Tessel.Pin.rawDirection is deprecated. Use Tessel.Pin.input or .output instead.");
 };
 
-Pin.prototype._readPin = function(cmd, cb) {
+Tessel.Pin.prototype._readPin = function(cmd, cb) {
   this._port.cork();
   this._port.sock.write(new Buffer([cmd, this.pin]));
   this._port.replyQueue.push({
@@ -278,7 +280,7 @@ Pin.prototype._readPin = function(cmd, cb) {
   this._port.uncork();
 };
 
-Pin.prototype.rawRead = function rawRead(cb) {
+Tessel.Pin.prototype.rawRead = function rawRead(cb) {
   if (typeof cb !== "function") {
     console.warn("pin.rawRead is async, pass in a callback to get the value");
   }
@@ -286,12 +288,12 @@ Pin.prototype.rawRead = function rawRead(cb) {
   return this;
 };
 
-Pin.prototype.input = function input(cb) {
+Tessel.Pin.prototype.input = function input(cb) {
   this._port._simple_cmd([CMD.GPIO_INPUT, this.pin], cb);
   return this;
 };
 
-Pin.prototype.read = function(cb) {
+Tessel.Pin.prototype.read = function(cb) {
   if (typeof cb !== "function") {
     console.warn("pin.read is async, pass in a callback to get the value");
   }
@@ -299,21 +301,21 @@ Pin.prototype.read = function(cb) {
   return this;
 };
 
-Pin.prototype.readPulse = function(type, timeout, callback) {
-  throw new Error("Pin.readPulse is not yet implemented");
+Tessel.Pin.prototype.readPulse = function(type, timeout, callback) {
+  throw new Error("Tessel.Pin.readPulse is not yet implemented");
 };
 
 var ANALOG_RESOLUTION = 4096;
-Pin.prototype.resolution = ANALOG_RESOLUTION;
+Tessel.Pin.prototype.resolution = ANALOG_RESOLUTION;
 
-Pin.prototype.analogRead = function(cb) {
+Tessel.Pin.prototype.analogRead = function(cb) {
   if (!this.analogSupported) {
     console.warn("pin.analogRead is not supoprted on this pin. Analog read is supported on port A pins 4 and 7 and on all pins on port B");
     return this;
   }
 
   if (typeof cb !== "function") {
-    console.warn("analogPin.read is async, pass in a callback to get the value");
+    console.warn("analogTessel.Pin.read is async, pass in a callback to get the value");
   }
 
   this._port.sock.write(new Buffer([CMD.ANALOG_READ, this.pin]));
@@ -327,7 +329,7 @@ Pin.prototype.analogRead = function(cb) {
   return this;
 };
 
-Pin.prototype.analogWrite = function(val) {
+Tessel.Pin.prototype.analogWrite = function(val) {
   // throw an error if this isn"t the adc pin (port b, pin 7)
   if (this._port.name !== "B" || this.pin !== 7) {
     throw new Error("Analog write can only be used on Pin 7 (G3) of Port B.");
@@ -343,9 +345,9 @@ Pin.prototype.analogWrite = function(val) {
   return this;
 };
 
-function I2C(params, port) {
+Tessel.I2C = function(params, port) {
   this.addr = params.addr;
-  this._port = port;
+  this._port = params.port;
   this._freq = params.freq ? params.freq : 100000; // 100khz
 
   // 15ns is max scl rise time
@@ -357,9 +359,9 @@ function I2C(params, port) {
   }
   // enable i2c
   this._port._simple_cmd([CMD.ENABLE_I2C, this._baud]);
-}
+};
 
-I2C.prototype.send = function(data, callback) {
+Tessel.I2C.prototype.send = function(data, callback) {
   this._port.cork();
   this._port._simple_cmd([CMD.START, this.addr << 1]);
   this._port._tx(data);
@@ -367,7 +369,7 @@ I2C.prototype.send = function(data, callback) {
   this._port.uncork();
 };
 
-I2C.prototype.read = function(length, callback) {
+Tessel.I2C.prototype.read = function(length, callback) {
   this._port.cork();
   this._port._simple_cmd([CMD.START, this.addr << 1 | 1]);
   this._port._rx(length, callback);
@@ -375,7 +377,7 @@ I2C.prototype.read = function(length, callback) {
   this._port.uncork();
 };
 
-I2C.prototype.transfer = function(txbuf, rxlen, callback) {
+Tessel.I2C.prototype.transfer = function(txbuf, rxlen, callback) {
   this._port.cork();
   if (txbuf.length > 0) {
     this._port._simple_cmd([CMD.START, this.addr << 1]);
@@ -387,7 +389,7 @@ I2C.prototype.transfer = function(txbuf, rxlen, callback) {
   this._port.uncork();
 };
 
-function SPI(params, port) {
+Tessel.SPI = function(params, port) {
   this._port = port;
   // default to pin 5 of the module port as cs
   this.chipSelect = params.chipSelect || this._port.digital[0];
@@ -443,9 +445,9 @@ function SPI(params, port) {
   this.cpha = params.cpha === "second" || params.cpha === 1 ? 1 : 0;
 
   this._port._simple_cmd([CMD.ENABLE_SPI, this.cpol + (this.cpha << 1), this.clockReg, this._clockDiv]);
-}
+};
 
-SPI.prototype.send = function(data, callback) {
+Tessel.SPI.prototype.send = function(data, callback) {
   this._port.cork();
   this.chipSelect.low();
   this._port._tx(data, callback);
@@ -453,11 +455,11 @@ SPI.prototype.send = function(data, callback) {
   this._port.uncork();
 };
 
-SPI.prototype.deinit = function() {
+Tessel.SPI.prototype.deinit = function() {
   this._port._simple_cmd([CMD.CMD_DISABLE_SPI]);
 };
 
-SPI.prototype.receive = function(data_len, callback) {
+Tessel.SPI.prototype.receive = function(data_len, callback) {
   this._port.cork();
   this.chipSelect.low();
   this._port._rx(data_len, callback);
@@ -465,7 +467,7 @@ SPI.prototype.receive = function(data_len, callback) {
   this._port.uncork();
 };
 
-SPI.prototype.transfer = function(data, callback) {
+Tessel.SPI.prototype.transfer = function(data, callback) {
   this._port.cork();
   this.chipSelect.low();
   this._port._txrx(data, callback);
@@ -473,7 +475,7 @@ SPI.prototype.transfer = function(data, callback) {
   this._port.uncork();
 };
 
-function UART(port, options) {
+Tessel.UART = function(port, options) {
   Duplex.call(this, {});
 
   this._port = port;
@@ -493,11 +495,11 @@ function UART(port, options) {
   this._port._simple_cmd([CMD.ENABLE_UART, this._baud >> 8, this._baud & 0xFF]);
 
   this.enabled = true;
-}
+};
 
-util.inherits(UART, Duplex);
+util.inherits(Tessel.UART, Duplex);
 
-UART.prototype._write = function(chunk, encoding, cb) {
+Tessel.UART.prototype._write = function(chunk, encoding, cb) {
   // throw an error if not enabled
   if (!this.enabled) {
     throw new Error("UART is not enabled on this port");
@@ -505,9 +507,9 @@ UART.prototype._write = function(chunk, encoding, cb) {
   this._port._tx(chunk, cb);
 };
 
-UART.prototype._read = function() {};
+Tessel.UART.prototype._read = function() {};
 
-UART.prototype.disable = function() {
+Tessel.UART.prototype.disable = function() {
   this._port._simple_cmd([CMD.DISABLE_UART, 0, 0]);
   this.enabled = false;
 };
@@ -557,4 +559,30 @@ var SPISettings = {
   CPHA: 2
 };
 
-module.exports = new Tessel();
+if (process.env.IS_TEST_ENV) {
+  // To make this module testable, we need
+  // control over the creation of every
+  // Tessel instance.
+
+  var exportable = function() {
+    return new Tessel();
+  };
+
+  exportable.CMD = CMD;
+  exportable.REPLY = REPLY;
+  exportable.Tessel = Tessel;
+  /*
+  // Implied...
+  exportable.Tessel.LED = LED;
+  exportable.Tessel.I2C = I2C;
+  exportable.Tessel.Pin = Pin;
+  exportable.Tessel.Port = Port;
+  exportable.Tessel.SPI = SPI;
+  exportable.Tessel.Tessel = Tessel;
+  exportable.Tessel.UART = UART;
+  */
+
+  module.exports = exportable;
+} else {
+  module.exports = new Tessel();
+}
