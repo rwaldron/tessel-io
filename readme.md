@@ -53,6 +53,8 @@ board.on("ready", function() {
 |B|6|`"b6"` or `"B6"`|
 |B|7|`"b7"` or `"B7"`|
 
+See [examples](https://github.com/rwaldron/tessel-io/tree/master/eg) for basic, non-Johnny-Five examples.
+
 
 ## Pin Capabilities Guide
 
