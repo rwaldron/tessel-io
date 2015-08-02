@@ -5,8 +5,8 @@ var board = new Tessel();
 board.on("ready", function() {
   console.log("Ready");
 
-  this.pinMode("a0", this.MODES.INPUT);
-  this.digitalRead("a0", function(data) {
+  this.pinMode("b2", this.MODES.INPUT);
+  this.digitalRead("b2", function(data) {
     // Connect a button or some similar digital signal control
     console.log(data);
   });
