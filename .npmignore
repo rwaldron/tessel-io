@@ -1,3 +1,11 @@
-/node_modules/
+eg/
+test/
+fritzing/
+node_modules/
 notes
 Gruntfile.js
+.travis.yml
+.gitignore
+upgrade-firmware.sh
+upload-tar.sh
+watch.js
