@@ -54,6 +54,22 @@ var Pin = TesselIO.Pin;
 var tessel = TesselIO.tessel;
 var Tessel = factory.Tessel;
 
+exports["Tessel.PORTS.*"] = {
+  setUp: function(done) {
+    done();
+  },
+  tearDown: function(done) {
+    done();
+  },
+  ports: function(test) {
+    test.expect(2);
+
+    test.equal(TesselIO.PORTS.A, tessel.port.A);
+    test.equal(TesselIO.PORTS.B, tessel.port.B);
+    test.done();
+  },
+};
+
 exports["TesselIO Constructor"] = {
   setUp: function(done) {
     this.tessel = new TesselIO();
