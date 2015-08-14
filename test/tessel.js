@@ -742,6 +742,15 @@ exports["TesselIO.prototype.i2cConfig"] = {
     test.equal(this.b.lastCall.args[0], 0x04);
     test.done();
   },
+
+  maybeTheyCalledItPort: function(test) {
+    test.expect(2);
+    this.tessel.i2cConfig({ address: 0x04, port: "B" });
+    test.equal(this.b.callCount, 1);
+    test.equal(this.b.lastCall.args[0], 0x04);
+    test.done();
+  },
+
 };
 
 exports["TesselIO.prototype.i2cWrite"] = {
