@@ -1,6 +1,6 @@
 {
   "name": "tessel-io",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Tessel 2 IO Plugin for Johnny-Five JavaScript Robotics",
   "main": "lib/tessel.js",
   "scripts": {
@@ -11,7 +11,7 @@
     "url": "https://github.com/rwaldron/tessel-io"
   },
   "keywords": [
-    "Tessel"
+    "Tessel", "IoT", "Tessel 2", "Arduino", "Edison", "Particle"
   ],
   "author": "Rick Waldron",
   "license": "MIT",
