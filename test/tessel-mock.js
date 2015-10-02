@@ -74,6 +74,14 @@ Tessel.Port = function(name, socketPath, board) {
 
 };
 
+Tessel.Port.prototype.ref = function() {};
+
+Tessel.Port.prototype.unref = function() {};
+
+Tessel.Port.prototype.enqueue = function(reply) {};
+
+Tessel.Port.prototype.dequeue = function() {};
+
 Tessel.Port.prototype.cork = function() {
   this.sock.cork();
 };
