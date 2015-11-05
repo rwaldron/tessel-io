@@ -9,3 +9,4 @@ Gruntfile.js
 upgrade-firmware.sh
 upload-tar.sh
 watch.js
+send.sh
