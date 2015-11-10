@@ -7,16 +7,7 @@ var factory = require("../test/tessel-mock");
 var Emitter = require("events").EventEmitter;
 var sinon = require("sinon");
 
-function restore(target) {
-  for (var prop in target) {
-    if (target[prop] != null && typeof target[prop].restore === "function") {
-      target[prop].restore();
-    }
-    if (typeof target[prop] === "object") {
-      restore(target[prop]);
-    }
-  }
-}
+
 
 var functions = [{
   name: "analogRead"
@@ -72,6 +63,7 @@ exports["Tessel.PORTS.*"] = {
 
 exports["TesselIO Constructor"] = {
   setUp: function(done) {
+    this.sandbox = sinon.sandbox.create();
     this.tessel = new TesselIO();
     done();
   },
@@ -451,9 +443,7 @@ exports["TesselIO.prototype.digitalWrite"] = {
 exports["TesselIO.prototype.digitalRead"] = {
   setUp: function(done) {
     this.sandbox = sinon.sandbox.create();
-
     this.clock = this.sandbox.useFakeTimers();
-
     this.on = this.sandbox.spy(TesselIO.prototype, "on");
 
     this.tessel = new TesselIO();
@@ -509,7 +499,7 @@ exports["TesselIO.prototype.digitalRead"] = {
   event: function(test) {
     test.expect(6);
 
-    var spy = sinon.spy();
+    var spy = this.sandbox.spy();
 
     this.tessel.digitalRead("a0", spy);
 
@@ -539,7 +529,6 @@ exports["TesselIO.prototype.analogRead"] = {
     this.sandbox = sinon.sandbox.create();
 
     this.clock = this.sandbox.useFakeTimers();
-
     this.on = this.sandbox.spy(TesselIO.prototype, "on");
 
     this.tessel = new TesselIO();
@@ -722,7 +711,7 @@ exports["TesselIO.prototype.i2cConfig"] = {
 
     test.throws(function() {
       this.tessel.i2cConfig();
-    }.bind(this));
+    }.bind(this), "i2cConfig expected `options` object");
 
     test.done();
   },
@@ -748,6 +737,16 @@ exports["TesselIO.prototype.i2cConfig"] = {
     this.tessel.i2cConfig({ address: 0x04, port: "B" });
     test.equal(this.b.callCount, 1);
     test.equal(this.b.lastCall.args[0], 0x04);
+    test.done();
+  },
+
+  calledWithArrayOfAddresses: function(test) {
+    test.expect(3);
+    this.tessel.i2cConfig({ addresses: [0x04, 0x05], port: "B" });
+    // One call for each address
+    test.equal(this.b.callCount, 2);
+    test.equal(this.b.firstCall.args[0], 0x04);
+    test.equal(this.b.lastCall.args[0], 0x05);
     test.done();
   },
 
