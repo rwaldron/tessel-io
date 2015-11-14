@@ -21,7 +21,8 @@
   "homepage": "https://github.com/rwaldron/tessel-io",
   "dependencies": {
     "array-includes": "^2.0.0",
-    "es6-shim": "^0.32.1"
+    "es6-shim": "^0.32.1",
+    "tessel": "^0.3.23"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
