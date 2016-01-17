@@ -111,13 +111,29 @@ exports["TesselIO Constructor"] = {
 
 exports["ToPinIndex"] = {
   valid: function(test) {
-    test.expect(16);
+    test.expect(96);
 
     var offset = 8;
 
     for (var i = 0; i < 8; i++) {
       test.equal(ToPinIndex("A" + i), i);
       test.equal(ToPinIndex("B" + i), i + offset);
+
+      test.equal(ToPinIndex("a" + i), i);
+      test.equal(ToPinIndex("b" + i), i + offset);
+
+      test.equal(ToPinIndex("A_" + i), i);
+      test.equal(ToPinIndex("B_" + i), i + offset);
+
+      test.equal(ToPinIndex("a_" + i), i);
+      test.equal(ToPinIndex("b_" + i), i + offset);
+
+      test.equal(ToPinIndex(i), i);
+      test.equal(ToPinIndex("b_" + i), i + offset);
+    }
+
+    for (var j = 0; j < 16; j++) {
+      test.equal(ToPinIndex(j), j);
     }
     test.done();
   },
