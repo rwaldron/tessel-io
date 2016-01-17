@@ -982,3 +982,38 @@ exports["TesselIO.prototype.i2cRead"] = {
     this.tessel.i2cRead(0x04, 0xff, 4, handler);
   },
 };
+
+exports["TesselIO.prototype.setSamplingInterval"] = {
+  setUp: function(done) {
+    this.sandbox = sinon.sandbox.create();
+    this.read = this.sandbox.spy(TesselIO, "read");
+    this.clearInterval = this.sandbox.spy(global, "clearInterval");
+    this.tessel = new TesselIO();
+    done();
+  },
+  tearDown: function(done) {
+    this.sandbox.restore();
+    TesselIO.reset();
+    done();
+  },
+  samplingIntervalDefault: function(test) {
+    test.expect(1);
+    test.equal(this.tessel.getSamplingInterval(), 10);
+    test.done();
+  },
+  samplingIntervalCustom: function(test) {
+    test.expect(2);
+    this.tessel.setSamplingInterval(1000);
+    test.equal(this.tessel.getSamplingInterval(), 1000);
+    test.equal(this.clearInterval.callCount, 1);
+    test.done();
+  },
+  samplingIntervalValid: function(test) {
+    test.expect(2);
+    this.tessel.setSamplingInterval(65536);
+    test.equal(this.tessel.getSamplingInterval(), 65535);
+    this.tessel.setSamplingInterval(-1);
+    test.equal(this.tessel.getSamplingInterval(), 10);
+    test.done();
+  }
+};
