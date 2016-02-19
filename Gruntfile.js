@@ -54,10 +54,22 @@ module.exports = function(grunt) {
         ]
       }
     },
+    jscs: {
+      all: [
+        "lib/**/*.js",
+        "test/**/*.js",
+        "Gruntfile.js",
+      ],
+      options: {
+        config: ".jscsrc"
+      }
+    },
+
   });
 
   grunt.loadNpmTasks("grunt-contrib-nodeunit");
   grunt.loadNpmTasks("grunt-contrib-jshint");
+  grunt.loadNpmTasks("grunt-jscs");
 
-  grunt.registerTask("default", ["jshint", "nodeunit"]);
+  grunt.registerTask("default", ["jshint", "jscs", "nodeunit"]);
 };
