@@ -19,10 +19,6 @@
     "url": "https://github.com/rwaldron/tessel-io/issues"
   },
   "homepage": "https://github.com/rwaldron/tessel-io",
-  "dependencies": {
-    "array-includes": "^2.0.0",
-    "es6-shim": "^0.32.1"
-  },
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-contrib-jshint": "^1.0.0",
