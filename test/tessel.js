@@ -4,6 +4,7 @@ process.env.IS_TEST_ENV = true;
 
 var TesselIO = require("../lib/tessel");
 var factory = require("../test/tessel-mock");
+var os = require("os");
 var Emitter = require("events").EventEmitter;
 var sinon = require("sinon");
 
@@ -64,13 +65,22 @@ exports["Tessel.PORTS.*"] = {
 exports["TesselIO Constructor"] = {
   setUp: function(done) {
     this.sandbox = sinon.sandbox.create();
+    this.hostname = this.sandbox.stub(os, "hostname", _ => "NOT A REAL TESSEL");
     this.tessel = new TesselIO();
     done();
   },
   tearDown: function(done) {
     TesselIO.reset();
+    this.sandbox.restore();
     done();
   },
+
+  tesselName: function(test) {
+    test.expect(1);
+    test.equal(this.tessel.name, "Tessel 2 (NOT A REAL TESSEL)");
+    test.done();
+  },
+
 
   // shape: function(test) {
   //   test.expect(
