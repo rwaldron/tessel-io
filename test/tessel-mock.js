@@ -21,6 +21,8 @@ function Tessel() {
   this.version = 2;
 }
 
+Tessel.prototype.pwmFrequency = function(frequency, cb) {};
+
 Tessel.Port = function(name, socketPath, board) {
   var port = this;
 
@@ -316,6 +318,8 @@ Tessel.Pin.prototype.readPulse = function(type, timeout, callback) {
 var ANALOG_RESOLUTION = 4096;
 Tessel.Pin.prototype.resolution = ANALOG_RESOLUTION;
 
+Tessel.Pin.prototype.pwmDutyCycle = function(duty, callback) {};
+
 Tessel.Pin.prototype.analogRead = function(cb) {
   if (!this.analogSupported) {
     console.warn("pin.analogRead is not supoprted on this pin. Analog read is supported on port A pins 4 and 7 and on all pins on port B");
@@ -548,6 +552,8 @@ var CMD = {
   TXRX: 18,
   START: 19,
   STOP: 20,
+  PWM_DUTY_CYCLE: 27,
+  PWM_PERIOD: 28,
 };
 
 var REPLY = {

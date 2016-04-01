@@ -639,6 +639,8 @@ exports["TesselIO.prototype.pwmWrite"] = {
   setUp: function(done) {
     this.sandbox = sinon.sandbox.create();
     this.write = this.sandbox.spy(tessel.port.B.pin[7]._port.sock, "write");
+    this.pwmFrequency = this.sandbox.spy(tessel, "pwmFrequency");
+    this.pwmDutyCycle = this.sandbox.spy(Tessel.Pin.prototype, "pwmDutyCycle");
 
     this.tessel = new TesselIO();
 
@@ -657,8 +659,8 @@ exports["TesselIO.prototype.pwmWrite"] = {
     test.done();
   },
 
-  upper: function(test) {
-    test.expect(1);
+  dacUpper: function(test) {
+    test.expect(2);
 
     this.tessel.pinMode("b7", this.tessel.MODES.PWM);
 
@@ -673,11 +675,13 @@ exports["TesselIO.prototype.pwmWrite"] = {
     this.tessel.pwmWrite(15, true);
 
     test.equal(this.write.callCount, 6);
+    test.equal(this.pwmFrequency.callCount, 0);
+
     test.done();
   },
 
-  lower: function(test) {
-    test.expect(1);
+  dacLower: function(test) {
+    test.expect(2);
 
     this.tessel.pinMode("b7", this.tessel.MODES.PWM);
 
@@ -692,11 +696,12 @@ exports["TesselIO.prototype.pwmWrite"] = {
     this.tessel.pwmWrite(15, false);
 
     test.equal(this.write.callCount, 6);
+    test.equal(this.pwmFrequency.callCount, 0);
     test.done();
   },
 
-  scales: function(test) {
-    test.expect(2);
+  dacScales: function(test) {
+    test.expect(3);
 
     this.tessel.pinMode("b7", this.tessel.MODES.PWM);
 
@@ -707,7 +712,161 @@ exports["TesselIO.prototype.pwmWrite"] = {
 
     test.equal(this.write.firstCall.args[0].readUInt16BE(1), 0);
     test.equal(this.write.lastCall.args[0].readUInt16BE(1), 1023);
+    test.equal(this.pwmFrequency.callCount, 0);
+    test.done();
+  },
 
+  pwmUpper: function(test) {
+    test.expect(3);
+
+    this.tessel.pinMode("a5", this.tessel.MODES.PWM);
+
+    this.write.reset();
+
+    this.tessel.pwmWrite("a5", 1);
+    this.tessel.pwmWrite("a5", 255);
+    this.tessel.pwmWrite("a5", true);
+
+    this.tessel.pwmWrite(5, 1);
+    this.tessel.pwmWrite(5, 255);
+    this.tessel.pwmWrite(5, true);
+
+    test.equal(this.write.callCount, 0);
+    test.equal(this.pwmFrequency.callCount, 1);
+    test.equal(this.pwmDutyCycle.callCount, 6);
+    test.done();
+  },
+
+  pwmLower: function(test) {
+    test.expect(3);
+
+    this.tessel.pinMode("a5", this.tessel.MODES.PWM);
+
+    this.write.reset();
+
+    this.tessel.pwmWrite("a5", 0);
+    this.tessel.pwmWrite("a5", -1);
+    this.tessel.pwmWrite("a5", false);
+
+    this.tessel.pwmWrite(5, 0);
+    this.tessel.pwmWrite(5, -1);
+    this.tessel.pwmWrite(5, false);
+
+    test.equal(this.write.callCount, 0);
+    test.equal(this.pwmFrequency.callCount, 1);
+    test.equal(this.pwmDutyCycle.callCount, 6);
+    test.done();
+  },
+
+  pwmScales: function(test) {
+    test.expect(3);
+
+    this.tessel.pinMode("a5", this.tessel.MODES.PWM);
+
+    this.write.reset();
+
+    this.tessel.pwmWrite("a5", 0);
+    this.tessel.pwmWrite("a5", 255);
+
+    test.equal(this.write.callCount, 0);
+    test.equal(this.pwmFrequency.callCount, 1);
+    test.equal(this.pwmDutyCycle.callCount, 2);
+
+    test.done();
+  },
+};
+
+
+exports["TesselIO.prototype.servoWrite"] = {
+  setUp: function(done) {
+    this.sandbox = sinon.sandbox.create();
+    this.write = this.sandbox.spy(tessel.port.B.pin[7]._port.sock, "write");
+    this.pwmFrequency = this.sandbox.spy(tessel, "pwmFrequency");
+    this.pwmDutyCycle = this.sandbox.spy(Tessel.Pin.prototype, "pwmDutyCycle");
+
+    this.tessel = new TesselIO();
+
+    done();
+  },
+
+  tearDown: function(done) {
+    TesselIO.reset();
+    this.sandbox.restore();
+    done();
+  },
+
+  upper: function(test) {
+    test.expect(10  );
+
+    this.tessel.pinMode("a5", this.tessel.MODES.SERVO);
+
+    this.write.reset();
+
+    this.tessel.servoWrite("a5", 180);
+    this.tessel.servoWrite("a5", 255);
+    this.tessel.servoWrite("a5", true);
+
+    this.tessel.servoWrite(5, 180);
+    this.tessel.servoWrite(5, 255);
+    this.tessel.servoWrite(5, true);
+
+    test.equal(this.write.callCount, 0);
+    test.equal(this.pwmFrequency.callCount, 1);
+    test.equal(this.pwmFrequency.lastCall.args[0], 50);
+    test.equal(this.pwmDutyCycle.callCount, 6);
+    test.equal(this.pwmDutyCycle.getCall(0).args[0], 0.12);
+    test.equal(this.pwmDutyCycle.getCall(1).args[0], 0.12);
+    test.equal(this.pwmDutyCycle.getCall(2).args[0], 0.0305);
+    test.equal(this.pwmDutyCycle.getCall(3).args[0], 0.12);
+    test.equal(this.pwmDutyCycle.getCall(4).args[0], 0.12);
+    test.equal(this.pwmDutyCycle.getCall(5).args[0], 0.0305);
+    test.done();
+  },
+
+  lower: function(test) {
+    test.expect(10);
+
+    this.tessel.pinMode("a5", this.tessel.MODES.SERVO);
+
+    this.write.reset();
+
+    this.tessel.servoWrite("a5", 0);
+    this.tessel.servoWrite("a5", -1);
+    this.tessel.servoWrite("a5", false);
+
+    this.tessel.servoWrite(5, 0);
+    this.tessel.servoWrite(5, -1);
+    this.tessel.servoWrite(5, false);
+
+    test.equal(this.write.callCount, 0);
+    test.equal(this.pwmFrequency.callCount, 1);
+    test.equal(this.pwmFrequency.lastCall.args[0], 50);
+    test.equal(this.pwmDutyCycle.callCount, 6);
+    test.equal(this.pwmDutyCycle.getCall(0).args[0], 0.03);
+    test.equal(this.pwmDutyCycle.getCall(1).args[0], 0.03);
+    test.equal(this.pwmDutyCycle.getCall(2).args[0], 0.03);
+    test.equal(this.pwmDutyCycle.getCall(3).args[0], 0.03);
+    test.equal(this.pwmDutyCycle.getCall(4).args[0], 0.03);
+    test.equal(this.pwmDutyCycle.getCall(5).args[0], 0.03);
+    test.done();
+  },
+
+  scales: function(test) {
+    test.expect(6);
+
+    this.tessel.pinMode("a5", this.tessel.MODES.SERVO);
+
+    this.write.reset();
+
+    this.tessel.servoWrite("a5", 0);
+    this.tessel.servoWrite("a5", 180);
+
+    test.equal(this.write.callCount, 0);
+    test.equal(this.pwmFrequency.callCount, 1);
+    test.equal(this.pwmFrequency.lastCall.args[0], 50);
+    test.equal(this.pwmDutyCycle.callCount, 2);
+    test.equal(this.pwmDutyCycle.firstCall.args[0], 0.03);
+    test.equal(this.pwmDutyCycle.lastCall.args[0], 0.12);
     test.done();
   },
 };
@@ -1024,7 +1183,7 @@ exports["TesselIO.prototype.setSamplingInterval"] = {
   },
   samplingIntervalDefault: function(test) {
     test.expect(1);
-    test.equal(this.tessel.getSamplingInterval(), 10);
+    test.equal(this.tessel.getSamplingInterval(), 5);
     test.done();
   },
   samplingIntervalCustom: function(test) {
@@ -1039,7 +1198,7 @@ exports["TesselIO.prototype.setSamplingInterval"] = {
     this.tessel.setSamplingInterval(65536);
     test.equal(this.tessel.getSamplingInterval(), 65535);
     this.tessel.setSamplingInterval(-1);
-    test.equal(this.tessel.getSamplingInterval(), 10);
+    test.equal(this.tessel.getSamplingInterval(), 5);
     test.done();
   }
 };
