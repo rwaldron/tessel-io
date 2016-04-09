@@ -18,6 +18,12 @@ var functions = [{
   name: "digitalRead"
 }, {
   name: "digitalWrite"
+}, {
+  name: "pwmWrite"
+}, {
+  name: "analogWrite"
+}, {
+  name: "servoWrite"
 }];
 
 var objects = [{
@@ -377,7 +383,42 @@ exports["TesselIO.prototype.pinMode"] = {
     test.equal(this.input.callCount, 0);
 
     test.done();
-  }
+  },
+
+  pwm: function(test) {
+    test.expect(8);
+
+    test.equal(this.tessel.pinMode("A5", this.tessel.MODES.PWM), this.tessel);
+    test.equal(this.tessel.pinMode("A6", this.tessel.MODES.PWM), this.tessel);
+    test.equal(this.tessel.pinMode("B5", this.tessel.MODES.PWM), this.tessel);
+    test.equal(this.tessel.pinMode("B6", this.tessel.MODES.PWM), this.tessel);
+
+    test.equal(this.tessel.pins[5].mode, this.tessel.MODES.PWM);
+    test.equal(this.tessel.pins[6].mode, this.tessel.MODES.PWM);
+
+    test.equal(this.tessel.pins[13].mode, this.tessel.MODES.PWM);
+    test.equal(this.tessel.pins[14].mode, this.tessel.MODES.PWM);
+
+    test.done();
+  },
+
+  servo: function(test) {
+    test.expect(8);
+
+    test.equal(this.tessel.pinMode("A5", this.tessel.MODES.SERVO), this.tessel);
+    test.equal(this.tessel.pinMode("A6", this.tessel.MODES.SERVO), this.tessel);
+    test.equal(this.tessel.pinMode("B5", this.tessel.MODES.SERVO), this.tessel);
+    test.equal(this.tessel.pinMode("B6", this.tessel.MODES.SERVO), this.tessel);
+
+    test.equal(this.tessel.pins[5].mode, this.tessel.MODES.SERVO);
+    test.equal(this.tessel.pins[6].mode, this.tessel.MODES.SERVO);
+
+    test.equal(this.tessel.pins[13].mode, this.tessel.MODES.SERVO);
+    test.equal(this.tessel.pins[14].mode, this.tessel.MODES.SERVO);
+
+    test.done();
+  },
+
 };
 
 
