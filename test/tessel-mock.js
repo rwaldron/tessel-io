@@ -15,10 +15,22 @@ function Tessel() {
   };
   this.port = this.ports;
 
-  // tessel v1 does not have this version number
-  // this is useful for libraries to adapt to changes
-  // such as all pin reads/writes becoming async in version 2
-  this.version = 2;
+  this.led = new Tessel.LEDs([{
+    color: "red",
+    type: "error"
+  }, {
+    color: "amber",
+    type: "wlan"
+  }, {
+    color: "green",
+    type: "user1"
+  }, {
+    color: "blue",
+    type: "user2"
+  }, ]);
+
+  this.leds = this.led;
+
 }
 
 Tessel.prototype.pwmFrequency = function(frequency, cb) {};
@@ -291,9 +303,6 @@ Tessel.Pin.prototype._readPin = function(cmd, cb) {
 };
 
 Tessel.Pin.prototype.rawRead = function rawRead(cb) {
-  if (typeof cb !== "function") {
-    console.warn("pin.rawRead is async, pass in a callback to get the value");
-  }
   this._readPin(CMD.GPIO_RAW_READ, cb);
   return this;
 };
@@ -304,9 +313,6 @@ Tessel.Pin.prototype.input = function input(cb) {
 };
 
 Tessel.Pin.prototype.read = function(cb) {
-  if (typeof cb !== "function") {
-    console.warn("pin.read is async, pass in a callback to get the value");
-  }
   this._readPin(CMD.GPIO_IN, cb);
   return this;
 };
@@ -315,61 +321,21 @@ Tessel.Pin.prototype.readPulse = function(type, timeout, callback) {
   throw new Error("Tessel.Pin.readPulse is not yet implemented");
 };
 
-var ANALOG_RESOLUTION = 4096;
-Tessel.Pin.prototype.resolution = ANALOG_RESOLUTION;
+Tessel.Pin.prototype.resolution = 4096;
 
 Tessel.Pin.prototype.pwmDutyCycle = function(duty, callback) {};
 
 Tessel.Pin.prototype.analogRead = function(cb) {
-  if (!this.analogSupported) {
-    console.warn("pin.analogRead is not supoprted on this pin. Analog read is supported on port A pins 4 and 7 and on all pins on port B");
-    return this;
-  }
-
-  if (typeof cb !== "function") {
-    console.warn("analogTessel.Pin.read is async, pass in a callback to get the value");
-  }
-
-  this._port.sock.write(new Buffer([CMD.ANALOG_READ, this.pin]));
-  this._port.replyQueue.push({
-    size: 2,
-    callback: function(err, data) {
-      cb(err, (data[0] + (data[1] << 8)) / ANALOG_RESOLUTION * 3.3);
-    },
-  });
-
   return this;
 };
 
 Tessel.Pin.prototype.analogWrite = function(val) {
-  // throw an error if this isn"t the adc pin (port b, pin 7)
-  if (this._port.name !== "B" || this.pin !== 7) {
-    throw new Error("Analog write can only be used on Pin 7 (G3) of Port B.");
-  }
-
-  // v_dac = data/(0x3ff)*reference voltage
-  var data = val / (3.3) * 0x3ff;
-  if (data > 1023 || data < 0) {
-    throw new Error("Analog write must be between 0 and 3.3");
-  }
-
-  this._port.sock.write(new Buffer([CMD.ANALOG_WRITE, data >> 8, data & 0xff]));
   return this;
 };
 
 Tessel.I2C = function(params, port) {
   this.addr = params.addr;
   this._port = params.port;
-  this._freq = params.freq ? params.freq : 100000; // 100khz
-
-  // 15ns is max scl rise time
-  // f = (48e6)/(2*(5+baud)+48e6*1.5e-8)
-  this._baud = Math.floor(((48e6 / this._freq) - 48e6 * (1.5e-8)) / 2 - 5);
-  if (this._baud > 255 || this._baud <= 0 || this._freq > 4e5) {
-    // restrict to between 400khz and 90khz. can actually go up to 4mhz without clk modification
-    throw new Error("I2C frequency should be between 400khz and 90khz");
-  }
-  // enable i2c
   this._port._simple_cmd([CMD.ENABLE_I2C, this._baud]);
 };
 
@@ -571,6 +537,95 @@ var REPLY = {
 var SPISettings = {
   CPOL: 1,
   CPHA: 2
+};
+
+
+var prefix = "/sys/devices/leds/leds/tessel:";
+var suffix = "/brightness";
+
+Tessel.LEDs = function(defs) {
+  var descriptors = {};
+  var leds = [];
+
+  defs.forEach(function(definition, index) {
+    var name = definition.color + ":" + definition.type;
+    var path = prefix + name + suffix;
+    var color = definition.color;
+    descriptors[index] = {
+      get: function() {
+        // On first access of any built-
+        // in LED...
+        if (leds[index] === undefined) {
+          // The LED object must be initialized
+          leds[index] = new Tessel.LED(color, path);
+          // And set to 0
+          leds[index].low();
+        }
+        return leds[index];
+      }
+    };
+  }, this);
+
+  descriptors.length = {
+    value: 4
+  };
+
+  Object.defineProperties(this, descriptors);
+};
+
+["on", "off", "toggle"].forEach(function(operation) {
+  Tessel.LEDs.prototype[operation] = function() {
+    return this;
+  };
+});
+
+Tessel.LED = function(color, path) {
+  var state = {
+    color: color,
+    path: path,
+    value: 0,
+  };
+
+  // Define data properties that enforce
+  // write privileges.
+  Object.defineProperties(this, {
+    color: {
+      value: state.color
+    },
+    path: {
+      value: state.path
+    },
+    value: {
+      get: function() {
+        return state.value;
+      },
+      set: function(value) {
+        // Treat any truthiness as "high"
+        state.value = value ? 1 : 0;
+      }
+    },
+    isOn: {
+      get: function() {
+        return state.value === 1;
+      }
+    }
+  });
+};
+
+Tessel.LED.prototype.high = function(callback) {
+  this.write(true, callback);
+};
+
+Tessel.LED.prototype.low = function(callback) {
+  this.write(false, callback);
+};
+
+Tessel.LED.prototype.write = function(value, callback) {
+  if (typeof callback !== "function") {
+    callback = function() {};
+  }
+
+  this.value = value;
 };
 
 if (process.env.IS_TEST_ENV) {
