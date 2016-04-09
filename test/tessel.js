@@ -2,7 +2,7 @@
 
 process.env.IS_TEST_ENV = true;
 
-var TesselIO = require("../lib/tessel");
+var Tessel = require("../lib/tessel");
 var factory = require("../test/tessel-mock");
 var os = require("os");
 var Emitter = require("events").EventEmitter;
@@ -44,13 +44,13 @@ var instance = [{
 
 
 
-var ToPinIndex = TesselIO.ToPinIndex;
-var ToPortIdentity = TesselIO.ToPortIdentity;
-var ToPortI2CBus = TesselIO.ToPortI2CBus;
-var ToI2CBusPort = TesselIO.ToI2CBusPort;
-var Pin = TesselIO.Pin;
-var tessel = TesselIO.tessel;
-var Tessel = factory.Tessel;
+var ToPinIndex = Tessel.ToPinIndex;
+var ToPortIdentity = Tessel.ToPortIdentity;
+var ToPortI2CBus = Tessel.ToPortI2CBus;
+var ToI2CBusPort = Tessel.ToI2CBusPort;
+var Pin = Tessel.Pin;
+var tessel = Tessel.tessel;
+var T2 = factory.Tessel;
 
 exports["Tessel.PORTS.*"] = {
   setUp: function(done) {
@@ -62,21 +62,21 @@ exports["Tessel.PORTS.*"] = {
   ports: function(test) {
     test.expect(2);
 
-    test.equal(TesselIO.PORTS.A, tessel.port.A);
-    test.equal(TesselIO.PORTS.B, tessel.port.B);
+    test.equal(Tessel.PORTS.A, tessel.port.A);
+    test.equal(Tessel.PORTS.B, tessel.port.B);
     test.done();
   },
 };
 
-exports["TesselIO Constructor"] = {
+exports["Tessel Constructor"] = {
   setUp: function(done) {
     this.sandbox = sinon.sandbox.create();
     this.hostname = this.sandbox.stub(os, "hostname", _ => "NOT A REAL TESSEL");
-    this.tessel = new TesselIO();
+    this.tessel = new Tessel();
     done();
   },
   tearDown: function(done) {
-    TesselIO.reset();
+    Tessel.purge();
     this.sandbox.restore();
     done();
   },
@@ -176,6 +176,12 @@ exports["ToPinIndex"] = {
     test.done();
   },
 
+  valueMatchesPortButOutOfRange: function(test) {
+    test.expect(1);
+    test.equal(ToPinIndex(20), -1);
+    test.done();
+  },
+
   invalidNonCoercible: function(test) {
     test.expect(1);
     test.equal(ToPinIndex("c1"), -1);
@@ -211,6 +217,13 @@ exports["ToPortIdentity"] = {
     test.deepEqual(ToPortIdentity(20), { port: null, index: -1 });
     test.done();
   },
+
+  valueMatchesPortButOutOfRange: function(test) {
+    test.expect(1);
+    test.deepEqual(ToPortIdentity(20), { port: null, index: -1 });
+    test.done();
+  },
+
 };
 
 exports["ToPortI2CBus"] = {
@@ -224,9 +237,24 @@ exports["ToPortI2CBus"] = {
     test.equal(ToPortI2CBus(2), 2);
     test.done();
   },
+  validPortButNoBus: function(test) {
+    test.expect(1);
+    test.equal(ToPortI2CBus("L"), -1);
+    test.done();
+  },
   invalid: function(test) {
     test.expect(2);
     test.equal(ToPortI2CBus("C"), -1);
+    test.equal(ToPortI2CBus(0), -1);
+    test.done();
+  },
+  invalidPort: function(test) {
+    test.expect(1);
+    test.equal(ToPortI2CBus("C"), -1);
+    test.done();
+  },
+  invalidBus: function(test) {
+    test.expect(1);
     test.equal(ToPortI2CBus(0), -1);
     test.done();
   },
@@ -243,6 +271,11 @@ exports["ToI2CBusPort"] = {
     test.equal(ToI2CBusPort(2), "B");
     test.done();
   },
+  validPortButNoBus: function(test) {
+    test.expect(1);
+    test.equal(ToI2CBusPort("L"), undefined);
+    test.done();
+  },
   invalid: function(test) {
     test.expect(2);
     test.equal(ToI2CBusPort("C"), undefined);
@@ -251,13 +284,13 @@ exports["ToI2CBusPort"] = {
   },
 };
 
-exports["TesselIO.prototype.normalize"] = {
+exports["Tessel.prototype.normalize"] = {
   setUp: function(done) {
-    this.tessel = new TesselIO();
+    this.tessel = new Tessel();
     done();
   },
   tearDown: function(done) {
-    TesselIO.reset();
+    Tessel.purge();
     done();
   },
 
@@ -270,17 +303,23 @@ exports["TesselIO.prototype.normalize"] = {
   },
 
   stringNames: function(test) {
-    test.expect(32);
+    test.expect(40);
 
-    var offset = 8;
+    var offsetB = 8;
+    var offsetL = 16;
 
     for (var i = 0; i < 8; i++) {
 
       test.equal(this.tessel.normalize("A" + i), i);
       test.equal(this.tessel.normalize("A-" + i), i);
 
-      test.equal(this.tessel.normalize("B" + i), i + offset);
-      test.equal(this.tessel.normalize("B-" + i), i + offset);
+      test.equal(this.tessel.normalize("B" + i), i + offsetB);
+      test.equal(this.tessel.normalize("B-" + i), i + offsetB);
+
+      if (i < 4) {
+        test.equal(this.tessel.normalize("L" + i), i + offsetL);
+        test.equal(this.tessel.normalize("L-" + i), i + offsetL);
+      }
     }
 
     test.done();
@@ -297,19 +336,19 @@ exports["TesselIO.prototype.normalize"] = {
   },
 };
 
-exports["TesselIO.prototype.pinMode"] = {
+exports["Tessel.prototype.pinMode"] = {
   setUp: function(done) {
     this.sandbox = sinon.sandbox.create();
     this.output = this.sandbox.spy(tessel.port.A.pin[0], "output");
     this.input = this.sandbox.spy(tessel.port.A.pin[0], "input");
     this.pwmFrequency = this.sandbox.spy(tessel, "pwmFrequency");
-    this.pwmDutyCycle = this.sandbox.spy(Tessel.Pin.prototype, "pwmDutyCycle");
+    this.pwmDutyCycle = this.sandbox.spy(T2.Pin.prototype, "pwmDutyCycle");
 
-    this.tessel = new TesselIO();
+    this.tessel = new Tessel();
     done();
   },
   tearDown: function(done) {
-    TesselIO.reset();
+    Tessel.purge();
     this.sandbox.restore();
     done();
   },
@@ -447,7 +486,7 @@ exports["TesselIO.prototype.pinMode"] = {
 };
 
 
-exports["TesselIO.prototype.digitalWrite"] = {
+exports["Tessel.prototype.digitalWrite"] = {
   setUp: function(done) {
     this.sandbox = sinon.sandbox.create();
 
@@ -461,13 +500,13 @@ exports["TesselIO.prototype.digitalWrite"] = {
 
     this.write_l = this.sandbox.spy(tessel.leds[2], "write");
 
-    this.tessel = new TesselIO();
+    this.tessel = new Tessel();
 
     done();
   },
 
   tearDown: function(done) {
-    TesselIO.reset();
+    Tessel.purge();
     this.sandbox.restore();
     done();
   },
@@ -545,19 +584,19 @@ exports["TesselIO.prototype.digitalWrite"] = {
   },
 };
 
-exports["TesselIO.prototype.digitalRead"] = {
+exports["Tessel.prototype.digitalRead"] = {
   setUp: function(done) {
     this.sandbox = sinon.sandbox.create();
     this.clock = this.sandbox.useFakeTimers();
-    this.on = this.sandbox.spy(TesselIO.prototype, "on");
+    this.on = this.sandbox.spy(Tessel.prototype, "on");
 
-    this.tessel = new TesselIO();
+    this.tessel = new Tessel();
 
     done();
   },
 
   tearDown: function(done) {
-    TesselIO.reset();
+    Tessel.purge();
     this.sandbox.restore();
     done();
   },
@@ -629,20 +668,20 @@ exports["TesselIO.prototype.digitalRead"] = {
   },
 };
 
-exports["TesselIO.prototype.analogRead"] = {
+exports["Tessel.prototype.analogRead"] = {
   setUp: function(done) {
     this.sandbox = sinon.sandbox.create();
 
     this.clock = this.sandbox.useFakeTimers();
-    this.on = this.sandbox.spy(TesselIO.prototype, "on");
+    this.on = this.sandbox.spy(Tessel.prototype, "on");
 
-    this.tessel = new TesselIO();
+    this.tessel = new Tessel();
 
     done();
   },
 
   tearDown: function(done) {
-    TesselIO.reset();
+    Tessel.purge();
     this.sandbox.restore();
     done();
   },
@@ -714,20 +753,20 @@ exports["TesselIO.prototype.analogRead"] = {
   },
 };
 
-exports["TesselIO.prototype.pwmWrite"] = {
+exports["Tessel.prototype.pwmWrite"] = {
   setUp: function(done) {
     this.sandbox = sinon.sandbox.create();
     this.write = this.sandbox.spy(tessel.port.B.pin[7]._port.sock, "write");
     this.pwmFrequency = this.sandbox.spy(tessel, "pwmFrequency");
-    this.pwmDutyCycle = this.sandbox.spy(Tessel.Pin.prototype, "pwmDutyCycle");
+    this.pwmDutyCycle = this.sandbox.spy(T2.Pin.prototype, "pwmDutyCycle");
 
-    this.tessel = new TesselIO();
+    this.tessel = new Tessel();
 
     done();
   },
 
   tearDown: function(done) {
-    TesselIO.reset();
+    Tessel.purge();
     this.sandbox.restore();
     done();
   },
@@ -856,20 +895,20 @@ exports["TesselIO.prototype.pwmWrite"] = {
 };
 
 
-exports["TesselIO.prototype.servoWrite"] = {
+exports["Tessel.prototype.servoWrite"] = {
   setUp: function(done) {
     this.sandbox = sinon.sandbox.create();
     this.write = this.sandbox.spy(tessel.port.B.pin[7]._port.sock, "write");
     this.pwmFrequency = this.sandbox.spy(tessel, "pwmFrequency");
-    this.pwmDutyCycle = this.sandbox.spy(Tessel.Pin.prototype, "pwmDutyCycle");
+    this.pwmDutyCycle = this.sandbox.spy(T2.Pin.prototype, "pwmDutyCycle");
 
-    this.tessel = new TesselIO();
+    this.tessel = new Tessel();
 
     done();
   },
 
   tearDown: function(done) {
-    TesselIO.reset();
+    Tessel.purge();
     this.sandbox.restore();
     done();
   },
@@ -950,22 +989,22 @@ exports["TesselIO.prototype.servoWrite"] = {
   },
 };
 
-exports["TesselIO.prototype.i2cConfig"] = {
+exports["Tessel.prototype.i2cConfig"] = {
   setUp: function(done) {
     this.sandbox = sinon.sandbox.create();
 
     this.clock = this.sandbox.useFakeTimers();
-    this.on = this.sandbox.spy(TesselIO.prototype, "on");
+    this.on = this.sandbox.spy(Tessel.prototype, "on");
     this.a = this.sandbox.stub(tessel.port.A, "I2C");
     this.b = this.sandbox.stub(tessel.port.B, "I2C");
 
-    this.tessel = new TesselIO();
+    this.tessel = new Tessel();
 
     done();
   },
 
   tearDown: function(done) {
-    TesselIO.reset();
+    Tessel.purge();
     this.sandbox.restore();
     done();
   },
@@ -1016,21 +1055,21 @@ exports["TesselIO.prototype.i2cConfig"] = {
 
 };
 
-exports["TesselIO.prototype.i2cWrite"] = {
+exports["Tessel.prototype.i2cWrite"] = {
   setUp: function(done) {
     this.sandbox = sinon.sandbox.create();
 
     this.clock = this.sandbox.useFakeTimers();
-    this.on = this.sandbox.spy(TesselIO.prototype, "on");
-    this.send = this.sandbox.stub(Tessel.I2C.prototype, "send");
+    this.on = this.sandbox.spy(Tessel.prototype, "on");
+    this.send = this.sandbox.stub(T2.I2C.prototype, "send");
 
-    this.tessel = new TesselIO();
+    this.tessel = new Tessel();
 
     done();
   },
 
   tearDown: function(done) {
-    TesselIO.reset();
+    Tessel.purge();
     this.sandbox.restore();
     done();
   },
@@ -1090,21 +1129,21 @@ exports["TesselIO.prototype.i2cWrite"] = {
 };
 
 
-exports["TesselIO.prototype.i2cWriteReg"] = {
+exports["Tessel.prototype.i2cWriteReg"] = {
   setUp: function(done) {
     this.sandbox = sinon.sandbox.create();
 
     this.clock = this.sandbox.useFakeTimers();
-    this.on = this.sandbox.spy(TesselIO.prototype, "on");
-    this.send = this.sandbox.stub(Tessel.I2C.prototype, "send");
+    this.on = this.sandbox.spy(Tessel.prototype, "on");
+    this.send = this.sandbox.stub(T2.I2C.prototype, "send");
 
-    this.tessel = new TesselIO();
+    this.tessel = new Tessel();
 
     done();
   },
 
   tearDown: function(done) {
-    TesselIO.reset();
+    Tessel.purge();
     this.sandbox.restore();
     done();
   },
@@ -1122,18 +1161,18 @@ exports["TesselIO.prototype.i2cWriteReg"] = {
   },
 };
 
-exports["TesselIO.prototype.i2cReadOnce"] = {
+exports["Tessel.prototype.i2cReadOnce"] = {
   setUp: function(done) {
     this.sandbox = sinon.sandbox.create();
-    this.on = this.sandbox.spy(TesselIO.prototype, "on");
-    this.transfer = this.sandbox.stub(Tessel.I2C.prototype, "transfer");
-    this.tessel = new TesselIO();
+    this.on = this.sandbox.spy(Tessel.prototype, "on");
+    this.transfer = this.sandbox.stub(T2.I2C.prototype, "transfer");
+    this.tessel = new Tessel();
 
     done();
   },
 
   tearDown: function(done) {
-    TesselIO.reset();
+    Tessel.purge();
     this.sandbox.restore();
     done();
   },
@@ -1177,10 +1216,11 @@ exports["TesselIO.prototype.i2cReadOnce"] = {
   },
 };
 
-exports["TesselIO.prototype.i2cRead"] = {
+exports["Tessel.prototype.i2cRead"] = {
   setUp: function(done) {
     this.sandbox = sinon.sandbox.create();
-    this.i2cReadOnce = this.sandbox.stub(TesselIO.prototype, "i2cReadOnce", function(address, register, bytesToRead, callback) {
+    this.clock = this.sandbox.useFakeTimers();
+    this.i2cReadOnce = this.sandbox.stub(Tessel.prototype, "i2cReadOnce", function(address, register, bytesToRead, callback) {
 
       // Fix arguments if called with Firmata.js API
       if (arguments.length === 3 &&
@@ -1203,13 +1243,13 @@ exports["TesselIO.prototype.i2cRead"] = {
         callback(buffer);
       });
     });
-    this.tessel = new TesselIO();
+    this.tessel = new Tessel();
 
     done();
   },
 
   tearDown: function(done) {
-    TesselIO.reset();
+    Tessel.purge();
     this.sandbox.restore();
     done();
   },
@@ -1228,6 +1268,8 @@ exports["TesselIO.prototype.i2cRead"] = {
 
     this.tessel.i2cConfig({ address: 0x04, bus: "A" });
     this.tessel.i2cRead(0x04, 4, handler);
+    this.clock.tick(5);
+    this.clock.tick(5);
   },
 
   regAndBytesToRead: function(test) {
@@ -1244,20 +1286,22 @@ exports["TesselIO.prototype.i2cRead"] = {
 
     this.tessel.i2cConfig({ address: 0x04, bus: "A" });
     this.tessel.i2cRead(0x04, 0xff, 4, handler);
+    this.clock.tick(5);
+    this.clock.tick(5);
   },
 };
 
-exports["TesselIO.prototype.setSamplingInterval"] = {
+exports["Tessel.prototype.setSamplingInterval"] = {
   setUp: function(done) {
     this.sandbox = sinon.sandbox.create();
-    this.read = this.sandbox.spy(TesselIO, "read");
+    this.read = this.sandbox.spy(Tessel, "read");
     this.clearInterval = this.sandbox.spy(global, "clearInterval");
-    this.tessel = new TesselIO();
+    this.tessel = new Tessel();
     done();
   },
   tearDown: function(done) {
     this.sandbox.restore();
-    TesselIO.reset();
+    Tessel.purge();
     done();
   },
   samplingIntervalDefault: function(test) {
