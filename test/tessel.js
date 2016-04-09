@@ -1331,3 +1331,129 @@ exports["Tessel.prototype.setSamplingInterval"] = {
     test.done();
   }
 };
+
+
+exports["Tessel.prototype.serialConfig"] = {
+  setUp: function(done) {
+    this.sandbox = sinon.sandbox.create();
+
+    this.a = this.sandbox.stub(tessel.port.A, "UART");
+    this.b = this.sandbox.stub(tessel.port.B, "UART");
+
+    this.tessel = new Tessel();
+    done();
+  },
+  tearDown: function(done) {
+    this.sandbox.restore();
+    Tessel.purge();
+    done();
+  },
+  validWithDefaults: function(test) {
+    test.expect(4);
+    var configA = {
+      portId: "A",
+    };
+    var configB = {
+      portId: "B",
+    };
+
+    this.tessel.serialConfig(configA);
+    this.tessel.serialConfig(configB);
+
+    test.equal(this.a.callCount, 1);
+    test.equal(this.b.callCount, 1);
+
+    test.deepEqual(this.a.lastCall.args[0], {
+      baudrate: 57600,
+      dataBits: 8,
+      parity: "none",
+      stopBits: 1,
+    });
+    test.deepEqual(this.b.lastCall.args[0], {
+      baudrate: 57600,
+      dataBits: 8,
+      parity: "none",
+      stopBits: 1,
+    });
+
+    test.done();
+  },
+
+  validWithExplicit: function(test) {
+    test.expect(4);
+
+    var configA = {
+      portId: "A",
+      baud: 9600,
+      dataBits: 8,
+      parity: "none",
+      stopBits: 1,
+    };
+    var configB = {
+      portId: "B",
+      baud: 9600,
+      dataBits: 8,
+      parity: "none",
+      stopBits: 1,
+    };
+
+    this.tessel.serialConfig(configA);
+    this.tessel.serialConfig(configB);
+
+    test.equal(this.a.callCount, 1);
+    test.equal(this.b.callCount, 1);
+
+    test.deepEqual(this.a.lastCall.args[0], {
+      baudrate: 9600,
+      dataBits: 8,
+      parity: "none",
+      stopBits: 1,
+    });
+
+    test.deepEqual(this.b.lastCall.args[0], {
+      baudrate: 9600,
+      dataBits: 8,
+      parity: "none",
+      stopBits: 1,
+    });
+
+    test.done();
+  },
+
+  invalidMissingOptions: function(test) {
+    test.expect(3);
+
+    test.throws(() => {
+      this.tessel.serialConfig();
+    });
+    test.equal(this.a.callCount, 0);
+    test.equal(this.b.callCount, 0);
+
+    test.done();
+  },
+
+  invalidMissingPortId: function(test) {
+    test.expect(3);
+
+    test.throws(() => {
+      this.tessel.serialConfig({});
+    });
+    test.equal(this.a.callCount, 0);
+    test.equal(this.b.callCount, 0);
+
+    test.done();
+  },
+
+  invalidPortId: function(test) {
+    test.expect(3);
+
+    test.throws(() => {
+      this.tessel.serialConfig({ portId: "jdfnkjdfnb" });
+    });
+    test.equal(this.a.callCount, 0);
+    test.equal(this.b.callCount, 0);
+
+    test.done();
+  },
+
+};
