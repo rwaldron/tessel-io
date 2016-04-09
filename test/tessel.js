@@ -116,9 +116,8 @@ exports["TesselIO Constructor"] = {
   // },
 
   pins: function(test) {
-    // test.expect();
-
-    test.equal(this.tessel.pins.length, 16);
+    test.expect(2);
+    test.equal(this.tessel.pins.length, 20);
     test.equal(this.tessel.analogPins.length, 10);
     test.done();
   },
@@ -127,51 +126,53 @@ exports["TesselIO Constructor"] = {
 
 exports["ToPinIndex"] = {
   valid: function(test) {
-    test.expect(96);
+    test.expect(80);
 
-    var offset = 8;
+    var offsetB = 8;
+    var offsetL = 16;
 
     for (var i = 0; i < 8; i++) {
       test.equal(ToPinIndex("A" + i), i);
-      test.equal(ToPinIndex("B" + i), i + offset);
+      test.equal(ToPinIndex("B" + i), i + offsetB);
 
       test.equal(ToPinIndex("a" + i), i);
-      test.equal(ToPinIndex("b" + i), i + offset);
+      test.equal(ToPinIndex("b" + i), i + offsetB);
 
       test.equal(ToPinIndex("A_" + i), i);
-      test.equal(ToPinIndex("B_" + i), i + offset);
+      test.equal(ToPinIndex("B_" + i), i + offsetB);
 
       test.equal(ToPinIndex("a_" + i), i);
-      test.equal(ToPinIndex("b_" + i), i + offset);
+      test.equal(ToPinIndex("b_" + i), i + offsetB);
 
-      test.equal(ToPinIndex(i), i);
-      test.equal(ToPinIndex("b_" + i), i + offset);
+      if (i < 4) {
+        test.equal(ToPinIndex("L" + i), i + offsetL);
+        test.equal(ToPinIndex("l" + i), i + offsetL);
+        test.equal(ToPinIndex("L_" + i), i + offsetL);
+        test.equal(ToPinIndex("l_" + i), i + offsetL);
+      }
     }
 
-    for (var j = 0; j < 16; j++) {
+    test.done();
+  },
+
+  validIndex: function(test) {
+    test.expect(20);
+    for (var j = 0; j < 20; j++) {
       test.equal(ToPinIndex(j), j);
     }
     test.done();
   },
 
-  validIndex: function(test) {
-    test.expect(2);
-    test.equal(ToPinIndex(1), 1);
-    test.equal(ToPinIndex(15), 15);
-    test.done();
-  },
-
   invalidIndex: function(test) {
-    test.expect(2);
-    test.equal(ToPinIndex(-1), -1);
-    test.equal(ToPinIndex(16), -1);
-    test.done();
-  },
+    test.expect(41);
+    for (var j = 1; j < 20; j++) {
+      test.equal(ToPinIndex(-j), -1);
+      test.equal(ToPinIndex(j + 20), -1);
+    }
 
-  invalidCoercible: function(test) {
-    test.expect(2);
-    test.equal(ToPinIndex("a1"), 1);
-    test.equal(ToPinIndex("b1"), 9);
+    test.equal(ToPinIndex(null), -1);
+    test.equal(ToPinIndex(undefined), -1);
+    test.equal(ToPinIndex(false), -1);
     test.done();
   },
 
@@ -184,16 +185,22 @@ exports["ToPinIndex"] = {
 
 exports["ToPortIdentity"] = {
   valid: function(test) {
-    test.expect(16);
+    test.expect(20);
 
     var offset = 0;
     var port = "A";
 
-    for (var i = 0; i < 16; i++) {
+    for (var i = 0; i < 20; i++) {
       if (i > 7) {
         port = "B";
         offset = 8;
       }
+
+      if (i > 15) {
+        port = "L";
+        offset = 16;
+      }
+
       test.deepEqual(ToPortIdentity(i), { port: port, index: i - offset });
     }
     test.done();
@@ -201,7 +208,7 @@ exports["ToPortIdentity"] = {
   invalid: function(test) {
     test.expect(2);
     test.deepEqual(ToPortIdentity(-1), { port: null, index: -1 });
-    test.deepEqual(ToPortIdentity(16), { port: null, index: -1 });
+    test.deepEqual(ToPortIdentity(20), { port: null, index: -1 });
     test.done();
   },
 };
@@ -254,6 +261,14 @@ exports["TesselIO.prototype.normalize"] = {
     done();
   },
 
+  invalid: function(test) {
+    test.expect(3);
+    test.equal(this.tessel.normalize(null), -1);
+    test.equal(this.tessel.normalize(undefined), -1);
+    test.equal(this.tessel.normalize(false), -1);
+    test.done();
+  },
+
   stringNames: function(test) {
     test.expect(32);
 
@@ -272,9 +287,9 @@ exports["TesselIO.prototype.normalize"] = {
   },
 
   index: function(test) {
-    test.expect(16);
+    test.expect(20);
 
-    for (var i = 0; i < 16; i++) {
+    for (var i = 0; i < 20; i++) {
       test.equal(this.tessel.normalize(i), i);
     }
 
@@ -287,6 +302,8 @@ exports["TesselIO.prototype.pinMode"] = {
     this.sandbox = sinon.sandbox.create();
     this.output = this.sandbox.spy(tessel.port.A.pin[0], "output");
     this.input = this.sandbox.spy(tessel.port.A.pin[0], "input");
+    this.pwmFrequency = this.sandbox.spy(tessel, "pwmFrequency");
+    this.pwmDutyCycle = this.sandbox.spy(Tessel.Pin.prototype, "pwmDutyCycle");
 
     this.tessel = new TesselIO();
     done();
@@ -298,14 +315,15 @@ exports["TesselIO.prototype.pinMode"] = {
   },
 
   returns: function(test) {
-    test.expect(2);
+    test.expect(3);
     test.equal(this.tessel.pinMode("A0", this.tessel.MODES.INPUT), this.tessel);
     test.equal(this.tessel.pinMode("B0", this.tessel.MODES.INPUT), this.tessel);
+    test.equal(this.tessel.pinMode("L0", this.tessel.MODES.OUTPUT), this.tessel);
     test.done();
   },
 
   input: function(test) {
-    test.expect(10);
+    test.expect(18);
 
     var offset = 8;
 
@@ -316,6 +334,7 @@ exports["TesselIO.prototype.pinMode"] = {
       this.tessel.pinMode("A" + i, this.tessel.MODES.INPUT);
       this.tessel.pinMode("B" + i, this.tessel.MODES.INPUT);
       test.equal(this.tessel.pins[i].mode, this.tessel.MODES.INPUT);
+      test.equal(this.tessel.pins[i + 8].mode, this.tessel.MODES.INPUT);
     }
 
     test.equal(this.output.callCount, 0);
@@ -325,7 +344,7 @@ exports["TesselIO.prototype.pinMode"] = {
   },
 
   output: function(test) {
-    test.expect(26);
+    test.expect(38);
 
     var offset = 8;
 
@@ -336,6 +355,12 @@ exports["TesselIO.prototype.pinMode"] = {
       test.equal(this.tessel.pinMode("A" + i, this.tessel.MODES.OUTPUT), this.tessel);
       test.equal(this.tessel.pinMode("B" + i, this.tessel.MODES.OUTPUT), this.tessel);
       test.equal(this.tessel.pins[i].mode, this.tessel.MODES.OUTPUT);
+      test.equal(this.tessel.pins[i + 8].mode, this.tessel.MODES.OUTPUT);
+
+      if (i < 4) {
+        this.tessel.pinMode("L" + i, this.tessel.MODES.OUTPUT);
+        test.equal(this.tessel.pins[i + 16].mode, this.tessel.MODES.OUTPUT);
+      }
     }
 
     test.equal(this.output.callCount, 1);
@@ -344,7 +369,7 @@ exports["TesselIO.prototype.pinMode"] = {
     test.done();
   },
 
-  analog: function(test) {
+  analogInput: function(test) {
     test.expect(26);
 
     var offset = 8;
@@ -434,6 +459,8 @@ exports["TesselIO.prototype.digitalWrite"] = {
     this.input_b = this.sandbox.spy(tessel.port.B.pin[0], "input");
     this.write_b = this.sandbox.spy(tessel.port.B.pin[0], "write");
 
+    this.write_l = this.sandbox.spy(tessel.leds[2], "write");
+
     this.tessel = new TesselIO();
 
     done();
@@ -446,17 +473,19 @@ exports["TesselIO.prototype.digitalWrite"] = {
   },
 
   returns: function(test) {
-    test.expect(2);
+    test.expect(3);
     test.equal(this.tessel.digitalWrite("A0", 1), this.tessel);
     test.equal(this.tessel.digitalWrite("B0", 1), this.tessel);
+    test.equal(this.tessel.digitalWrite("L2", 1), this.tessel);
     test.done();
   },
 
   high: function(test) {
-    test.expect(2);
+    test.expect(3);
 
     this.write_a.reset();
     this.write_b.reset();
+    this.write_l.reset();
 
     this.tessel.digitalWrite("A0", 1);
     this.tessel.digitalWrite("A0", 255);
@@ -474,8 +503,17 @@ exports["TesselIO.prototype.digitalWrite"] = {
     this.tessel.digitalWrite(8, 255);
     this.tessel.digitalWrite(8, true);
 
+    this.tessel.digitalWrite("L2", 1);
+    this.tessel.digitalWrite("L2", 255);
+    this.tessel.digitalWrite("L2", true);
+
+    this.tessel.digitalWrite(18, 1);
+    this.tessel.digitalWrite(18, 255);
+    this.tessel.digitalWrite(18, true);
+
     test.equal(this.write_a.callCount, 6);
     test.equal(this.write_b.callCount, 6);
+    test.equal(this.write_l.callCount, 6);
     test.done();
   },
 
