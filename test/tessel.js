@@ -1270,6 +1270,9 @@ exports["Tessel.prototype.i2cRead"] = {
     this.tessel.i2cRead(0x04, 4, handler);
     this.clock.tick(5);
     this.clock.tick(5);
+    this.clock.tick(5);
+    this.clock.tick(5);
+    this.clock.tick(5);
   },
 
   regAndBytesToRead: function(test) {
@@ -1286,6 +1289,9 @@ exports["Tessel.prototype.i2cRead"] = {
 
     this.tessel.i2cConfig({ address: 0x04, bus: "A" });
     this.tessel.i2cRead(0x04, 0xff, 4, handler);
+    this.clock.tick(5);
+    this.clock.tick(5);
+    this.clock.tick(5);
     this.clock.tick(5);
     this.clock.tick(5);
   },
