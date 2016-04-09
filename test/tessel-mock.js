@@ -14,6 +14,7 @@ function Tessel() {
     B: new Tessel.Port("B", "/var/run/tessel/port_b", this)
   };
   this.port = this.ports;
+  this.led = new Tessel.Port("L", "/var/run/tessel/port_l", this);
 
   // tessel v1 does not have this version number
   // this is useful for libraries to adapt to changes

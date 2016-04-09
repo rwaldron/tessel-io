@@ -112,7 +112,7 @@ exports["TesselIO Constructor"] = {
   pins: function(test) {
     // test.expect();
 
-    test.equal(this.tessel.pins.length, 16);
+    test.equal(this.tessel.pins.length, 20);
     test.equal(this.tessel.analogPins.length, 10);
     test.done();
   },
@@ -158,7 +158,7 @@ exports["ToPinIndex"] = {
   invalidIndex: function(test) {
     test.expect(2);
     test.equal(ToPinIndex(-1), -1);
-    test.equal(ToPinIndex(16), -1);
+    test.equal(ToPinIndex(20), -1);
     test.done();
   },
 
@@ -195,7 +195,7 @@ exports["ToPortIdentity"] = {
   invalid: function(test) {
     test.expect(2);
     test.deepEqual(ToPortIdentity(-1), { port: null, index: -1 });
-    test.deepEqual(ToPortIdentity(16), { port: null, index: -1 });
+    test.deepEqual(ToPortIdentity(20), { port: null, index: -1 });
     test.done();
   },
 };
