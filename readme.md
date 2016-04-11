@@ -33,6 +33,7 @@ board.on("ready", function() {
 ```
 
 ## Pin Naming Guide
+There are two primary ports on the Tessel2: Port "A" and Port "B".  There is also a bank of onboard LEDs which are controllable from a port we are calling "L".  Note that "L0" and "L1" should be reserved for system functions (ERR and WLAN) so you should avoid using them.  Instead, consider using "L2" and "L3" which are intended to be more informational in nature.
 
 | Port | Number | Johnny-Five Compatible Name |
 |------|--------|-----------------------------|
@@ -52,6 +53,10 @@ board.on("ready", function() {
 |B|5|`"b5"` or `"B5"`|
 |B|6|`"b6"` or `"B6"`|
 |B|7|`"b7"` or `"B7"`|
+|L|0|`"l0"` or `"L0"`|
+|L|1|`"l1"` or `"L1"`|
+|L|2|`"l2"` or `"L2"`|
+|L|3|`"l3"` or `"L3"`|
 
 See [examples](https://github.com/rwaldron/tessel-io/tree/master/eg) for basic, non-Johnny-Five examples.
 
@@ -80,7 +85,16 @@ See [examples](https://github.com/rwaldron/tessel-io/tree/master/eg) for basic, 
 |B     | 5   | ✓           |     |     |     |      |      | ✓  |    | ✓         |            |
 |B     | 6   | ✓           |     |     |     |      |      |    | ✓  | ✓         |            |
 |B     | 7   | ✓           |     |     |     |      |      |    |    | ✓         | ✓          |
+|L     | 0   | ✓ (out only)|     |     |     |      |      |    |    |           |            |
+|L     | 1   | ✓ (out only)|     |     |     |      |      |    |    |           |            |
+|L     | 2   | ✓ (out only)|     |     |     |      |      |    |    |           |            |
+|L     | 3   | ✓ (out only)|     |     |     |      |      |    |    |           |            |
 
+## Examples
 
+There are several [examples](https://github.com/rwaldron/tessel-io/tree/master/eg) of how to use this library in its raw form.  Make sure you have [installed the Tessel2 cli and provisioned your chip first](http://tessel.github.io/t2-start/).  After that is complete, you can run any of the examples:
+```bash
+t2 run eg/onboard-led.js
+```
 
 ### This is an early "platform preview" and is not yet guaranteed to function correctly. [Please report any bugs or issues that you encounter!](https://github.com/rwaldron/tessel-io/issues)
