@@ -33,7 +33,8 @@ board.on("ready", function() {
 ```
 
 ## Pin Naming Guide
-There are two primary ports on the Tessel2: Port "A" and Port "B".  There is also a bank of onboard LEDs which are controllable from a port we are calling "L".  Note that "L0" and "L1" should be reserved for system functions (ERR and WLAN) so you should avoid using them.  Instead, consider using "L2" and "L3" which are intended to be more informational in nature.
+
+There are two primary ports on the Tessel2: Port "A" and Port "B". There is also a bank of onboard LEDs which are controllable from a port we are calling "L". Note that "L0" and "L1" should be reserved for system functions (ERR and WLAN) so you should avoid using them. Instead, consider using "L2" and "L3" which are intended to be more informational in nature.
 
 | Port | Number | Johnny-Five Compatible Name |
 |------|--------|-----------------------------|
@@ -92,7 +93,9 @@ See [examples](https://github.com/rwaldron/tessel-io/tree/master/eg) for basic, 
 
 ## Examples
 
-There are several [examples](https://github.com/rwaldron/tessel-io/tree/master/eg) of how to use this library in its raw form.  Make sure you have [installed the Tessel2 cli and provisioned your chip first](http://tessel.github.io/t2-start/).  After that is complete, you can run any of the examples:
+
+There are several [examples](https://github.com/rwaldron/tessel-io/tree/master/eg) of how to use this library in its raw form. Make sure you have [installed the Tessel 2 CLI and provisioned the board first](http://tessel.github.io/t2-start/). After that is complete, you can run any of the examples:
+
 ```bash
 t2 run eg/onboard-led.js
 ```
