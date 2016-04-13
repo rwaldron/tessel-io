@@ -72,6 +72,7 @@ exports["Tessel Constructor"] = {
   setUp: function(done) {
     this.sandbox = sinon.sandbox.create();
     this.hostname = this.sandbox.stub(os, "hostname", _ => "NOT A REAL TESSEL");
+    this.output = this.sandbox.stub(T2.Pin.prototype, "output");
     this.tessel = new Tessel();
     done();
   },
@@ -121,6 +122,61 @@ exports["Tessel Constructor"] = {
     test.equal(this.tessel.analogPins.length, 10);
     test.done();
   },
+
+  initialMode: function(test) {
+    test.expect(20);
+
+    test.equal(this.tessel.pins[0].mode, 1);
+    test.equal(this.tessel.pins[1].mode, 1);
+    test.equal(this.tessel.pins[2].mode, 1);
+    test.equal(this.tessel.pins[3].mode, 1);
+    test.equal(this.tessel.pins[4].mode, 1);
+    test.equal(this.tessel.pins[5].mode, 1);
+    test.equal(this.tessel.pins[6].mode, 1);
+    test.equal(this.tessel.pins[7].mode, 1);
+    test.equal(this.tessel.pins[8].mode, 1);
+    test.equal(this.tessel.pins[9].mode, 1);
+    test.equal(this.tessel.pins[10].mode, 1);
+    test.equal(this.tessel.pins[11].mode, 1);
+    test.equal(this.tessel.pins[12].mode, 1);
+    test.equal(this.tessel.pins[13].mode, 1);
+    test.equal(this.tessel.pins[14].mode, 1);
+    test.equal(this.tessel.pins[15].mode, 1);
+    test.equal(this.tessel.pins[16].mode, undefined);
+    test.equal(this.tessel.pins[17].mode, undefined);
+    test.equal(this.tessel.pins[18].mode, undefined);
+    test.equal(this.tessel.pins[19].mode, undefined);
+
+    test.done();
+  },
+
+  initialValue: function(test) {
+    test.expect(20);
+
+    test.equal(this.tessel.pins[0].value, 0);
+    test.equal(this.tessel.pins[1].value, 0);
+    test.equal(this.tessel.pins[2].value, 0);
+    test.equal(this.tessel.pins[3].value, 0);
+    test.equal(this.tessel.pins[4].value, 0);
+    test.equal(this.tessel.pins[5].value, 0);
+    test.equal(this.tessel.pins[6].value, 0);
+    test.equal(this.tessel.pins[7].value, 0);
+    test.equal(this.tessel.pins[8].value, 0);
+    test.equal(this.tessel.pins[9].value, 0);
+    test.equal(this.tessel.pins[10].value, 0);
+    test.equal(this.tessel.pins[11].value, 0);
+    test.equal(this.tessel.pins[12].value, 0);
+    test.equal(this.tessel.pins[13].value, 0);
+    test.equal(this.tessel.pins[14].value, 0);
+    test.equal(this.tessel.pins[15].value, 0);
+    test.equal(this.tessel.pins[16].value, undefined);
+    test.equal(this.tessel.pins[17].value, undefined);
+    test.equal(this.tessel.pins[18].value, undefined);
+    test.equal(this.tessel.pins[19].value, undefined);
+
+    test.done();
+  },
+
 };
 
 

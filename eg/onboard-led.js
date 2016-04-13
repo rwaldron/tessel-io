@@ -7,13 +7,9 @@ board.on("ready", function() {
 
   var leds = ["L0", "L1", "L2", "L3"];
 
-  leds.forEach(function(pin) {
-      this.digitalWrite(pin, this.HIGH);
-  }.bind(this));
-  
-  setTimeout(function() {
-    leds.forEach(function(pin) {
-        this.digitalWrite(pin, this.LOW);
-    }.bind(this));
-  }.bind(this), 1000);
+  leds.forEach(led => this.digitalWrite(led, this.HIGH));
+
+  setTimeout(() => {
+    leds.forEach(led => this.digitalWrite(led, this.LOW));
+  }, 1000);
 });
