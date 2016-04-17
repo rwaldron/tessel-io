@@ -1109,6 +1109,16 @@ exports["Tessel.prototype.i2cConfig"] = {
     test.done();
   },
 
+  calledWithObjectOfAddresses: function(test) {
+    test.expect(3);
+    this.tessel.i2cConfig({ address: { lcd: 0x04, rgb: 0x05 }, port: "B" });
+    // One call for each address
+    test.equal(this.b.callCount, 2);
+    test.equal(this.b.firstCall.args[0], 0x04);
+    test.equal(this.b.lastCall.args[0], 0x05);
+    test.done();
+  }
+
 };
 
 exports["Tessel.prototype.i2cWrite"] = {
