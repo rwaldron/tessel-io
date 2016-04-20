@@ -5,9 +5,39 @@ process.env.IS_TEST_ENV = true;
 var Tessel = require("../lib/tessel");
 var factory = require("../test/tessel-mock");
 var os = require("os");
+var util = require("util");
 var Emitter = require("events").EventEmitter;
 var sinon = require("sinon");
 
+
+var Port = {};
+
+// From t2-firmware/node/tessel.js
+Port.CMD = {
+  GPIO_IN: 0x03,
+  ENABLE_I2C: 0x0C,
+  DISABLE_I2C: 0x0D,
+  TX: 0x10,
+  RX: 0x11,
+  TXRX: 0x12,
+  START: 0x13,
+  STOP: 0x14,
+  ANALOG_READ: 0x18,
+  ANALOG_WRITE: 0x19,
+ };
+
+Port.REPLY = {
+  ACK:  0x80,
+  NACK: 0x81,
+  HIGH: 0x82,
+  LOW:  0x83,
+  DATA: 0x84,
+
+  MIN_ASYNC: 0xA0,
+  // c0 to c8 is all async pin assignments
+  ASYNC_PIN_CHANGE_N: 0xC0,
+  ASYNC_UART_RX: 0xD0
+};
 
 
 var functions = [{
@@ -24,6 +54,30 @@ var functions = [{
   name: "analogWrite"
 }, {
   name: "servoWrite"
+}, {
+  name: "i2cConfig"
+}, {
+  name: "i2cWrite"
+}, {
+  name: "i2cRead"
+}, {
+  name: "i2cReadOnce"
+}, {
+  name: "i2cWrite"
+}, {
+  name: "serialConfig"
+}, {
+  name: "serialWrite"
+}, {
+  name: "serialRead"
+}, {
+  name: "serialStop"
+}, {
+  name: "serialClose"
+}, {
+  name: "serialFlush"
+}, {
+  name: "serialListen"
 }];
 
 var objects = [{
@@ -126,22 +180,22 @@ exports["Tessel Constructor"] = {
   initialMode: function(test) {
     test.expect(20);
 
-    test.equal(this.tessel.pins[0].mode, 1);
-    test.equal(this.tessel.pins[1].mode, 1);
-    test.equal(this.tessel.pins[2].mode, 1);
-    test.equal(this.tessel.pins[3].mode, 1);
-    test.equal(this.tessel.pins[4].mode, 1);
-    test.equal(this.tessel.pins[5].mode, 1);
-    test.equal(this.tessel.pins[6].mode, 1);
-    test.equal(this.tessel.pins[7].mode, 1);
-    test.equal(this.tessel.pins[8].mode, 1);
-    test.equal(this.tessel.pins[9].mode, 1);
-    test.equal(this.tessel.pins[10].mode, 1);
-    test.equal(this.tessel.pins[11].mode, 1);
-    test.equal(this.tessel.pins[12].mode, 1);
-    test.equal(this.tessel.pins[13].mode, 1);
-    test.equal(this.tessel.pins[14].mode, 1);
-    test.equal(this.tessel.pins[15].mode, 1);
+    test.equal(this.tessel.pins[0].mode, undefined);
+    test.equal(this.tessel.pins[1].mode, undefined);
+    test.equal(this.tessel.pins[2].mode, undefined);
+    test.equal(this.tessel.pins[3].mode, undefined);
+    test.equal(this.tessel.pins[4].mode, undefined);
+    test.equal(this.tessel.pins[5].mode, undefined);
+    test.equal(this.tessel.pins[6].mode, undefined);
+    test.equal(this.tessel.pins[7].mode, undefined);
+    test.equal(this.tessel.pins[8].mode, undefined);
+    test.equal(this.tessel.pins[9].mode, undefined);
+    test.equal(this.tessel.pins[10].mode, undefined);
+    test.equal(this.tessel.pins[11].mode, undefined);
+    test.equal(this.tessel.pins[12].mode, undefined);
+    test.equal(this.tessel.pins[13].mode, undefined);
+    test.equal(this.tessel.pins[14].mode, undefined);
+    test.equal(this.tessel.pins[15].mode, undefined);
     test.equal(this.tessel.pins[16].mode, undefined);
     test.equal(this.tessel.pins[17].mode, undefined);
     test.equal(this.tessel.pins[18].mode, undefined);
@@ -274,7 +328,7 @@ exports["ToPortIdentity"] = {
     test.done();
   },
 
-  valueMatchesPortButOutOfRange: function(test) {
+  valueMatchesPortBusOutOfRange: function(test) {
     test.expect(1);
     test.deepEqual(ToPortIdentity(20), { port: null, index: -1 });
     test.done();
@@ -722,6 +776,60 @@ exports["Tessel.prototype.digitalRead"] = {
     test.equal(spy.callCount, 2);
     test.done();
   },
+
+  poll: function(test) {
+    test.expect(18);
+
+    this.tessel.pinMode("b7", this.tessel.MODES.INPUT);
+
+    this.read = this.sandbox.spy(Tessel.Pin.prototype, "read");
+    this.portSockWrite = this.sandbox.spy(tessel.port.B.pin[7]._port.sock, "write");
+    this.portCork = this.sandbox.spy(tessel.port.B.pin[7]._port, "cork");
+    this.portUncork = this.sandbox.spy(tessel.port.B.pin[7]._port, "uncork");
+    this.portEnqueue = this.sandbox.spy(tessel.port.B.pin[7]._port, "enqueue");
+
+    this.spy = this.sandbox.spy();
+
+    this.tessel.digitalRead("b7", this.spy);
+
+    test.equal(this.read.callCount, 1);
+    test.equal(this.portSockWrite.callCount, 1);
+    test.equal(this.portCork.callCount, 1);
+    test.equal(this.portUncork.callCount, 1);
+    test.equal(this.portEnqueue.callCount, 1);
+    test.equal(this.portEnqueue.lastCall.args[0].size, 0);
+
+
+    var first = this.portEnqueue.lastCall.args[0].callback;
+    first(null, Port.REPLY.HIGH);
+
+    test.equal(this.spy.callCount, 1);
+    test.equal(this.spy.lastCall.args[0], 1);
+
+    this.clock.tick(11);
+
+    test.equal(this.portSockWrite.callCount, 2);
+    test.equal(this.portCork.callCount, 2);
+    test.equal(this.portUncork.callCount, 2);
+    test.equal(this.portEnqueue.callCount, 2);
+
+
+    var second = this.portEnqueue.lastCall.args[0].callback;
+    second(null, Port.REPLY.LOW);
+
+    test.equal(this.spy.callCount, 2);
+    test.equal(this.spy.lastCall.args[0], 0);
+
+    this.clock.tick(11);
+
+    test.equal(this.portSockWrite.callCount, 3);
+    test.equal(this.portCork.callCount, 3);
+    test.equal(this.portUncork.callCount, 3);
+    test.equal(this.portEnqueue.callCount, 3);
+
+
+    test.done();
+  }
 };
 
 exports["Tessel.prototype.analogRead"] = {
@@ -807,6 +915,60 @@ exports["Tessel.prototype.analogRead"] = {
     test.equal(spy.callCount, 2);
     test.done();
   },
+
+  poll: function(test) {
+
+    this.tessel.pinMode("b7", this.tessel.MODES.ANALOG);
+
+    this.read = this.sandbox.spy(Tessel.Pin.prototype, "read");
+    this.portSockWrite = this.sandbox.spy(tessel.port.B.pin[7]._port.sock, "write");
+    this.portCork = this.sandbox.spy(tessel.port.B.pin[7]._port, "cork");
+    this.portUncork = this.sandbox.spy(tessel.port.B.pin[7]._port, "uncork");
+    this.portEnqueue = this.sandbox.spy(tessel.port.B.pin[7]._port, "enqueue");
+
+    this.spy = this.sandbox.spy();
+
+    this.tessel.analogRead("b7", this.spy);
+
+    test.equal(this.read.callCount, 1);
+    test.equal(this.portSockWrite.callCount, 1);
+    test.equal(this.portCork.callCount, 1);
+    test.equal(this.portUncork.callCount, 1);
+    test.equal(this.portEnqueue.callCount, 1);
+    test.equal(this.portEnqueue.lastCall.args[0].size, 2);
+
+    var first = this.portEnqueue.lastCall.args[0].callback;
+
+
+    // callback(null, Port.REPLY.HIGH);
+    first(null, new Buffer([0x01, 0x02]));
+
+    test.equal(this.spy.callCount, 1);
+    test.equal(this.spy.lastCall.args[0], 128);
+
+    this.clock.tick(11);
+
+    test.equal(this.portSockWrite.callCount, 2);
+    test.equal(this.portCork.callCount, 2);
+    test.equal(this.portUncork.callCount, 2);
+    test.equal(this.portEnqueue.callCount, 2);
+
+
+    var second = this.portEnqueue.lastCall.args[0].callback;
+    second(null, new Buffer([0x03, 0x01]));
+
+    test.equal(this.spy.callCount, 2);
+    test.equal(this.spy.lastCall.args[0], 64);
+
+    this.clock.tick(11);
+
+    test.equal(this.portSockWrite.callCount, 3);
+    test.equal(this.portCork.callCount, 3);
+    test.equal(this.portUncork.callCount, 3);
+    test.equal(this.portEnqueue.callCount, 3);
+
+    test.done();
+  }
 };
 
 exports["Tessel.prototype.pwmWrite"] = {
@@ -1301,9 +1463,7 @@ exports["Tessel.prototype.i2cRead"] = {
 
       setImmediate(function() {
         var buffer = new Buffer(
-          Array.from({ length: bytesToRead }, function(_, index) {
-            return index;
-          })
+          Array.from({ length: bytesToRead }, (_, index) => index)
         );
 
         callback(buffer);
@@ -1334,11 +1494,12 @@ exports["Tessel.prototype.i2cRead"] = {
 
     this.tessel.i2cConfig({ address: 0x04, bus: "A" });
     this.tessel.i2cRead(0x04, 4, handler);
-    this.clock.tick(5);
-    this.clock.tick(5);
-    this.clock.tick(5);
-    this.clock.tick(5);
-    this.clock.tick(5);
+    this.clock.tick(10);
+    this.clock.tick(10);
+    this.clock.tick(10);
+    this.clock.tick(10);
+    this.clock.tick(10);
+    this.clock.tick(10);
   },
 
   regAndBytesToRead: function(test) {
@@ -1355,18 +1516,17 @@ exports["Tessel.prototype.i2cRead"] = {
 
     this.tessel.i2cConfig({ address: 0x04, bus: "A" });
     this.tessel.i2cRead(0x04, 0xff, 4, handler);
-    this.clock.tick(5);
-    this.clock.tick(5);
-    this.clock.tick(5);
-    this.clock.tick(5);
-    this.clock.tick(5);
+    this.clock.tick(10);
+    this.clock.tick(10);
+    this.clock.tick(10);
+    this.clock.tick(10);
+    this.clock.tick(10);
   },
 };
 
 exports["Tessel.prototype.setSamplingInterval"] = {
   setUp: function(done) {
     this.sandbox = sinon.sandbox.create();
-    this.read = this.sandbox.spy(Tessel, "read");
     this.clearInterval = this.sandbox.spy(global, "clearInterval");
     this.tessel = new Tessel();
     done();
@@ -1378,14 +1538,13 @@ exports["Tessel.prototype.setSamplingInterval"] = {
   },
   samplingIntervalDefault: function(test) {
     test.expect(1);
-    test.equal(this.tessel.getSamplingInterval(), 5);
+    test.equal(this.tessel.getSamplingInterval(), 10);
     test.done();
   },
   samplingIntervalCustom: function(test) {
-    test.expect(2);
+    test.expect(1);
     this.tessel.setSamplingInterval(1000);
     test.equal(this.tessel.getSamplingInterval(), 1000);
-    test.equal(this.clearInterval.callCount, 1);
     test.done();
   },
   samplingIntervalValid: function(test) {
