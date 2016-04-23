@@ -233,6 +233,40 @@ exports["Tessel Constructor"] = {
 
 };
 
+exports["Automatic REPL disabling"] = {
+  setUp: function(done) {
+    this.dirName = Tessel.dirName();
+    done();
+  },
+  tearDown: function(done) {
+    Tessel.purge();
+    Tessel.dirName(this.dirName);
+    done();
+  },
+
+  checkT2Run: function(test) {
+    test.expect(1);
+
+    Tessel.dirName("/tmp/remote-script");
+    var tessel = new Tessel();
+
+    test.equal(tessel.repl, undefined);
+
+    test.done();
+  },
+
+  checkT2Push: function(test) {
+    test.expect(1);
+
+    Tessel.dirName("/app/remote-script");
+    var tessel = new Tessel();
+
+    test.equal(tessel.repl, false);
+
+    test.done();
+  }
+};
+
 
 exports["ToPinIndex"] = {
   valid: function(test) {

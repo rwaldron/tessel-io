@@ -4,7 +4,7 @@
   "description": "Tessel 2 IO Plugin for Johnny-Five JavaScript Robotics",
   "main": "lib/tessel.js",
   "scripts": {
-    "test": "grunt nodeunit"
+    "test": "grunt"
   },
   "repository": {
     "type": "git",
