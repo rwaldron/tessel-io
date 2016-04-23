@@ -1,6 +1,7 @@
 # Tessel-IO
 
-[![Build Status](https://travis-ci.org/rwaldron/tessel-io.png?branch=master)](https://travis-ci.org/rwaldron/tessel-io)
+[![Travis-CI Build Status](https://travis-ci.org/rwaldron/tessel-io.svg?branch=master)](https://travis-ci.org/rwaldron/tessel-io)
+
 
 ## Tessel-IO is compatible with Tessel 2
 
@@ -13,9 +14,14 @@ Tessel-IO is an IO Plugin that enables writing JavaScript Robotics programs with
 
 ## Install & Setup
 
+
+If you have prior experience with Johnny-Five, this is all you need: 
+
 ```js
 npm install t2-cli tessel-io johnny-five
 ```
+
+If you have limited prior experience with Johnny-Five, or are generally new to NodeBots, or just want to read more about how this all works together, you'll want to read **[Say 'Hello World' with Johnny-Five on Tessel 2](https://bocoup.com/weblog/say-hello-world-with-johnny-five-on-tessel-2)**
 
 
 ## Boilerplate Program
@@ -31,6 +37,23 @@ board.on("ready", function() {
   // Write your program locally and push to the Tessel 2 when ready!  
 });
 ```
+
+## Deploying Your Program To Tessel 2
+
+For testing, deploy to RAM: 
+
+```
+t2 run <program file name>
+```
+
+When ready for use, deploy to flash: 
+
+
+```
+t2 run <program file name>
+```
+
+
 
 ## Pin Naming Guide
 
