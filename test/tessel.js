@@ -840,7 +840,7 @@ exports["Tessel.prototype.digitalRead"] = {
     test.equal(this.spy.callCount, 1);
     test.equal(this.spy.lastCall.args[0], 1);
 
-    this.clock.tick(11);
+    this.clock.tick(this.tessel.getSamplingInterval() + 1);
 
     test.equal(this.portSockWrite.callCount, 2);
     test.equal(this.portCork.callCount, 2);
@@ -854,7 +854,7 @@ exports["Tessel.prototype.digitalRead"] = {
     test.equal(this.spy.callCount, 2);
     test.equal(this.spy.lastCall.args[0], 0);
 
-    this.clock.tick(11);
+    this.clock.tick(this.tessel.getSamplingInterval() + 1);
 
     test.equal(this.portSockWrite.callCount, 3);
     test.equal(this.portCork.callCount, 3);
@@ -980,7 +980,7 @@ exports["Tessel.prototype.analogRead"] = {
     test.equal(this.spy.callCount, 1);
     test.equal(this.spy.lastCall.args[0], 128);
 
-    this.clock.tick(11);
+    this.clock.tick(this.tessel.getSamplingInterval() + 1);
 
     test.equal(this.portSockWrite.callCount, 2);
     test.equal(this.portCork.callCount, 2);
@@ -994,7 +994,7 @@ exports["Tessel.prototype.analogRead"] = {
     test.equal(this.spy.callCount, 2);
     test.equal(this.spy.lastCall.args[0], 64);
 
-    this.clock.tick(11);
+    this.clock.tick(this.tessel.getSamplingInterval() + 1);
 
     test.equal(this.portSockWrite.callCount, 3);
     test.equal(this.portCork.callCount, 3);
@@ -1426,6 +1426,7 @@ exports["Tessel.prototype.i2cWriteReg"] = {
 exports["Tessel.prototype.i2cReadOnce"] = {
   setUp: function(done) {
     this.sandbox = sinon.sandbox.create();
+    this.clock = this.sandbox.useFakeTimers();
     this.on = this.sandbox.spy(Tessel.prototype, "on");
     this.transfer = this.sandbox.stub(T2.I2C.prototype, "transfer");
     this.tessel = new Tessel();
@@ -1528,12 +1529,12 @@ exports["Tessel.prototype.i2cRead"] = {
 
     this.tessel.i2cConfig({ address: 0x04, bus: "A" });
     this.tessel.i2cRead(0x04, 4, handler);
-    this.clock.tick(10);
-    this.clock.tick(10);
-    this.clock.tick(10);
-    this.clock.tick(10);
-    this.clock.tick(10);
-    this.clock.tick(10);
+    this.clock.tick(this.tessel.getSamplingInterval());
+    this.clock.tick(this.tessel.getSamplingInterval());
+    this.clock.tick(this.tessel.getSamplingInterval());
+    this.clock.tick(this.tessel.getSamplingInterval());
+    this.clock.tick(this.tessel.getSamplingInterval());
+    this.clock.tick(this.tessel.getSamplingInterval());
   },
 
   regAndBytesToRead: function(test) {
@@ -1550,11 +1551,11 @@ exports["Tessel.prototype.i2cRead"] = {
 
     this.tessel.i2cConfig({ address: 0x04, bus: "A" });
     this.tessel.i2cRead(0x04, 0xff, 4, handler);
-    this.clock.tick(10);
-    this.clock.tick(10);
-    this.clock.tick(10);
-    this.clock.tick(10);
-    this.clock.tick(10);
+    this.clock.tick(this.tessel.getSamplingInterval());
+    this.clock.tick(this.tessel.getSamplingInterval());
+    this.clock.tick(this.tessel.getSamplingInterval());
+    this.clock.tick(this.tessel.getSamplingInterval());
+    this.clock.tick(this.tessel.getSamplingInterval());
   },
 };
 
@@ -1572,7 +1573,7 @@ exports["Tessel.prototype.setSamplingInterval"] = {
   },
   samplingIntervalDefault: function(test) {
     test.expect(1);
-    test.equal(this.tessel.getSamplingInterval(), 10);
+    test.equal(this.tessel.getSamplingInterval(), Tessel.defaultSamplingInterval);
     test.done();
   },
   samplingIntervalCustom: function(test) {
