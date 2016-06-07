@@ -325,6 +325,8 @@ Tessel.Pin.prototype.resolution = 4096;
 
 Tessel.Pin.prototype.pwmDutyCycle = function(duty, callback) {};
 
+Tessel.Pin.prototype.pull = function(mode, callback) {};
+
 Tessel.Pin.prototype.analogRead = function(cb) {
   return this;
 };

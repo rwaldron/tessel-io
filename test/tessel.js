@@ -487,6 +487,8 @@ exports["Tessel.prototype.pinMode"] = {
     this.input = this.sandbox.spy(tessel.port.A.pin[0], "input");
     this.pwmFrequency = this.sandbox.spy(tessel, "pwmFrequency");
     this.pwmDutyCycle = this.sandbox.spy(T2.Pin.prototype, "pwmDutyCycle");
+    this.pull = this.sandbox.spy(T2.Pin.prototype, "pull");
+    this.write = this.sandbox.spy(T2.Pin.prototype, "write");
 
     this.tessel = new Tessel();
     done();
@@ -627,6 +629,49 @@ exports["Tessel.prototype.pinMode"] = {
     test.done();
   },
 
+  oldFashionedPullups: function(test) {
+    test.expect(18);
+
+    this.write.reset();
+
+    test.throws(() => {
+      this.tessel.pinMode("A0", this.tessel.MODES.INPUT);
+      this.tessel.digitalWrite("A0", this.tessel.HIGH);
+    });
+    test.throws(() => {
+      this.tessel.pinMode("A1", this.tessel.MODES.INPUT);
+      this.tessel.digitalWrite("A1", this.tessel.HIGH);
+    });
+    test.throws(() => {
+      this.tessel.pinMode("B0", this.tessel.MODES.INPUT);
+      this.tessel.digitalWrite("B0", this.tessel.HIGH);
+    });
+    test.throws(() => {
+      this.tessel.pinMode("B1", this.tessel.MODES.INPUT);
+      this.tessel.digitalWrite("B1", this.tessel.HIGH);
+    });
+
+
+    for (var i = 2; i < 8; i++) {
+      this.tessel.pinMode(`A${i}`, this.tessel.MODES.INPUT);
+      this.tessel.digitalWrite(`A${i}`, this.tessel.HIGH);
+      this.tessel.pinMode(`B${i}`, this.tessel.MODES.INPUT);
+      this.tessel.digitalWrite(`B${i}`, this.tessel.HIGH);
+    }
+
+    // 6 per port
+    test.equal(this.pull.callCount, 12);
+    test.equal(this.write.callCount, 12);
+
+
+    for (var j = 0; j < this.pull.callCount; j++) {
+      test.equal(this.pull.getCall(j).args[0], "pullup");
+    }
+
+
+    test.done();
+
+  },
 };
 
 
