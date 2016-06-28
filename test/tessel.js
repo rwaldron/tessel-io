@@ -859,7 +859,7 @@ exports["Tessel.prototype.digitalRead"] = {
   poll: function(test) {
     test.expect(18);
 
-    this.tessel.pinMode("b7", this.tessel.MODES.INPUT);
+    this.tessel.pinMode("b0", this.tessel.MODES.INPUT);
 
     this.read = this.sandbox.spy(Tessel.Pin.prototype, "read");
     this.portSockWrite = this.sandbox.spy(tessel.port.B.pin[7]._port.sock, "write");
@@ -869,7 +869,7 @@ exports["Tessel.prototype.digitalRead"] = {
 
     this.spy = this.sandbox.spy();
 
-    this.tessel.digitalRead("b7", this.spy);
+    this.tessel.digitalRead("b0", this.spy);
 
     test.equal(this.read.callCount, 1);
     test.equal(this.portSockWrite.callCount, 1);
@@ -908,7 +908,89 @@ exports["Tessel.prototype.digitalRead"] = {
 
 
     test.done();
-  }
+  },
+
+  interrupt: function(test) {
+    test.expect(3);
+
+    this.newListener = this.sandbox.spy(this.tessel.pins[15]._events, "newListener");
+    this.read = this.sandbox.spy(Tessel.Pin.prototype, "read");
+    this.ourPinOn = this.sandbox.spy(this.tessel.pins[15], "on");
+    this.spy = this.sandbox.spy();
+
+    this.tessel.pinMode("b7", this.tessel.MODES.INPUT);
+    this.tessel.digitalRead("b7", this.spy);
+
+    test.equal(this.read.callCount, 0);
+    test.equal(this.ourPinOn.callCount, 1);
+    test.equal(this.newListener.callCount, 1);
+    test.done();
+  },
+
+  interruptRegistersChangeOnPin: function(test) {
+    test.expect(5);
+
+    var emitter = tessel.port.B.pin[7];
+    emitter.interruptSupported = true;
+
+
+    this.tpinOn = this.sandbox.spy(Tessel.Pin.prototype, "on");
+    var tpin = new Tessel.Pin({
+      board: {},
+      index: 7,
+      port: "B"
+    });
+
+    var newListener = this.sandbox.spy(tpin._events.newListener);
+    this.emitterOn = this.sandbox.spy(emitter, "on");
+    this.spy = this.sandbox.spy();
+
+    this.tessel.digitalRead("b7", this.spy);
+
+    test.equal(this.tpinOn.callCount, 2);
+
+    // The first call is made during initialization
+    test.equal(this.tpinOn.firstCall.args[0], "newListener");
+
+    // The second call is made from within digitalRead
+    test.equal(this.tpinOn.secondCall.args[0], "change");
+
+    //
+    // This tracks the call to:
+    //
+    //  pin.on(event, handler)
+    //
+    // Which is inside the newListener handler
+    //
+    test.equal(this.emitterOn.callCount, 1);
+    // And it registers a "change" event on the pin itself:
+    test.equal(this.emitterOn.lastCall.args[0], "change");
+    test.done();
+  },
+
+  interruptsLimitedToOneCapablePinPerPort: function(test) {
+    test.expect(5);
+
+    this.tpinOn = this.sandbox.spy(Tessel.Pin.prototype, "on");
+    this.tpinRead = this.sandbox.spy(Tessel.Pin.prototype, "read");
+    this.spy = this.sandbox.spy();
+
+    this.tessel.digitalRead("b6", this.spy);
+    this.tessel.digitalRead("b7", this.spy);
+
+    test.equal(this.tpinOn.callCount, 1);
+
+    // Resulted in registering a "change" handler on the pin
+    test.equal(this.tpinOn.lastCall.args[0], "change");
+    test.equal(this.tpinOn.lastCall.args[1].isDigitalReadFilter, true);
+
+    // Resuled in creating an async "polling" loop
+    test.equal(this.tpinRead.callCount, 1);
+    test.equal(this.tpinRead.lastCall.args[0].isDigitalReadFilter, true);
+
+    test.done();
+  },
+
 };
 
 exports["Tessel.prototype.analogRead"] = {
@@ -917,7 +999,6 @@ exports["Tessel.prototype.analogRead"] = {
 
     this.clock = this.sandbox.useFakeTimers();
     this.on = this.sandbox.spy(Tessel.prototype, "on");
-
     this.tessel = new Tessel();
 
     done();
