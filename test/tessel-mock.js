@@ -630,7 +630,7 @@ Tessel.LED.prototype.write = function(value, callback) {
   this.value = value;
 };
 
-if (process.env.IS_TEST_ENV) {
+if (process.env.IS_TEST_MODE) {
   // To make this module testable, we need
   // control over the creation of every
   // Tessel instance.

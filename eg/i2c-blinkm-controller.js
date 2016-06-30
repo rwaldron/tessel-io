@@ -1,4 +1,4 @@
-// global.IS_TEST_ENV = true;
+// process.env.IS_TEST_MODE = true;
 var Tessel = require("../lib/tessel");
 var board = new Tessel();
 
