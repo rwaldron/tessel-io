@@ -1,5 +1,5 @@
 eg/
-test/
+test/tessel.js
 fritzing/
 node_modules/
 notes
