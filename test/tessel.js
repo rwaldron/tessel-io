@@ -126,6 +126,7 @@ exports["Tessel Constructor"] = {
   setUp: function(done) {
     this.sandbox = sinon.sandbox.create();
     this.hostname = this.sandbox.stub(os, "hostname", _ => "NOT A REAL TESSEL");
+    this.set = this.sandbox.spy(Map.prototype, "set");
     this.output = this.sandbox.stub(T2.Pin.prototype, "output");
     this.tessel = new Tessel();
     done();
@@ -169,6 +170,24 @@ exports["Tessel Constructor"] = {
 
   //   test.done();
   // },
+
+  state: function(test) {
+    test.expect(1);
+
+    test.deepEqual(this.set.firstCall.args[1], {
+      pwm: {
+        frequency: null
+      },
+      i2c: {
+        bus: 4,
+        devices: {}
+      },
+      uart: {}
+    });
+
+
+    test.done();
+  },
 
   pins: function(test) {
     test.expect(2);
