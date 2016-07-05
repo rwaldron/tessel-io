@@ -977,7 +977,9 @@ exports["Tessel.prototype.digitalRead"] = {
   },
 
   poll: function(test) {
-    test.expect(18);
+    test.expect(23);
+
+    var sockWriteCommand = new Buffer([Port.CMD.GPIO_IN, 7]);
 
     this.tessel.pinMode("b7", this.tessel.MODES.INPUT);
 
@@ -993,6 +995,11 @@ exports["Tessel.prototype.digitalRead"] = {
 
     test.equal(this.read.callCount, 1);
     test.equal(this.portSockWrite.callCount, 1);
+    test.equal(this.portSockWrite.lastCall.args[0].equals(sockWriteCommand), true);
+
+    // Capture command buffer to compare to the next two
+    var capturedCommand = this.portSockWrite.lastCall.args[0];
+
     test.equal(this.portCork.callCount, 1);
     test.equal(this.portUncork.callCount, 1);
     test.equal(this.portEnqueue.callCount, 1);
@@ -1008,6 +1015,9 @@ exports["Tessel.prototype.digitalRead"] = {
     this.clock.tick(this.tessel.getSamplingInterval() + 1);
 
     test.equal(this.portSockWrite.callCount, 2);
+    test.equal(this.portSockWrite.lastCall.args[0].equals(sockWriteCommand), true);
+    // Ensure that the cached command is used
+    test.equal(this.portSockWrite.lastCall.args[0].equals(capturedCommand), true);
     test.equal(this.portCork.callCount, 2);
     test.equal(this.portUncork.callCount, 2);
     test.equal(this.portEnqueue.callCount, 2);
@@ -1022,10 +1032,12 @@ exports["Tessel.prototype.digitalRead"] = {
     this.clock.tick(this.tessel.getSamplingInterval() + 1);
 
     test.equal(this.portSockWrite.callCount, 3);
+    test.equal(this.portSockWrite.lastCall.args[0].equals(sockWriteCommand), true);
+    // Ensure that the cached command is used
+    test.equal(this.portSockWrite.lastCall.args[0].equals(capturedCommand), true);
     test.equal(this.portCork.callCount, 3);
     test.equal(this.portUncork.callCount, 3);
     test.equal(this.portEnqueue.callCount, 3);
-
 
     test.done();
   }
@@ -1116,6 +1128,9 @@ exports["Tessel.prototype.analogRead"] = {
   },
 
   poll: function(test) {
+    test.expect(23);
+
+    var sockWriteCommand = new Buffer([Port.CMD.ANALOG_READ, 7]);
 
     this.tessel.pinMode("b7", this.tessel.MODES.ANALOG);
 
@@ -1131,6 +1146,11 @@ exports["Tessel.prototype.analogRead"] = {
 
     test.equal(this.read.callCount, 1);
     test.equal(this.portSockWrite.callCount, 1);
+    test.equal(this.portSockWrite.lastCall.args[0].equals(sockWriteCommand), true);
+
+    // Capture command buffer to compare to the next two
+    var capturedCommand = this.portSockWrite.lastCall.args[0];
+
     test.equal(this.portCork.callCount, 1);
     test.equal(this.portUncork.callCount, 1);
     test.equal(this.portEnqueue.callCount, 1);
@@ -1148,6 +1168,9 @@ exports["Tessel.prototype.analogRead"] = {
     this.clock.tick(this.tessel.getSamplingInterval() + 1);
 
     test.equal(this.portSockWrite.callCount, 2);
+    test.equal(this.portSockWrite.lastCall.args[0].equals(sockWriteCommand), true);
+    // Ensure that the cached command is used
+    test.equal(this.portSockWrite.lastCall.args[0].equals(capturedCommand), true);
     test.equal(this.portCork.callCount, 2);
     test.equal(this.portUncork.callCount, 2);
     test.equal(this.portEnqueue.callCount, 2);
@@ -1162,6 +1185,9 @@ exports["Tessel.prototype.analogRead"] = {
     this.clock.tick(this.tessel.getSamplingInterval() + 1);
 
     test.equal(this.portSockWrite.callCount, 3);
+    test.equal(this.portSockWrite.lastCall.args[0].equals(sockWriteCommand), true);
+    // Ensure that the cached command is used
+    test.equal(this.portSockWrite.lastCall.args[0].equals(capturedCommand), true);
     test.equal(this.portCork.callCount, 3);
     test.equal(this.portUncork.callCount, 3);
     test.equal(this.portEnqueue.callCount, 3);
