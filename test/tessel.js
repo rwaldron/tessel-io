@@ -820,6 +820,71 @@ exports["Tessel.prototype.digitalRead"] = {
     test.done();
   },
 
+  isDigitalReadChangeFilter: function(test) {
+    test.expect(8);
+
+    this.tpinOn = this.sandbox.spy(Tessel.Pin.prototype, "on");
+    this.tpinRead = this.sandbox.spy(Tessel.Pin.prototype, "read");
+    this.spy = this.sandbox.spy();
+
+    this.tessel.digitalRead("b0", this.spy);
+    this.tessel.digitalRead("b1", this.spy);
+    this.tessel.digitalRead("b2", this.spy);
+    this.tessel.digitalRead("b3", this.spy);
+    this.tessel.digitalRead("b4", this.spy);
+    this.tessel.digitalRead("b5", this.spy);
+    this.tessel.digitalRead("b6", this.spy);
+    this.tessel.digitalRead("b7", this.spy);
+
+    test.equal(this.tpinRead.getCall(0).args[0].isDigitalReadChangeFilter, true);
+    test.equal(this.tpinRead.getCall(1).args[0].isDigitalReadChangeFilter, true);
+    test.equal(this.tpinRead.getCall(2).args[0].isDigitalReadChangeFilter, true);
+    test.equal(this.tpinRead.getCall(3).args[0].isDigitalReadChangeFilter, true);
+    test.equal(this.tpinRead.getCall(4).args[0].isDigitalReadChangeFilter, true);
+    test.equal(this.tpinRead.getCall(5).args[0].isDigitalReadChangeFilter, true);
+    test.equal(this.tpinRead.getCall(6).args[0].isDigitalReadChangeFilter, true);
+    test.equal(this.tpinRead.getCall(7).args[0].isDigitalReadChangeFilter, true);
+
+    test.done();
+  },
+
+  emitterCallBackIsNotTheChangeFilter: function(test) {
+    test.expect(16);
+
+    this.tpinOn = this.sandbox.spy(Tessel.Pin.prototype, "on");
+    this.tpinRead = this.sandbox.spy(Tessel.Pin.prototype, "read");
+    this.spy = this.sandbox.spy();
+
+    this.tessel.digitalRead("b0", this.spy);
+    this.tessel.digitalRead("b1", this.spy);
+    this.tessel.digitalRead("b2", this.spy);
+    this.tessel.digitalRead("b3", this.spy);
+    this.tessel.digitalRead("b4", this.spy);
+    this.tessel.digitalRead("b5", this.spy);
+    this.tessel.digitalRead("b6", this.spy);
+    this.tessel.digitalRead("b7", this.spy);
+
+    test.notEqual(this.tpinRead.getCall(0).args[0], this.spy);
+    test.notEqual(this.tpinRead.getCall(1).args[0], this.spy);
+    test.notEqual(this.tpinRead.getCall(2).args[0], this.spy);
+    test.notEqual(this.tpinRead.getCall(3).args[0], this.spy);
+    test.notEqual(this.tpinRead.getCall(4).args[0], this.spy);
+    test.notEqual(this.tpinRead.getCall(5).args[0], this.spy);
+    test.notEqual(this.tpinRead.getCall(6).args[0], this.spy);
+    test.notEqual(this.tpinRead.getCall(7).args[0], this.spy);
+
+    test.equal(this.on.getCall(0).args[1], this.spy);
+    test.equal(this.on.getCall(1).args[1], this.spy);
+    test.equal(this.on.getCall(2).args[1], this.spy);
+    test.equal(this.on.getCall(3).args[1], this.spy);
+    test.equal(this.on.getCall(4).args[1], this.spy);
+    test.equal(this.on.getCall(5).args[1], this.spy);
+    test.equal(this.on.getCall(6).args[1], this.spy);
+    test.equal(this.on.getCall(7).args[1], this.spy);
+
+    test.done();
+  },
+
   handlersForNonInterruptPins: function(test) {
     test.expect(6);
 
