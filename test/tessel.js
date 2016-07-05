@@ -182,6 +182,10 @@ exports["Tessel Constructor"] = {
         bus: 4,
         devices: {}
       },
+      interrupts: {
+        A: null,
+        B: null
+      },
       uart: {}
     });
 
