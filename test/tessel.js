@@ -820,7 +820,7 @@ exports["Tessel.prototype.digitalRead"] = {
     test.done();
   },
 
-  callback: function(test) {
+  handlersForNonInterruptPins: function(test) {
     test.expect(6);
 
     var spy = sinon.spy();
@@ -844,6 +844,38 @@ exports["Tessel.prototype.digitalRead"] = {
 
     b0(1);
     b0(0);
+
+    test.deepEqual(spy.firstCall.args, [1]);
+    test.deepEqual(spy.lastCall.args, [0]);
+    test.equal(spy.callCount, 2);
+
+    test.done();
+  },
+
+  handlersForInterruptPins: function(test) {
+    test.expect(6);
+
+    var spy = sinon.spy();
+
+    this.tessel.digitalRead("a2", spy);
+
+    var a2 = this.on.lastCall.args[1];
+
+    a2(1);
+    a2(0);
+
+    test.deepEqual(spy.firstCall.args, [1]);
+    test.deepEqual(spy.lastCall.args, [0]);
+    test.equal(spy.callCount, 2);
+
+    spy.reset();
+
+    this.tessel.digitalRead("a5", spy);
+
+    var a5 = this.on.lastCall.args[1];
+
+    a5(1);
+    a5(0);
 
     test.deepEqual(spy.firstCall.args, [1]);
     test.deepEqual(spy.lastCall.args, [0]);
