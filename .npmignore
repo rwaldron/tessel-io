@@ -4,6 +4,7 @@ fritzing/
 node_modules/
 notes
 Gruntfile.js
+.jscsrc
 .travis.yml
 .gitignore
 upgrade-firmware.sh
