@@ -2,7 +2,7 @@
 
 process.env.IS_TEST_MODE = true;
 
-var Tessel = require("../lib/tessel");
+var Tessel = require("../");
 var factory = require("../test/tessel-mock");
 var os = require("os");
 var util = require("util");
