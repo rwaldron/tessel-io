@@ -1,7 +1,8 @@
 eg/
-test/tessel.js
+test/tessel-io.js
 fritzing/
 node_modules/
+wips/
 notes
 Gruntfile.js
 .jscsrc
