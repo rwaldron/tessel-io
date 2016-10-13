@@ -156,7 +156,7 @@ exports["Board Constructor"] = {
     this.hostname = this.sandbox.stub(os, "hostname", _ => "NOT A REAL TESSEL");
     this.set = this.sandbox.spy(Map.prototype, "set");
     this.output = this.sandbox.stub(T2.Pin.prototype, "output");
-    this.tessel = new Board();
+    this.board = new Board();
     done();
   },
   tearDown: function(done) {
@@ -167,7 +167,7 @@ exports["Board Constructor"] = {
 
   tesselName: function(test) {
     test.expect(1);
-    test.equal(this.tessel.name, "Tessel 2 (NOT A REAL TESSEL)");
+    test.equal(this.board.name, "Tessel 2 (NOT A REAL TESSEL)");
     test.done();
   },
 
@@ -181,19 +181,19 @@ exports["Board Constructor"] = {
   //   );
 
   //   functions.forEach(function(method) {
-  //     test.equal(typeof this.tessel[method.name], "function", method.name);
+  //     test.equal(typeof this.board[method.name], "function", method.name);
   //   }, this);
 
   //   objects.forEach(function(method) {
-  //     test.equal(typeof this.tessel[method.name], "object", method.name);
+  //     test.equal(typeof this.board[method.name], "object", method.name);
   //   }, this);
 
   //   numbers.forEach(function(method) {
-  //     test.equal(typeof this.tessel[method.name], "number", method.name);
+  //     test.equal(typeof this.board[method.name], "number", method.name);
   //   }, this);
 
   //   instance.forEach(function(property) {
-  //     test.notEqual(typeof this.tessel[property.name], "undefined", property.name);
+  //     test.notEqual(typeof this.board[property.name], "undefined", property.name);
   //   }, this);
 
   //   test.done();
@@ -223,34 +223,34 @@ exports["Board Constructor"] = {
 
   pins: function(test) {
     test.expect(2);
-    test.equal(this.tessel.pins.length, 20);
-    test.equal(this.tessel.analogPins.length, 10);
+    test.equal(this.board.pins.length, 20);
+    test.equal(this.board.analogPins.length, 10);
     test.done();
   },
 
   initialMode: function(test) {
     test.expect(20);
 
-    test.equal(this.tessel.pins[0].mode, undefined);
-    test.equal(this.tessel.pins[1].mode, undefined);
-    test.equal(this.tessel.pins[2].mode, undefined);
-    test.equal(this.tessel.pins[3].mode, undefined);
-    test.equal(this.tessel.pins[4].mode, undefined);
-    test.equal(this.tessel.pins[5].mode, undefined);
-    test.equal(this.tessel.pins[6].mode, undefined);
-    test.equal(this.tessel.pins[7].mode, undefined);
-    test.equal(this.tessel.pins[8].mode, undefined);
-    test.equal(this.tessel.pins[9].mode, undefined);
-    test.equal(this.tessel.pins[10].mode, undefined);
-    test.equal(this.tessel.pins[11].mode, undefined);
-    test.equal(this.tessel.pins[12].mode, undefined);
-    test.equal(this.tessel.pins[13].mode, undefined);
-    test.equal(this.tessel.pins[14].mode, undefined);
-    test.equal(this.tessel.pins[15].mode, undefined);
-    test.equal(this.tessel.pins[16].mode, undefined);
-    test.equal(this.tessel.pins[17].mode, undefined);
-    test.equal(this.tessel.pins[18].mode, undefined);
-    test.equal(this.tessel.pins[19].mode, undefined);
+    test.equal(this.board.pins[0].mode, undefined);
+    test.equal(this.board.pins[1].mode, undefined);
+    test.equal(this.board.pins[2].mode, undefined);
+    test.equal(this.board.pins[3].mode, undefined);
+    test.equal(this.board.pins[4].mode, undefined);
+    test.equal(this.board.pins[5].mode, undefined);
+    test.equal(this.board.pins[6].mode, undefined);
+    test.equal(this.board.pins[7].mode, undefined);
+    test.equal(this.board.pins[8].mode, undefined);
+    test.equal(this.board.pins[9].mode, undefined);
+    test.equal(this.board.pins[10].mode, undefined);
+    test.equal(this.board.pins[11].mode, undefined);
+    test.equal(this.board.pins[12].mode, undefined);
+    test.equal(this.board.pins[13].mode, undefined);
+    test.equal(this.board.pins[14].mode, undefined);
+    test.equal(this.board.pins[15].mode, undefined);
+    test.equal(this.board.pins[16].mode, undefined);
+    test.equal(this.board.pins[17].mode, undefined);
+    test.equal(this.board.pins[18].mode, undefined);
+    test.equal(this.board.pins[19].mode, undefined);
 
     test.done();
   },
@@ -258,30 +258,70 @@ exports["Board Constructor"] = {
   initialValue: function(test) {
     test.expect(20);
 
-    test.equal(this.tessel.pins[0].value, 0);
-    test.equal(this.tessel.pins[1].value, 0);
-    test.equal(this.tessel.pins[2].value, 0);
-    test.equal(this.tessel.pins[3].value, 0);
-    test.equal(this.tessel.pins[4].value, 0);
-    test.equal(this.tessel.pins[5].value, 0);
-    test.equal(this.tessel.pins[6].value, 0);
-    test.equal(this.tessel.pins[7].value, 0);
-    test.equal(this.tessel.pins[8].value, 0);
-    test.equal(this.tessel.pins[9].value, 0);
-    test.equal(this.tessel.pins[10].value, 0);
-    test.equal(this.tessel.pins[11].value, 0);
-    test.equal(this.tessel.pins[12].value, 0);
-    test.equal(this.tessel.pins[13].value, 0);
-    test.equal(this.tessel.pins[14].value, 0);
-    test.equal(this.tessel.pins[15].value, 0);
-    test.equal(this.tessel.pins[16].value, undefined);
-    test.equal(this.tessel.pins[17].value, undefined);
-    test.equal(this.tessel.pins[18].value, undefined);
-    test.equal(this.tessel.pins[19].value, undefined);
+    test.equal(this.board.pins[0].value, 0);
+    test.equal(this.board.pins[1].value, 0);
+    test.equal(this.board.pins[2].value, 0);
+    test.equal(this.board.pins[3].value, 0);
+    test.equal(this.board.pins[4].value, 0);
+    test.equal(this.board.pins[5].value, 0);
+    test.equal(this.board.pins[6].value, 0);
+    test.equal(this.board.pins[7].value, 0);
+    test.equal(this.board.pins[8].value, 0);
+    test.equal(this.board.pins[9].value, 0);
+    test.equal(this.board.pins[10].value, 0);
+    test.equal(this.board.pins[11].value, 0);
+    test.equal(this.board.pins[12].value, 0);
+    test.equal(this.board.pins[13].value, 0);
+    test.equal(this.board.pins[14].value, 0);
+    test.equal(this.board.pins[15].value, 0);
+    test.equal(this.board.pins[16].value, undefined);
+    test.equal(this.board.pins[17].value, undefined);
+    test.equal(this.board.pins[18].value, undefined);
+    test.equal(this.board.pins[19].value, undefined);
 
     test.done();
   },
 
+};
+
+exports["Board.prototype"] = {
+  setUp: function(done) {
+    this.sandbox = sinon.sandbox.create();
+    this.hostname = this.sandbox.stub(os, "hostname", _ => "NOT A REAL TESSEL");
+    this.set = this.sandbox.spy(Map.prototype, "set");
+    this.output = this.sandbox.stub(T2.Pin.prototype, "output");
+    this.board = new Board();
+    done();
+  },
+  tearDown: function(done) {
+    Board.purge();
+    this.sandbox.restore();
+    done();
+  },
+
+  modes: function(test) {
+    test.expect(1);
+    test.deepEqual(Board.prototype.MODES, {
+      INPUT:  0x00,
+      OUTPUT: 0x01,
+      ANALOG: 0x02,
+      PWM:    0x03,
+      SERVO:  0x04,
+      I2C:    0x06,
+      SERIAL: 0x0A,
+    });
+    test.done();
+  },
+  high: function(test) {
+    test.expect(1);
+    test.equal(Board.prototype.HIGH, 1);
+    test.done();
+  },
+  low: function(test) {
+    test.expect(1);
+    test.equal(Board.prototype.LOW, 0);
+    test.done();
+  },
 };
 
 exports["Automatic REPL disabling"] = {
@@ -327,23 +367,23 @@ exports["ToPinIndex"] = {
     var offsetL = 16;
 
     for (var i = 0; i < 8; i++) {
-      test.equal(ToPinIndex("A" + i), i);
-      test.equal(ToPinIndex("B" + i), i + offsetB);
+      test.equal(ToPinIndex(`A${i}`), i);
+      test.equal(ToPinIndex(`B${i}`), i + offsetB);
 
-      test.equal(ToPinIndex("a" + i), i);
-      test.equal(ToPinIndex("b" + i), i + offsetB);
+      test.equal(ToPinIndex(`a${i}`), i);
+      test.equal(ToPinIndex(`b${i}`), i + offsetB);
 
-      test.equal(ToPinIndex("A_" + i), i);
-      test.equal(ToPinIndex("B_" + i), i + offsetB);
+      test.equal(ToPinIndex(`A_${i}`), i);
+      test.equal(ToPinIndex(`B_${i}`), i + offsetB);
 
-      test.equal(ToPinIndex("a_" + i), i);
-      test.equal(ToPinIndex("b_" + i), i + offsetB);
+      test.equal(ToPinIndex(`a_${i}`), i);
+      test.equal(ToPinIndex(`b_${i}`), i + offsetB);
 
       if (i < 4) {
-        test.equal(ToPinIndex("L" + i), i + offsetL);
-        test.equal(ToPinIndex("l" + i), i + offsetL);
-        test.equal(ToPinIndex("L_" + i), i + offsetL);
-        test.equal(ToPinIndex("l_" + i), i + offsetL);
+        test.equal(ToPinIndex(`L${i}`), i + offsetL);
+        test.equal(ToPinIndex(`l${i}`), i + offsetL);
+        test.equal(ToPinIndex(`L_${i}`), i + offsetL);
+        test.equal(ToPinIndex(`l_${i}`), i + offsetL);
       }
     }
 
@@ -481,7 +521,7 @@ exports["ToI2CBusPort"] = {
 
 exports["Board.prototype.normalize"] = {
   setUp: function(done) {
-    this.tessel = new Board();
+    this.board = new Board();
     done();
   },
   tearDown: function(done) {
@@ -491,9 +531,9 @@ exports["Board.prototype.normalize"] = {
 
   invalid: function(test) {
     test.expect(3);
-    test.equal(this.tessel.normalize(null), -1);
-    test.equal(this.tessel.normalize(undefined), -1);
-    test.equal(this.tessel.normalize(false), -1);
+    test.equal(this.board.normalize(null), -1);
+    test.equal(this.board.normalize(undefined), -1);
+    test.equal(this.board.normalize(false), -1);
     test.done();
   },
 
@@ -505,15 +545,15 @@ exports["Board.prototype.normalize"] = {
 
     for (var i = 0; i < 8; i++) {
 
-      test.equal(this.tessel.normalize("A" + i), i);
-      test.equal(this.tessel.normalize("A-" + i), i);
+      test.equal(this.board.normalize(`A${i}`), i);
+      test.equal(this.board.normalize(`A-${i}`), i);
 
-      test.equal(this.tessel.normalize("B" + i), i + offsetB);
-      test.equal(this.tessel.normalize("B-" + i), i + offsetB);
+      test.equal(this.board.normalize(`B${i}`), i + offsetB);
+      test.equal(this.board.normalize(`B-${i}`), i + offsetB);
 
       if (i < 4) {
-        test.equal(this.tessel.normalize("L" + i), i + offsetL);
-        test.equal(this.tessel.normalize("L-" + i), i + offsetL);
+        test.equal(this.board.normalize(`L${i}`), i + offsetL);
+        test.equal(this.board.normalize(`L-${i}`), i + offsetL);
       }
     }
 
@@ -524,7 +564,7 @@ exports["Board.prototype.normalize"] = {
     test.expect(20);
 
     for (var i = 0; i < 20; i++) {
-      test.equal(this.tessel.normalize(i), i);
+      test.equal(this.board.normalize(i), i);
     }
 
     test.done();
@@ -541,7 +581,7 @@ exports["Board.prototype.pinMode"] = {
     this.pull = this.sandbox.spy(T2.Pin.prototype, "pull");
     this.write = this.sandbox.spy(T2.Pin.prototype, "write");
 
-    this.tessel = new Board();
+    this.board = new Board();
     done();
   },
   tearDown: function(done) {
@@ -552,9 +592,9 @@ exports["Board.prototype.pinMode"] = {
 
   returns: function(test) {
     test.expect(3);
-    test.equal(this.tessel.pinMode("A0", this.tessel.MODES.INPUT), this.tessel);
-    test.equal(this.tessel.pinMode("B0", this.tessel.MODES.INPUT), this.tessel);
-    test.equal(this.tessel.pinMode("L0", this.tessel.MODES.OUTPUT), this.tessel);
+    test.equal(this.board.pinMode("A0", this.board.MODES.INPUT), this.board);
+    test.equal(this.board.pinMode("B0", this.board.MODES.INPUT), this.board);
+    test.equal(this.board.pinMode("L0", this.board.MODES.OUTPUT), this.board);
     test.done();
   },
 
@@ -567,10 +607,10 @@ exports["Board.prototype.pinMode"] = {
     this.input.reset();
 
     for (var i = 0; i < 8; i++) {
-      this.tessel.pinMode("A" + i, this.tessel.MODES.INPUT);
-      this.tessel.pinMode("B" + i, this.tessel.MODES.INPUT);
-      test.equal(this.tessel.pins[i].mode, this.tessel.MODES.INPUT);
-      test.equal(this.tessel.pins[i + 8].mode, this.tessel.MODES.INPUT);
+      this.board.pinMode(`A${i}`, this.board.MODES.INPUT);
+      this.board.pinMode(`B${i}`, this.board.MODES.INPUT);
+      test.equal(this.board.pins[i].mode, this.board.MODES.INPUT);
+      test.equal(this.board.pins[i + 8].mode, this.board.MODES.INPUT);
     }
 
     test.equal(this.output.callCount, 0);
@@ -588,14 +628,14 @@ exports["Board.prototype.pinMode"] = {
     this.input.reset();
 
     for (var i = 0; i < 8; i++) {
-      test.equal(this.tessel.pinMode("A" + i, this.tessel.MODES.OUTPUT), this.tessel);
-      test.equal(this.tessel.pinMode("B" + i, this.tessel.MODES.OUTPUT), this.tessel);
-      test.equal(this.tessel.pins[i].mode, this.tessel.MODES.OUTPUT);
-      test.equal(this.tessel.pins[i + 8].mode, this.tessel.MODES.OUTPUT);
+      test.equal(this.board.pinMode(`A${i}`, this.board.MODES.OUTPUT), this.board);
+      test.equal(this.board.pinMode(`B${i}`, this.board.MODES.OUTPUT), this.board);
+      test.equal(this.board.pins[i].mode, this.board.MODES.OUTPUT);
+      test.equal(this.board.pins[i + 8].mode, this.board.MODES.OUTPUT);
 
       if (i < 4) {
-        this.tessel.pinMode("L" + i, this.tessel.MODES.OUTPUT);
-        test.equal(this.tessel.pins[i + 16].mode, this.tessel.MODES.OUTPUT);
+        this.board.pinMode("L" + i, this.board.MODES.OUTPUT);
+        test.equal(this.board.pins[i + 16].mode, this.board.MODES.OUTPUT);
       }
     }
 
@@ -614,9 +654,9 @@ exports["Board.prototype.pinMode"] = {
     this.input.reset();
 
     for (var i = 0; i < 8; i++) {
-      test.equal(this.tessel.pinMode("A" + i, this.tessel.MODES.ANALOG), this.tessel);
-      test.equal(this.tessel.pinMode("B" + i, this.tessel.MODES.ANALOG), this.tessel);
-      test.equal(this.tessel.pins[i].mode, this.tessel.MODES.ANALOG);
+      test.equal(this.board.pinMode(`A${i}`, this.board.MODES.ANALOG), this.board);
+      test.equal(this.board.pinMode(`B${i}`, this.board.MODES.ANALOG), this.board);
+      test.equal(this.board.pins[i].mode, this.board.MODES.ANALOG);
     }
 
     test.equal(this.output.callCount, 0);
@@ -634,9 +674,9 @@ exports["Board.prototype.pinMode"] = {
     this.input.reset();
 
     for (var i = 0; i < 8; i++) {
-      test.equal(this.tessel.pinMode("A" + i, this.tessel.MODES.I2C), this.tessel);
-      test.equal(this.tessel.pinMode("B" + i, this.tessel.MODES.I2C), this.tessel);
-      test.equal(this.tessel.pins[i].mode, this.tessel.MODES.I2C);
+      test.equal(this.board.pinMode(`A${i}`, this.board.MODES.I2C), this.board);
+      test.equal(this.board.pinMode(`B${i}`, this.board.MODES.I2C), this.board);
+      test.equal(this.board.pins[i].mode, this.board.MODES.I2C);
     }
 
     // Neither is called for I2C
@@ -649,16 +689,16 @@ exports["Board.prototype.pinMode"] = {
   pwm: function(test) {
     test.expect(8);
 
-    test.equal(this.tessel.pinMode("A5", this.tessel.MODES.PWM), this.tessel);
-    test.equal(this.tessel.pinMode("A6", this.tessel.MODES.PWM), this.tessel);
-    test.equal(this.tessel.pinMode("B5", this.tessel.MODES.PWM), this.tessel);
-    test.equal(this.tessel.pinMode("B6", this.tessel.MODES.PWM), this.tessel);
+    test.equal(this.board.pinMode("A5", this.board.MODES.PWM), this.board);
+    test.equal(this.board.pinMode("A6", this.board.MODES.PWM), this.board);
+    test.equal(this.board.pinMode("B5", this.board.MODES.PWM), this.board);
+    test.equal(this.board.pinMode("B6", this.board.MODES.PWM), this.board);
 
-    test.equal(this.tessel.pins[5].mode, this.tessel.MODES.PWM);
-    test.equal(this.tessel.pins[6].mode, this.tessel.MODES.PWM);
+    test.equal(this.board.pins[5].mode, this.board.MODES.PWM);
+    test.equal(this.board.pins[6].mode, this.board.MODES.PWM);
 
-    test.equal(this.tessel.pins[13].mode, this.tessel.MODES.PWM);
-    test.equal(this.tessel.pins[14].mode, this.tessel.MODES.PWM);
+    test.equal(this.board.pins[13].mode, this.board.MODES.PWM);
+    test.equal(this.board.pins[14].mode, this.board.MODES.PWM);
 
     test.done();
   },
@@ -666,16 +706,16 @@ exports["Board.prototype.pinMode"] = {
   servo: function(test) {
     test.expect(8);
 
-    test.equal(this.tessel.pinMode("A5", this.tessel.MODES.SERVO), this.tessel);
-    test.equal(this.tessel.pinMode("A6", this.tessel.MODES.SERVO), this.tessel);
-    test.equal(this.tessel.pinMode("B5", this.tessel.MODES.SERVO), this.tessel);
-    test.equal(this.tessel.pinMode("B6", this.tessel.MODES.SERVO), this.tessel);
+    test.equal(this.board.pinMode("A5", this.board.MODES.SERVO), this.board);
+    test.equal(this.board.pinMode("A6", this.board.MODES.SERVO), this.board);
+    test.equal(this.board.pinMode("B5", this.board.MODES.SERVO), this.board);
+    test.equal(this.board.pinMode("B6", this.board.MODES.SERVO), this.board);
 
-    test.equal(this.tessel.pins[5].mode, this.tessel.MODES.SERVO);
-    test.equal(this.tessel.pins[6].mode, this.tessel.MODES.SERVO);
+    test.equal(this.board.pins[5].mode, this.board.MODES.SERVO);
+    test.equal(this.board.pins[6].mode, this.board.MODES.SERVO);
 
-    test.equal(this.tessel.pins[13].mode, this.tessel.MODES.SERVO);
-    test.equal(this.tessel.pins[14].mode, this.tessel.MODES.SERVO);
+    test.equal(this.board.pins[13].mode, this.board.MODES.SERVO);
+    test.equal(this.board.pins[14].mode, this.board.MODES.SERVO);
 
     test.done();
   },
@@ -686,28 +726,28 @@ exports["Board.prototype.pinMode"] = {
     this.write.reset();
 
     test.throws(() => {
-      this.tessel.pinMode("A0", this.tessel.MODES.INPUT);
-      this.tessel.digitalWrite("A0", this.tessel.HIGH);
+      this.board.pinMode("A0", this.board.MODES.INPUT);
+      this.board.digitalWrite("A0", this.board.HIGH);
     });
     test.throws(() => {
-      this.tessel.pinMode("A1", this.tessel.MODES.INPUT);
-      this.tessel.digitalWrite("A1", this.tessel.HIGH);
+      this.board.pinMode("A1", this.board.MODES.INPUT);
+      this.board.digitalWrite("A1", this.board.HIGH);
     });
     test.throws(() => {
-      this.tessel.pinMode("B0", this.tessel.MODES.INPUT);
-      this.tessel.digitalWrite("B0", this.tessel.HIGH);
+      this.board.pinMode("B0", this.board.MODES.INPUT);
+      this.board.digitalWrite("B0", this.board.HIGH);
     });
     test.throws(() => {
-      this.tessel.pinMode("B1", this.tessel.MODES.INPUT);
-      this.tessel.digitalWrite("B1", this.tessel.HIGH);
+      this.board.pinMode("B1", this.board.MODES.INPUT);
+      this.board.digitalWrite("B1", this.board.HIGH);
     });
 
 
     for (var i = 2; i < 8; i++) {
-      this.tessel.pinMode(`A${i}`, this.tessel.MODES.INPUT);
-      this.tessel.digitalWrite(`A${i}`, this.tessel.HIGH);
-      this.tessel.pinMode(`B${i}`, this.tessel.MODES.INPUT);
-      this.tessel.digitalWrite(`B${i}`, this.tessel.HIGH);
+      this.board.pinMode(`A${i}`, this.board.MODES.INPUT);
+      this.board.digitalWrite(`A${i}`, this.board.HIGH);
+      this.board.pinMode(`B${i}`, this.board.MODES.INPUT);
+      this.board.digitalWrite(`B${i}`, this.board.HIGH);
     }
 
     // 6 per port
@@ -740,7 +780,7 @@ exports["Board.prototype.digitalWrite"] = {
 
     this.write_l = this.sandbox.spy(tessel.leds[2], "write");
 
-    this.tessel = new Board();
+    this.board = new Board();
 
     done();
   },
@@ -753,9 +793,9 @@ exports["Board.prototype.digitalWrite"] = {
 
   returns: function(test) {
     test.expect(3);
-    test.equal(this.tessel.digitalWrite("A0", 1), this.tessel);
-    test.equal(this.tessel.digitalWrite("B0", 1), this.tessel);
-    test.equal(this.tessel.digitalWrite("L2", 1), this.tessel);
+    test.equal(this.board.digitalWrite("A0", 1), this.board);
+    test.equal(this.board.digitalWrite("B0", 1), this.board);
+    test.equal(this.board.digitalWrite("L2", 1), this.board);
     test.done();
   },
 
@@ -766,29 +806,29 @@ exports["Board.prototype.digitalWrite"] = {
     this.write_b.reset();
     this.write_l.reset();
 
-    this.tessel.digitalWrite("A0", 1);
-    this.tessel.digitalWrite("A0", 255);
-    this.tessel.digitalWrite("A0", true);
+    this.board.digitalWrite("A0", 1);
+    this.board.digitalWrite("A0", 255);
+    this.board.digitalWrite("A0", true);
 
-    this.tessel.digitalWrite(0, 1);
-    this.tessel.digitalWrite(0, 255);
-    this.tessel.digitalWrite(0, true);
+    this.board.digitalWrite(0, 1);
+    this.board.digitalWrite(0, 255);
+    this.board.digitalWrite(0, true);
 
-    this.tessel.digitalWrite("B0", 1);
-    this.tessel.digitalWrite("B0", 255);
-    this.tessel.digitalWrite("B0", true);
+    this.board.digitalWrite("B0", 1);
+    this.board.digitalWrite("B0", 255);
+    this.board.digitalWrite("B0", true);
 
-    this.tessel.digitalWrite(8, 1);
-    this.tessel.digitalWrite(8, 255);
-    this.tessel.digitalWrite(8, true);
+    this.board.digitalWrite(8, 1);
+    this.board.digitalWrite(8, 255);
+    this.board.digitalWrite(8, true);
 
-    this.tessel.digitalWrite("L2", 1);
-    this.tessel.digitalWrite("L2", 255);
-    this.tessel.digitalWrite("L2", true);
+    this.board.digitalWrite("L2", 1);
+    this.board.digitalWrite("L2", 255);
+    this.board.digitalWrite("L2", true);
 
-    this.tessel.digitalWrite(18, 1);
-    this.tessel.digitalWrite(18, 255);
-    this.tessel.digitalWrite(18, true);
+    this.board.digitalWrite(18, 1);
+    this.board.digitalWrite(18, 255);
+    this.board.digitalWrite(18, true);
 
     test.equal(this.write_a.callCount, 6);
     test.equal(this.write_b.callCount, 6);
@@ -802,21 +842,21 @@ exports["Board.prototype.digitalWrite"] = {
     this.write_a.reset();
     this.write_b.reset();
 
-    this.tessel.digitalWrite("A0", 0);
-    this.tessel.digitalWrite("A0", -1);
-    this.tessel.digitalWrite("A0", false);
+    this.board.digitalWrite("A0", 0);
+    this.board.digitalWrite("A0", -1);
+    this.board.digitalWrite("A0", false);
 
-    this.tessel.digitalWrite(0, 0);
-    this.tessel.digitalWrite(0, -1);
-    this.tessel.digitalWrite(0, false);
+    this.board.digitalWrite(0, 0);
+    this.board.digitalWrite(0, -1);
+    this.board.digitalWrite(0, false);
 
-    this.tessel.digitalWrite("B0", 0);
-    this.tessel.digitalWrite("B0", -1);
-    this.tessel.digitalWrite("B0", false);
+    this.board.digitalWrite("B0", 0);
+    this.board.digitalWrite("B0", -1);
+    this.board.digitalWrite("B0", false);
 
-    this.tessel.digitalWrite(8, 0);
-    this.tessel.digitalWrite(8, -1);
-    this.tessel.digitalWrite(8, false);
+    this.board.digitalWrite(8, 0);
+    this.board.digitalWrite(8, -1);
+    this.board.digitalWrite(8, false);
 
     test.equal(this.write_a.callCount, 6);
     test.equal(this.write_b.callCount, 6);
@@ -830,7 +870,7 @@ exports["Board.prototype.digitalRead"] = {
     this.clock = this.sandbox.useFakeTimers();
     this.on = this.sandbox.spy(Board.prototype, "on");
 
-    this.tessel = new Board();
+    this.board = new Board();
 
     done();
   },
@@ -843,8 +883,8 @@ exports["Board.prototype.digitalRead"] = {
 
   returns: function(test) {
     test.expect(2);
-    test.equal(this.tessel.digitalRead("A0", function() {}), this.tessel);
-    test.equal(this.tessel.digitalRead("B0", function() {}), this.tessel);
+    test.equal(this.board.digitalRead("A0", function() {}), this.board);
+    test.equal(this.board.digitalRead("B0", function() {}), this.board);
     test.done();
   },
 
@@ -855,14 +895,14 @@ exports["Board.prototype.digitalRead"] = {
     this.tpinRead = this.sandbox.spy(Board.Pin.prototype, "read");
     this.spy = this.sandbox.spy();
 
-    this.tessel.digitalRead("b0", this.spy);
-    this.tessel.digitalRead("b1", this.spy);
-    this.tessel.digitalRead("b2", this.spy);
-    this.tessel.digitalRead("b3", this.spy);
-    this.tessel.digitalRead("b4", this.spy);
-    this.tessel.digitalRead("b5", this.spy);
-    this.tessel.digitalRead("b6", this.spy);
-    this.tessel.digitalRead("b7", this.spy);
+    this.board.digitalRead("b0", this.spy);
+    this.board.digitalRead("b1", this.spy);
+    this.board.digitalRead("b2", this.spy);
+    this.board.digitalRead("b3", this.spy);
+    this.board.digitalRead("b4", this.spy);
+    this.board.digitalRead("b5", this.spy);
+    this.board.digitalRead("b6", this.spy);
+    this.board.digitalRead("b7", this.spy);
 
     test.equal(this.tpinRead.getCall(0).args[0].isDigitalReadChangeFilter, true);
     test.equal(this.tpinRead.getCall(1).args[0].isDigitalReadChangeFilter, true);
@@ -883,14 +923,14 @@ exports["Board.prototype.digitalRead"] = {
     this.tpinRead = this.sandbox.spy(Board.Pin.prototype, "read");
     this.spy = this.sandbox.spy();
 
-    this.tessel.digitalRead("b0", this.spy);
-    this.tessel.digitalRead("b1", this.spy);
-    this.tessel.digitalRead("b2", this.spy);
-    this.tessel.digitalRead("b3", this.spy);
-    this.tessel.digitalRead("b4", this.spy);
-    this.tessel.digitalRead("b5", this.spy);
-    this.tessel.digitalRead("b6", this.spy);
-    this.tessel.digitalRead("b7", this.spy);
+    this.board.digitalRead("b0", this.spy);
+    this.board.digitalRead("b1", this.spy);
+    this.board.digitalRead("b2", this.spy);
+    this.board.digitalRead("b3", this.spy);
+    this.board.digitalRead("b4", this.spy);
+    this.board.digitalRead("b5", this.spy);
+    this.board.digitalRead("b6", this.spy);
+    this.board.digitalRead("b7", this.spy);
 
     test.notEqual(this.tpinRead.getCall(0).args[0], this.spy);
     test.notEqual(this.tpinRead.getCall(1).args[0], this.spy);
@@ -918,7 +958,7 @@ exports["Board.prototype.digitalRead"] = {
 
     var spy = sinon.spy();
 
-    this.tessel.digitalRead("a0", spy);
+    this.board.digitalRead("a0", spy);
 
     var a0 = this.on.lastCall.args[1];
 
@@ -931,7 +971,7 @@ exports["Board.prototype.digitalRead"] = {
 
     spy.reset();
 
-    this.tessel.digitalRead("b0", spy);
+    this.board.digitalRead("b0", spy);
 
     var b0 = this.on.lastCall.args[1];
 
@@ -950,7 +990,7 @@ exports["Board.prototype.digitalRead"] = {
 
     var spy = sinon.spy();
 
-    this.tessel.digitalRead("a2", spy);
+    this.board.digitalRead("a2", spy);
 
     var a2 = this.on.lastCall.args[1];
 
@@ -963,7 +1003,7 @@ exports["Board.prototype.digitalRead"] = {
 
     spy.reset();
 
-    this.tessel.digitalRead("a5", spy);
+    this.board.digitalRead("a5", spy);
 
     var a5 = this.on.lastCall.args[1];
 
@@ -982,10 +1022,10 @@ exports["Board.prototype.digitalRead"] = {
 
     var spy = this.sandbox.spy();
 
-    this.tessel.digitalRead("a0", spy);
+    this.board.digitalRead("a0", spy);
 
-    this.tessel.emit("digital-read-0", 1);
-    this.tessel.emit("digital-read-0", 0);
+    this.board.emit("digital-read-0", 1);
+    this.board.emit("digital-read-0", 0);
 
     test.deepEqual(spy.firstCall.args, [1]);
     test.deepEqual(spy.lastCall.args, [0]);
@@ -993,10 +1033,10 @@ exports["Board.prototype.digitalRead"] = {
 
     spy.reset();
 
-    this.tessel.digitalRead("b0", spy);
+    this.board.digitalRead("b0", spy);
 
-    this.tessel.emit("digital-read-8", 1);
-    this.tessel.emit("digital-read-8", 0);
+    this.board.emit("digital-read-8", 1);
+    this.board.emit("digital-read-8", 0);
 
     test.deepEqual(spy.firstCall.args, [1]);
     test.deepEqual(spy.lastCall.args, [0]);
@@ -1009,7 +1049,7 @@ exports["Board.prototype.digitalRead"] = {
 
     var sockWriteCommand = new Buffer([Port.CMD.GPIO_IN, 7]);
 
-    this.tessel.pinMode("b7", this.tessel.MODES.INPUT);
+    this.board.pinMode("b7", this.board.MODES.INPUT);
 
     this.read = this.sandbox.spy(Board.Pin.prototype, "read");
     this.portSockWrite = this.sandbox.spy(tessel.port.B.pin[7]._port.sock, "write");
@@ -1019,7 +1059,7 @@ exports["Board.prototype.digitalRead"] = {
 
     this.spy = this.sandbox.spy();
 
-    this.tessel.digitalRead("b7", this.spy);
+    this.board.digitalRead("b7", this.spy);
 
     test.equal(this.read.callCount, 1);
     test.equal(this.portSockWrite.callCount, 1);
@@ -1040,7 +1080,7 @@ exports["Board.prototype.digitalRead"] = {
     test.equal(this.spy.callCount, 1);
     test.equal(this.spy.lastCall.args[0], 1);
 
-    this.clock.tick(this.tessel.getSamplingInterval() + 1);
+    this.clock.tick(this.board.getSamplingInterval() + 1);
 
     test.equal(this.portSockWrite.callCount, 2);
     test.equal(this.portSockWrite.lastCall.args[0].equals(sockWriteCommand), true);
@@ -1057,7 +1097,7 @@ exports["Board.prototype.digitalRead"] = {
     test.equal(this.spy.callCount, 2);
     test.equal(this.spy.lastCall.args[0], 0);
 
-    this.clock.tick(this.tessel.getSamplingInterval() + 1);
+    this.clock.tick(this.board.getSamplingInterval() + 1);
 
     test.equal(this.portSockWrite.callCount, 3);
     test.equal(this.portSockWrite.lastCall.args[0].equals(sockWriteCommand), true);
@@ -1078,7 +1118,7 @@ exports["Board.prototype.analogRead"] = {
     this.clock = this.sandbox.useFakeTimers();
     this.on = this.sandbox.spy(Board.prototype, "on");
 
-    this.tessel = new Board();
+    this.board = new Board();
 
     done();
   },
@@ -1091,8 +1131,8 @@ exports["Board.prototype.analogRead"] = {
 
   returns: function(test) {
     test.expect(2);
-    test.equal(this.tessel.analogRead("A7", function() {}), this.tessel);
-    test.equal(this.tessel.analogRead("B0", function() {}), this.tessel);
+    test.equal(this.board.analogRead("A7", function() {}), this.board);
+    test.equal(this.board.analogRead("B0", function() {}), this.board);
     test.done();
   },
 
@@ -1102,22 +1142,22 @@ exports["Board.prototype.analogRead"] = {
     var spy = this.sandbox.spy();
 
     test.throws(_ => {
-      this.tessel.analogRead("a0", spy);
+      this.board.analogRead("a0", spy);
     });
     test.throws(_ => {
-      this.tessel.analogRead("a1", spy);
+      this.board.analogRead("a1", spy);
     });
     test.throws(_ => {
-      this.tessel.analogRead("a2", spy);
+      this.board.analogRead("a2", spy);
     });
     test.throws(_ => {
-      this.tessel.analogRead("a3", spy);
+      this.board.analogRead("a3", spy);
     });
     test.throws(_ => {
-      this.tessel.analogRead("a5", spy);
+      this.board.analogRead("a5", spy);
     });
     test.throws(_ => {
-      this.tessel.analogRead("a6", spy);
+      this.board.analogRead("a6", spy);
     });
 
     test.done();
@@ -1128,34 +1168,34 @@ exports["Board.prototype.analogRead"] = {
     var spy = this.sandbox.spy();
 
     test.doesNotThrow(_ => {
-      this.tessel.analogRead("a4", spy);
+      this.board.analogRead("a4", spy);
     });
     test.doesNotThrow(_ => {
-      this.tessel.analogRead("a7", spy);
+      this.board.analogRead("a7", spy);
     });
     test.doesNotThrow(_ => {
-      this.tessel.analogRead("b0", spy);
+      this.board.analogRead("b0", spy);
     });
     test.doesNotThrow(_ => {
-      this.tessel.analogRead("b1", spy);
+      this.board.analogRead("b1", spy);
     });
     test.doesNotThrow(_ => {
-      this.tessel.analogRead("b2", spy);
+      this.board.analogRead("b2", spy);
     });
     test.doesNotThrow(_ => {
-      this.tessel.analogRead("b3", spy);
+      this.board.analogRead("b3", spy);
     });
     test.doesNotThrow(_ => {
-      this.tessel.analogRead("b4", spy);
+      this.board.analogRead("b4", spy);
     });
     test.doesNotThrow(_ => {
-      this.tessel.analogRead("b5", spy);
+      this.board.analogRead("b5", spy);
     });
     test.doesNotThrow(_ => {
-      this.tessel.analogRead("b6", spy);
+      this.board.analogRead("b6", spy);
     });
     test.doesNotThrow(_ => {
-      this.tessel.analogRead("b7", spy);
+      this.board.analogRead("b7", spy);
     });
 
     test.done();
@@ -1166,7 +1206,7 @@ exports["Board.prototype.analogRead"] = {
 
     var spy = this.sandbox.spy();
 
-    this.tessel.analogRead("a7", spy);
+    this.board.analogRead("a7", spy);
 
     var a7 = this.on.lastCall.args[1];
 
@@ -1179,7 +1219,7 @@ exports["Board.prototype.analogRead"] = {
 
     spy.reset();
 
-    this.tessel.analogRead("b0", spy);
+    this.board.analogRead("b0", spy);
 
     var b0 = this.on.lastCall.args[1];
 
@@ -1198,10 +1238,10 @@ exports["Board.prototype.analogRead"] = {
 
     var spy = this.sandbox.spy();
 
-    this.tessel.analogRead("a7", spy);
+    this.board.analogRead("a7", spy);
 
-    this.tessel.emit("analog-read-7", 1023);
-    this.tessel.emit("analog-read-7", 0);
+    this.board.emit("analog-read-7", 1023);
+    this.board.emit("analog-read-7", 0);
 
     test.deepEqual(spy.firstCall.args, [1023]);
     test.deepEqual(spy.lastCall.args, [0]);
@@ -1209,10 +1249,10 @@ exports["Board.prototype.analogRead"] = {
 
     spy.reset();
 
-    this.tessel.analogRead("b0", spy);
+    this.board.analogRead("b0", spy);
 
-    this.tessel.emit("analog-read-8", 1023);
-    this.tessel.emit("analog-read-8", 0);
+    this.board.emit("analog-read-8", 1023);
+    this.board.emit("analog-read-8", 0);
 
     test.deepEqual(spy.firstCall.args, [1023]);
     test.deepEqual(spy.lastCall.args, [0]);
@@ -1225,7 +1265,7 @@ exports["Board.prototype.analogRead"] = {
 
     var sockWriteCommand = new Buffer([Port.CMD.ANALOG_READ, 7]);
 
-    this.tessel.pinMode("b7", this.tessel.MODES.ANALOG);
+    this.board.pinMode("b7", this.board.MODES.ANALOG);
 
     this.read = this.sandbox.spy(Board.Pin.prototype, "read");
     this.portSockWrite = this.sandbox.spy(tessel.port.B.pin[7]._port.sock, "write");
@@ -1235,7 +1275,7 @@ exports["Board.prototype.analogRead"] = {
 
     this.spy = this.sandbox.spy();
 
-    this.tessel.analogRead("b7", this.spy);
+    this.board.analogRead("b7", this.spy);
 
     test.equal(this.read.callCount, 1);
     test.equal(this.portSockWrite.callCount, 1);
@@ -1258,7 +1298,7 @@ exports["Board.prototype.analogRead"] = {
     test.equal(this.spy.callCount, 1);
     test.equal(this.spy.lastCall.args[0], 128);
 
-    this.clock.tick(this.tessel.getSamplingInterval() + 1);
+    this.clock.tick(this.board.getSamplingInterval() + 1);
 
     test.equal(this.portSockWrite.callCount, 2);
     test.equal(this.portSockWrite.lastCall.args[0].equals(sockWriteCommand), true);
@@ -1275,7 +1315,7 @@ exports["Board.prototype.analogRead"] = {
     test.equal(this.spy.callCount, 2);
     test.equal(this.spy.lastCall.args[0], 64);
 
-    this.clock.tick(this.tessel.getSamplingInterval() + 1);
+    this.clock.tick(this.board.getSamplingInterval() + 1);
 
     test.equal(this.portSockWrite.callCount, 3);
     test.equal(this.portSockWrite.lastCall.args[0].equals(sockWriteCommand), true);
@@ -1296,7 +1336,7 @@ exports["Board.prototype.pwmWrite"] = {
     this.pwmFrequency = this.sandbox.spy(tessel, "pwmFrequency");
     this.pwmDutyCycle = this.sandbox.spy(T2.Pin.prototype, "pwmDutyCycle");
 
-    this.tessel = new Board();
+    this.board = new Board();
 
     done();
   },
@@ -1309,24 +1349,24 @@ exports["Board.prototype.pwmWrite"] = {
 
   returns: function(test) {
     test.expect(1);
-    test.equal(this.tessel.pwmWrite("b7", 255), this.tessel);
+    test.equal(this.board.pwmWrite("b7", 255), this.board);
     test.done();
   },
 
   dacUpper: function(test) {
     test.expect(2);
 
-    this.tessel.pinMode("b7", this.tessel.MODES.PWM);
+    this.board.pinMode("b7", this.board.MODES.PWM);
 
     this.write.reset();
 
-    this.tessel.pwmWrite("b7", 1);
-    this.tessel.pwmWrite("b7", 255);
-    this.tessel.pwmWrite("b7", true);
+    this.board.pwmWrite("b7", 1);
+    this.board.pwmWrite("b7", 255);
+    this.board.pwmWrite("b7", true);
 
-    this.tessel.pwmWrite(15, 1);
-    this.tessel.pwmWrite(15, 255);
-    this.tessel.pwmWrite(15, true);
+    this.board.pwmWrite(15, 1);
+    this.board.pwmWrite(15, 255);
+    this.board.pwmWrite(15, true);
 
     test.equal(this.write.callCount, 6);
     test.equal(this.pwmFrequency.callCount, 0);
@@ -1337,17 +1377,17 @@ exports["Board.prototype.pwmWrite"] = {
   dacLower: function(test) {
     test.expect(2);
 
-    this.tessel.pinMode("b7", this.tessel.MODES.PWM);
+    this.board.pinMode("b7", this.board.MODES.PWM);
 
     this.write.reset();
 
-    this.tessel.pwmWrite("b7", 0);
-    this.tessel.pwmWrite("b7", -1);
-    this.tessel.pwmWrite("b7", false);
+    this.board.pwmWrite("b7", 0);
+    this.board.pwmWrite("b7", -1);
+    this.board.pwmWrite("b7", false);
 
-    this.tessel.pwmWrite(15, 0);
-    this.tessel.pwmWrite(15, -1);
-    this.tessel.pwmWrite(15, false);
+    this.board.pwmWrite(15, 0);
+    this.board.pwmWrite(15, -1);
+    this.board.pwmWrite(15, false);
 
     test.equal(this.write.callCount, 6);
     test.equal(this.pwmFrequency.callCount, 0);
@@ -1357,12 +1397,12 @@ exports["Board.prototype.pwmWrite"] = {
   dacScales: function(test) {
     test.expect(3);
 
-    this.tessel.pinMode("b7", this.tessel.MODES.PWM);
+    this.board.pinMode("b7", this.board.MODES.PWM);
 
     this.write.reset();
 
-    this.tessel.pwmWrite("b7", 0);
-    this.tessel.pwmWrite("b7", 255);
+    this.board.pwmWrite("b7", 0);
+    this.board.pwmWrite("b7", 255);
 
     test.equal(this.write.firstCall.args[0].readUInt16BE(1), 0);
     test.equal(this.write.lastCall.args[0].readUInt16BE(1), 1023);
@@ -1373,17 +1413,17 @@ exports["Board.prototype.pwmWrite"] = {
   pwmUpper: function(test) {
     test.expect(3);
 
-    this.tessel.pinMode("a5", this.tessel.MODES.PWM);
+    this.board.pinMode("a5", this.board.MODES.PWM);
 
     this.write.reset();
 
-    this.tessel.pwmWrite("a5", 1);
-    this.tessel.pwmWrite("a5", 255);
-    this.tessel.pwmWrite("a5", true);
+    this.board.pwmWrite("a5", 1);
+    this.board.pwmWrite("a5", 255);
+    this.board.pwmWrite("a5", true);
 
-    this.tessel.pwmWrite(5, 1);
-    this.tessel.pwmWrite(5, 255);
-    this.tessel.pwmWrite(5, true);
+    this.board.pwmWrite(5, 1);
+    this.board.pwmWrite(5, 255);
+    this.board.pwmWrite(5, true);
 
     test.equal(this.write.callCount, 0);
     test.equal(this.pwmFrequency.callCount, 1);
@@ -1394,17 +1434,17 @@ exports["Board.prototype.pwmWrite"] = {
   pwmLower: function(test) {
     test.expect(3);
 
-    this.tessel.pinMode("a5", this.tessel.MODES.PWM);
+    this.board.pinMode("a5", this.board.MODES.PWM);
 
     this.write.reset();
 
-    this.tessel.pwmWrite("a5", 0);
-    this.tessel.pwmWrite("a5", -1);
-    this.tessel.pwmWrite("a5", false);
+    this.board.pwmWrite("a5", 0);
+    this.board.pwmWrite("a5", -1);
+    this.board.pwmWrite("a5", false);
 
-    this.tessel.pwmWrite(5, 0);
-    this.tessel.pwmWrite(5, -1);
-    this.tessel.pwmWrite(5, false);
+    this.board.pwmWrite(5, 0);
+    this.board.pwmWrite(5, -1);
+    this.board.pwmWrite(5, false);
 
     test.equal(this.write.callCount, 0);
     test.equal(this.pwmFrequency.callCount, 1);
@@ -1415,12 +1455,12 @@ exports["Board.prototype.pwmWrite"] = {
   pwmScales: function(test) {
     test.expect(3);
 
-    this.tessel.pinMode("a5", this.tessel.MODES.PWM);
+    this.board.pinMode("a5", this.board.MODES.PWM);
 
     this.write.reset();
 
-    this.tessel.pwmWrite("a5", 0);
-    this.tessel.pwmWrite("a5", 255);
+    this.board.pwmWrite("a5", 0);
+    this.board.pwmWrite("a5", 255);
 
     test.equal(this.write.callCount, 0);
     test.equal(this.pwmFrequency.callCount, 1);
@@ -1438,7 +1478,7 @@ exports["Board.prototype.servoWrite"] = {
     this.pwmFrequency = this.sandbox.spy(tessel, "pwmFrequency");
     this.pwmDutyCycle = this.sandbox.spy(T2.Pin.prototype, "pwmDutyCycle");
 
-    this.tessel = new Board();
+    this.board = new Board();
 
     done();
   },
@@ -1452,17 +1492,17 @@ exports["Board.prototype.servoWrite"] = {
   upper: function(test) {
     test.expect(10  );
 
-    this.tessel.pinMode("a5", this.tessel.MODES.SERVO);
+    this.board.pinMode("a5", this.board.MODES.SERVO);
 
     this.write.reset();
 
-    this.tessel.servoWrite("a5", 180);
-    this.tessel.servoWrite("a5", 255);
-    this.tessel.servoWrite("a5", true);
+    this.board.servoWrite("a5", 180);
+    this.board.servoWrite("a5", 255);
+    this.board.servoWrite("a5", true);
 
-    this.tessel.servoWrite(5, 180);
-    this.tessel.servoWrite(5, 255);
-    this.tessel.servoWrite(5, true);
+    this.board.servoWrite(5, 180);
+    this.board.servoWrite(5, 255);
+    this.board.servoWrite(5, true);
 
     test.equal(this.write.callCount, 0);
     test.equal(this.pwmFrequency.callCount, 1);
@@ -1480,17 +1520,17 @@ exports["Board.prototype.servoWrite"] = {
   lower: function(test) {
     test.expect(10);
 
-    this.tessel.pinMode("a5", this.tessel.MODES.SERVO);
+    this.board.pinMode("a5", this.board.MODES.SERVO);
 
     this.write.reset();
 
-    this.tessel.servoWrite("a5", 0);
-    this.tessel.servoWrite("a5", -1);
-    this.tessel.servoWrite("a5", false);
+    this.board.servoWrite("a5", 0);
+    this.board.servoWrite("a5", -1);
+    this.board.servoWrite("a5", false);
 
-    this.tessel.servoWrite(5, 0);
-    this.tessel.servoWrite(5, -1);
-    this.tessel.servoWrite(5, false);
+    this.board.servoWrite(5, 0);
+    this.board.servoWrite(5, -1);
+    this.board.servoWrite(5, false);
 
     test.equal(this.write.callCount, 0);
     test.equal(this.pwmFrequency.callCount, 1);
@@ -1508,12 +1548,12 @@ exports["Board.prototype.servoWrite"] = {
   scales: function(test) {
     test.expect(6);
 
-    this.tessel.pinMode("a5", this.tessel.MODES.SERVO);
+    this.board.pinMode("a5", this.board.MODES.SERVO);
 
     this.write.reset();
 
-    this.tessel.servoWrite("a5", 0);
-    this.tessel.servoWrite("a5", 180);
+    this.board.servoWrite("a5", 0);
+    this.board.servoWrite("a5", 180);
 
     test.equal(this.write.callCount, 0);
     test.equal(this.pwmFrequency.callCount, 1);
@@ -1534,7 +1574,7 @@ exports["Board.prototype.i2cConfig"] = {
     this.a = this.sandbox.stub(tessel.port.A, "I2C");
     this.b = this.sandbox.stub(tessel.port.B, "I2C");
 
-    this.tessel = new Board();
+    this.board = new Board();
 
     done();
   },
@@ -1549,7 +1589,7 @@ exports["Board.prototype.i2cConfig"] = {
     test.expect(1);
 
     test.throws(function() {
-      this.tessel.i2cConfig();
+      this.board.i2cConfig();
     }.bind(this), "i2cConfig expected `options` object");
 
     test.done();
@@ -1557,7 +1597,7 @@ exports["Board.prototype.i2cConfig"] = {
 
   defaultToA: function(test) {
     test.expect(2);
-    this.tessel.i2cConfig({ address: 0x04 });
+    this.board.i2cConfig({ address: 0x04 });
     test.equal(this.a.callCount, 1);
     test.equal(this.a.lastCall.args[0], 0x04);
     test.done();
@@ -1565,7 +1605,7 @@ exports["Board.prototype.i2cConfig"] = {
 
   explicitBus: function(test) {
     test.expect(2);
-    this.tessel.i2cConfig({ address: 0x04, bus: "B" });
+    this.board.i2cConfig({ address: 0x04, bus: "B" });
     test.equal(this.b.callCount, 1);
     test.equal(this.b.lastCall.args[0], 0x04);
     test.done();
@@ -1573,7 +1613,7 @@ exports["Board.prototype.i2cConfig"] = {
 
   maybeTheyCalledItPort: function(test) {
     test.expect(2);
-    this.tessel.i2cConfig({ address: 0x04, port: "B" });
+    this.board.i2cConfig({ address: 0x04, port: "B" });
     test.equal(this.b.callCount, 1);
     test.equal(this.b.lastCall.args[0], 0x04);
     test.done();
@@ -1581,7 +1621,7 @@ exports["Board.prototype.i2cConfig"] = {
 
   calledWithArrayOfAddresses: function(test) {
     test.expect(3);
-    this.tessel.i2cConfig({ addresses: [0x04, 0x05], port: "B" });
+    this.board.i2cConfig({ addresses: [0x04, 0x05], port: "B" });
     // One call for each address
     test.equal(this.b.callCount, 2);
     test.equal(this.b.firstCall.args[0], 0x04);
@@ -1591,7 +1631,7 @@ exports["Board.prototype.i2cConfig"] = {
 
   calledWithObjectOfAddresses: function(test) {
     test.expect(3);
-    this.tessel.i2cConfig({ address: { lcd: 0x04, rgb: 0x05 }, port: "B" });
+    this.board.i2cConfig({ address: { lcd: 0x04, rgb: 0x05 }, port: "B" });
     // One call for each address
     test.equal(this.b.callCount, 2);
     test.equal(this.b.firstCall.args[0], 0x04);
@@ -1609,7 +1649,7 @@ exports["Board.prototype.i2cWrite"] = {
     this.on = this.sandbox.spy(Board.prototype, "on");
     this.send = this.sandbox.stub(T2.I2C.prototype, "send");
 
-    this.tessel = new Board();
+    this.board = new Board();
 
     done();
   },
@@ -1623,8 +1663,8 @@ exports["Board.prototype.i2cWrite"] = {
   data: function(test) {
     test.expect(5);
 
-    this.tessel.i2cConfig({ address: 0x04, bus: "A" });
-    this.tessel.i2cWrite(0x04, [0, 1, 2, 3]);
+    this.board.i2cConfig({ address: 0x04, bus: "A" });
+    this.board.i2cWrite(0x04, [0, 1, 2, 3]);
 
     test.equal(this.send.callCount, 1);
     test.equal(this.send.lastCall.args[0][0], 0);
@@ -1637,8 +1677,8 @@ exports["Board.prototype.i2cWrite"] = {
   regAndData: function(test) {
     test.expect(6);
 
-    this.tessel.i2cConfig({ address: 0x04, bus: "A" });
-    this.tessel.i2cWrite(0x04, 0xff, [1, 2, 3, 4]);
+    this.board.i2cConfig({ address: 0x04, bus: "A" });
+    this.board.i2cWrite(0x04, 0xff, [1, 2, 3, 4]);
 
     test.equal(this.send.callCount, 1);
     test.equal(this.send.lastCall.args[0][0], 255);
@@ -1652,8 +1692,8 @@ exports["Board.prototype.i2cWrite"] = {
   regAndByte: function(test) {
     test.expect(3);
 
-    this.tessel.i2cConfig({ address: 0x04, bus: "A" });
-    this.tessel.i2cWrite(0x04, 0xff, 0x00);
+    this.board.i2cConfig({ address: 0x04, bus: "A" });
+    this.board.i2cWrite(0x04, 0xff, 0x00);
 
     test.equal(this.send.callCount, 1);
     test.equal(this.send.lastCall.args[0][0], 255);
@@ -1664,8 +1704,8 @@ exports["Board.prototype.i2cWrite"] = {
   regCommandByte: function(test) {
     test.expect(3);
 
-    this.tessel.i2cConfig({ address: 0x04, bus: "A" });
-    this.tessel.i2cWrite(0x04, 0xff);
+    this.board.i2cConfig({ address: 0x04, bus: "A" });
+    this.board.i2cWrite(0x04, 0xff);
 
     test.equal(this.send.callCount, 1);
     test.equal(this.send.lastCall.args[0][0], 255);
@@ -1683,7 +1723,7 @@ exports["Board.prototype.i2cWriteReg"] = {
     this.on = this.sandbox.spy(Board.prototype, "on");
     this.send = this.sandbox.stub(T2.I2C.prototype, "send");
 
-    this.tessel = new Board();
+    this.board = new Board();
 
     done();
   },
@@ -1697,8 +1737,8 @@ exports["Board.prototype.i2cWriteReg"] = {
   regAndByte: function(test) {
     test.expect(3);
 
-    this.tessel.i2cConfig({ address: 0x04, bus: "A" });
-    this.tessel.i2cWrite(0x04, 0xff, 0x00);
+    this.board.i2cConfig({ address: 0x04, bus: "A" });
+    this.board.i2cWrite(0x04, 0xff, 0x00);
 
     test.equal(this.send.callCount, 1);
     test.equal(this.send.lastCall.args[0][0], 255);
@@ -1713,7 +1753,7 @@ exports["Board.prototype.i2cReadOnce"] = {
     this.clock = this.sandbox.useFakeTimers();
     this.on = this.sandbox.spy(Board.prototype, "on");
     this.transfer = this.sandbox.stub(T2.I2C.prototype, "transfer");
-    this.tessel = new Board();
+    this.board = new Board();
 
     done();
   },
@@ -1728,8 +1768,8 @@ exports["Board.prototype.i2cReadOnce"] = {
     test.expect(3);
     var handler = this.sandbox.spy();
 
-    this.tessel.i2cConfig({ address: 0x04, bus: "A" });
-    this.tessel.i2cReadOnce(0x04, 4, handler);
+    this.board.i2cConfig({ address: 0x04, bus: "A" });
+    this.board.i2cReadOnce(0x04, 4, handler);
 
 
     test.equal(this.transfer.lastCall.args[0].length, 0);
@@ -1747,8 +1787,8 @@ exports["Board.prototype.i2cReadOnce"] = {
     // test.expect(4);
     var handler = this.sandbox.spy();
 
-    this.tessel.i2cConfig({ address: 0x04, bus: "A" });
-    this.tessel.i2cReadOnce(0x04, 0xff, 4, handler);
+    this.board.i2cConfig({ address: 0x04, bus: "A" });
+    this.board.i2cReadOnce(0x04, 0xff, 4, handler);
 
     test.equal(this.transfer.lastCall.args[0].length, 1);
     test.deepEqual(this.transfer.lastCall.args[0], [0xff]);
@@ -1788,7 +1828,7 @@ exports["Board.prototype.i2cRead"] = {
         callback(buffer);
       });
     });
-    this.tessel = new Board();
+    this.board = new Board();
 
     done();
   },
@@ -1811,14 +1851,14 @@ exports["Board.prototype.i2cRead"] = {
       }
     };
 
-    this.tessel.i2cConfig({ address: 0x04, bus: "A" });
-    this.tessel.i2cRead(0x04, 4, handler);
-    this.clock.tick(this.tessel.getSamplingInterval());
-    this.clock.tick(this.tessel.getSamplingInterval());
-    this.clock.tick(this.tessel.getSamplingInterval());
-    this.clock.tick(this.tessel.getSamplingInterval());
-    this.clock.tick(this.tessel.getSamplingInterval());
-    this.clock.tick(this.tessel.getSamplingInterval());
+    this.board.i2cConfig({ address: 0x04, bus: "A" });
+    this.board.i2cRead(0x04, 4, handler);
+    this.clock.tick(this.board.getSamplingInterval());
+    this.clock.tick(this.board.getSamplingInterval());
+    this.clock.tick(this.board.getSamplingInterval());
+    this.clock.tick(this.board.getSamplingInterval());
+    this.clock.tick(this.board.getSamplingInterval());
+    this.clock.tick(this.board.getSamplingInterval());
   },
 
   regAndBytesToRead: function(test) {
@@ -1833,13 +1873,13 @@ exports["Board.prototype.i2cRead"] = {
       }
     };
 
-    this.tessel.i2cConfig({ address: 0x04, bus: "A" });
-    this.tessel.i2cRead(0x04, 0xff, 4, handler);
-    this.clock.tick(this.tessel.getSamplingInterval());
-    this.clock.tick(this.tessel.getSamplingInterval());
-    this.clock.tick(this.tessel.getSamplingInterval());
-    this.clock.tick(this.tessel.getSamplingInterval());
-    this.clock.tick(this.tessel.getSamplingInterval());
+    this.board.i2cConfig({ address: 0x04, bus: "A" });
+    this.board.i2cRead(0x04, 0xff, 4, handler);
+    this.clock.tick(this.board.getSamplingInterval());
+    this.clock.tick(this.board.getSamplingInterval());
+    this.clock.tick(this.board.getSamplingInterval());
+    this.clock.tick(this.board.getSamplingInterval());
+    this.clock.tick(this.board.getSamplingInterval());
   },
 };
 
@@ -1847,7 +1887,7 @@ exports["Board.prototype.setSamplingInterval"] = {
   setUp: function(done) {
     this.sandbox = sinon.sandbox.create();
     this.clearInterval = this.sandbox.spy(global, "clearInterval");
-    this.tessel = new Board();
+    this.board = new Board();
     done();
   },
   tearDown: function(done) {
@@ -1857,21 +1897,21 @@ exports["Board.prototype.setSamplingInterval"] = {
   },
   samplingIntervalDefault: function(test) {
     test.expect(1);
-    test.equal(this.tessel.getSamplingInterval(), Board.defaultSamplingInterval);
+    test.equal(this.board.getSamplingInterval(), Board.defaultSamplingInterval);
     test.done();
   },
   samplingIntervalCustom: function(test) {
     test.expect(1);
-    this.tessel.setSamplingInterval(1000);
-    test.equal(this.tessel.getSamplingInterval(), 1000);
+    this.board.setSamplingInterval(1000);
+    test.equal(this.board.getSamplingInterval(), 1000);
     test.done();
   },
   samplingIntervalValid: function(test) {
     test.expect(2);
-    this.tessel.setSamplingInterval(65536);
-    test.equal(this.tessel.getSamplingInterval(), 65535);
-    this.tessel.setSamplingInterval(-1);
-    test.equal(this.tessel.getSamplingInterval(), 5);
+    this.board.setSamplingInterval(65536);
+    test.equal(this.board.getSamplingInterval(), 65535);
+    this.board.setSamplingInterval(-1);
+    test.equal(this.board.getSamplingInterval(), 5);
     test.done();
   }
 };
@@ -1884,7 +1924,7 @@ exports["Board.prototype.serialConfig"] = {
     this.a = this.sandbox.stub(tessel.port.A, "UART");
     this.b = this.sandbox.stub(tessel.port.B, "UART");
 
-    this.tessel = new Board();
+    this.board = new Board();
     done();
   },
   tearDown: function(done) {
@@ -1901,8 +1941,8 @@ exports["Board.prototype.serialConfig"] = {
       portId: "B",
     };
 
-    this.tessel.serialConfig(configA);
-    this.tessel.serialConfig(configB);
+    this.board.serialConfig(configA);
+    this.board.serialConfig(configB);
 
     test.equal(this.a.callCount, 1);
     test.equal(this.b.callCount, 1);
@@ -1941,8 +1981,8 @@ exports["Board.prototype.serialConfig"] = {
       stopBits: 1,
     };
 
-    this.tessel.serialConfig(configA);
-    this.tessel.serialConfig(configB);
+    this.board.serialConfig(configA);
+    this.board.serialConfig(configB);
 
     test.equal(this.a.callCount, 1);
     test.equal(this.b.callCount, 1);
@@ -1968,7 +2008,7 @@ exports["Board.prototype.serialConfig"] = {
     test.expect(3);
 
     test.throws(() => {
-      this.tessel.serialConfig();
+      this.board.serialConfig();
     });
     test.equal(this.a.callCount, 0);
     test.equal(this.b.callCount, 0);
@@ -1980,7 +2020,7 @@ exports["Board.prototype.serialConfig"] = {
     test.expect(3);
 
     test.throws(() => {
-      this.tessel.serialConfig({});
+      this.board.serialConfig({});
     });
     test.equal(this.a.callCount, 0);
     test.equal(this.b.callCount, 0);
@@ -1992,7 +2032,7 @@ exports["Board.prototype.serialConfig"] = {
     test.expect(3);
 
     test.throws(() => {
-      this.tessel.serialConfig({ portId: "jdfnkjdfnb" });
+      this.board.serialConfig({ portId: "jdfnkjdfnb" });
     });
     test.equal(this.a.callCount, 0);
     test.equal(this.b.callCount, 0);

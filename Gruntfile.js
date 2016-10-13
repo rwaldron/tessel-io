@@ -12,7 +12,7 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON("package.json"),
     nodeunit: {
       tests: [
-        "test/tessel-io.js"
+        "test/index.js"
       ]
     },
     jshint: {
