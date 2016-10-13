@@ -1068,6 +1068,71 @@ exports["Tessel.prototype.analogRead"] = {
     test.done();
   },
 
+  invalidPins: function(test) {
+    test.expect(6);
+
+    var spy = this.sandbox.spy();
+
+    test.throws(_ => {
+      this.tessel.analogRead("a0", spy);
+    });
+    test.throws(_ => {
+      this.tessel.analogRead("a1", spy);
+    });
+    test.throws(_ => {
+      this.tessel.analogRead("a2", spy);
+    });
+    test.throws(_ => {
+      this.tessel.analogRead("a3", spy);
+    });
+    test.throws(_ => {
+      this.tessel.analogRead("a5", spy);
+    });
+    test.throws(_ => {
+      this.tessel.analogRead("a6", spy);
+    });
+
+    test.done();
+  },
+  validPins: function(test) {
+    test.expect(10);
+
+    var spy = this.sandbox.spy();
+
+    test.doesNotThrow(_ => {
+      this.tessel.analogRead("a4", spy);
+    });
+    test.doesNotThrow(_ => {
+      this.tessel.analogRead("a7", spy);
+    });
+    test.doesNotThrow(_ => {
+      this.tessel.analogRead("b0", spy);
+    });
+    test.doesNotThrow(_ => {
+      this.tessel.analogRead("b1", spy);
+    });
+    test.doesNotThrow(_ => {
+      this.tessel.analogRead("b2", spy);
+    });
+    test.doesNotThrow(_ => {
+      this.tessel.analogRead("b3", spy);
+    });
+    test.doesNotThrow(_ => {
+      this.tessel.analogRead("b4", spy);
+    });
+    test.doesNotThrow(_ => {
+      this.tessel.analogRead("b5", spy);
+    });
+    test.doesNotThrow(_ => {
+      this.tessel.analogRead("b6", spy);
+    });
+    test.doesNotThrow(_ => {
+      this.tessel.analogRead("b7", spy);
+    });
+
+    test.done();
+  },
+
   callback: function(test) {
     test.expect(6);
 
