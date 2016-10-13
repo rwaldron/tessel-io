@@ -31,6 +31,10 @@ function Tessel() {
 
   this.leds = this.led;
 
+  this.network = {
+    wifi: new Tessel.Wifi(),
+    ap: new Tessel.AP()
+  };
 }
 
 Tessel.prototype.pwmFrequency = function(frequency, cb) {};
@@ -629,6 +633,9 @@ Tessel.LED.prototype.write = function(value, callback) {
 
   this.value = value;
 };
+
+Tessel.Wifi = function() {};
+Tessel.AP = function() {};
 
 if (process.env.IS_TEST_MODE) {
   // To make this module testable, we need
