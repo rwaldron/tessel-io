@@ -7,6 +7,7 @@ var factory = require("../test/tessel-mock");
 var os = require("os");
 var util = require("util");
 var Emitter = require("events").EventEmitter;
+var stream = require("stream");
 var sinon = require("sinon");
 
 
@@ -309,6 +310,18 @@ exports["Board.prototype"] = {
       SERVO:  0x04,
       I2C:    0x06,
       SERIAL: 0x0A,
+    });
+    test.done();
+  },
+  i2cBus: function(test) {
+    test.expect(1);
+
+    test.doesNotThrow(() => {
+      new Board({
+        i2c: {
+          bus: 1
+        }
+      });
     });
     test.done();
   },
@@ -986,7 +999,12 @@ exports["Board.prototype.digitalRead"] = {
   },
 
   handlersForInterruptPins: function(test) {
-    test.expect(6);
+    test.expect(8);
+
+
+    test.equal(this.board.pins[2].isInterrupt, true);
+    test.equal(this.board.pins[5].isInterrupt, true);
+
 
     var spy = sinon.spy();
 
@@ -1014,6 +1032,21 @@ exports["Board.prototype.digitalRead"] = {
     test.deepEqual(spy.lastCall.args, [0]);
     test.equal(spy.callCount, 2);
 
+    test.done();
+  },
+
+  newListener: function(test) {
+    test.expect(3);
+
+    var spy = this.sandbox.spy();
+    this.on = this.sandbox.stub(T2.instance.ports.A.pin[0], "on");
+
+    this.board.pins[0].on("change", spy);
+    this.board.pins[0].on("something-else", spy);
+
+    test.equal(this.on.callCount, 1);
+    test.equal(this.on.lastCall.args[0], "change");
+    test.equal(this.on.lastCall.args[1], spy);
     test.done();
   },
 
@@ -1595,6 +1628,16 @@ exports["Board.prototype.i2cConfig"] = {
     test.done();
   },
 
+  expectNumber: function(test) {
+    test.expect(1);
+
+    test.doesNotThrow(function() {
+      this.board.i2cConfig(1000);
+    }.bind(this), "i2cConfig accepts a delay number");
+
+    test.done();
+  },
+
   defaultToA: function(test) {
     test.expect(2);
     this.board.i2cConfig({ address: 0x04 });
@@ -1733,12 +1776,11 @@ exports["Board.prototype.i2cWriteReg"] = {
     this.sandbox.restore();
     done();
   },
-
   regAndByte: function(test) {
     test.expect(3);
 
     this.board.i2cConfig({ address: 0x04, bus: "A" });
-    this.board.i2cWrite(0x04, 0xff, 0x00);
+    this.board.i2cWriteReg(0x04, 0xff, 0x00);
 
     test.equal(this.send.callCount, 1);
     test.equal(this.send.lastCall.args[0][0], 255);
@@ -1784,7 +1826,7 @@ exports["Board.prototype.i2cReadOnce"] = {
   },
 
   regAndBytesToRead: function(test) {
-    // test.expect(4);
+    test.expect(4);
     var handler = this.sandbox.spy();
 
     this.board.i2cConfig({ address: 0x04, bus: "A" });
@@ -1800,6 +1842,24 @@ exports["Board.prototype.i2cReadOnce"] = {
 
     test.deepEqual(handler.lastCall.args[0], [1, 2, 3, 4]);
     test.done();
+  },
+
+  readError: function(test) {
+    test.expect(1);
+    var handler = this.sandbox.spy();
+    var expectError = new Error("An Error!");
+
+    this.transfer.restore();
+    this.transfer = this.sandbox.stub(T2.I2C.prototype, "transfer", (buffer, bytesToRead, handler) => {
+      handler(expectError);
+    });
+
+    this.board.on("error", error => {
+      test.equal(error, expectError);
+      test.done();
+    });
+    this.board.i2cConfig({ address: 0x04, bus: "A" });
+    this.board.i2cReadOnce(0x04, 0xff, 4, handler);
   },
 };
 
@@ -1917,12 +1977,42 @@ exports["Board.prototype.setSamplingInterval"] = {
 };
 
 
-exports["Board.prototype.serialConfig"] = {
+class SDuplex extends stream.Duplex {
+  constructor() {
+    super();
+  }
+  _write() {}
+}
+
+exports["Board.prototype.serial*"] = {
   setUp: function(done) {
     this.sandbox = sinon.sandbox.create();
 
     this.a = this.sandbox.stub(tessel.port.A, "UART");
     this.b = this.sandbox.stub(tessel.port.B, "UART");
+
+    this.configA = {
+      portId: "A",
+    };
+    this.configB = {
+      portId: "B",
+    };
+
+    this.privGet = this.sandbox.spy(Map.prototype, "get");
+    this.inBytes = [1, 2, 3, 4];
+
+    this.write = this.sandbox.stub(SDuplex.prototype, "write");
+    this.on = this.sandbox.stub(SDuplex.prototype, "on");
+
+    this.fakeState = {
+      uart: {
+        A: new SDuplex(),
+        B: new SDuplex(),
+      }
+    };
+
+    this.fakeState.uart.A.disable = this.sandbox.spy();
+    this.fakeState.uart.B.disable = this.sandbox.spy();
 
     this.board = new Board();
     done();
@@ -1932,112 +2022,292 @@ exports["Board.prototype.serialConfig"] = {
     Board.purge();
     done();
   },
-  validWithDefaults: function(test) {
-    test.expect(4);
-    var configA = {
-      portId: "A",
-    };
-    var configB = {
-      portId: "B",
-    };
 
-    this.board.serialConfig(configA);
-    this.board.serialConfig(configB);
+  serialConfig: {
+    privateState: function(test) {
+      test.expect(2);
 
-    test.equal(this.a.callCount, 1);
-    test.equal(this.b.callCount, 1);
+      this.privGet.reset();
 
-    test.deepEqual(this.a.lastCall.args[0], {
-      baudrate: 57600,
-      dataBits: 8,
-      parity: "none",
-      stopBits: 1,
-    });
-    test.deepEqual(this.b.lastCall.args[0], {
-      baudrate: 57600,
-      dataBits: 8,
-      parity: "none",
-      stopBits: 1,
-    });
+      this.board.serialConfig(this.configA);
 
-    test.done();
+      test.equal(this.privGet.callCount, 1);
+      test.equal(this.privGet.lastCall.args[0], this.board);
+      test.done();
+    },
+
+    validWithDefaults: function(test) {
+      test.expect(4);
+      this.board.serialConfig(this.configA);
+      this.board.serialConfig(this.configB);
+
+      test.equal(this.a.callCount, 1);
+      test.equal(this.b.callCount, 1);
+
+      test.deepEqual(this.a.lastCall.args[0], {
+        baudrate: 57600,
+        dataBits: 8,
+        parity: "none",
+        stopBits: 1,
+      });
+      test.deepEqual(this.b.lastCall.args[0], {
+        baudrate: 57600,
+        dataBits: 8,
+        parity: "none",
+        stopBits: 1,
+      });
+
+      test.done();
+    },
+
+    validWithExplicit: function(test) {
+      test.expect(4);
+
+      var configA = Object.assign({}, {
+        portId: "A",
+        baud: 9600,
+        dataBits: 8,
+        parity: "none",
+        stopBits: 1,
+      });
+      var configB = Object.assign({}, {
+        portId: "B",
+        baud: 9600,
+        dataBits: 8,
+        parity: "none",
+        stopBits: 1,
+      });
+
+      this.board.serialConfig(configA);
+      this.board.serialConfig(configB);
+
+      test.equal(this.a.callCount, 1);
+      test.equal(this.b.callCount, 1);
+
+      test.deepEqual(this.a.lastCall.args[0], {
+        baudrate: 9600,
+        dataBits: 8,
+        parity: "none",
+        stopBits: 1,
+      });
+
+      test.deepEqual(this.b.lastCall.args[0], {
+        baudrate: 9600,
+        dataBits: 8,
+        parity: "none",
+        stopBits: 1,
+      });
+
+      test.done();
+    },
+
+    invalidMissingOptions: function(test) {
+      test.expect(3);
+
+      test.throws(() => {
+        this.board.serialConfig();
+      });
+      test.equal(this.a.callCount, 0);
+      test.equal(this.b.callCount, 0);
+
+      test.done();
+    },
+
+    invalidMissingPortId: function(test) {
+      test.expect(3);
+
+      test.throws(() => {
+        this.board.serialConfig({});
+      });
+      test.equal(this.a.callCount, 0);
+      test.equal(this.b.callCount, 0);
+
+      test.done();
+    },
+
+    invalidPortId: function(test) {
+      test.expect(3);
+
+      test.throws(() => {
+        this.board.serialConfig({ portId: "jdfnkjdfnb" });
+      });
+      test.equal(this.a.callCount, 0);
+      test.equal(this.b.callCount, 0);
+
+      test.done();
+    },
   },
 
-  validWithExplicit: function(test) {
-    test.expect(4);
+  serialWrite: {
+    privateState: function(test) {
+      test.expect(2);
 
-    var configA = {
-      portId: "A",
-      baud: 9600,
-      dataBits: 8,
-      parity: "none",
-      stopBits: 1,
-    };
-    var configB = {
-      portId: "B",
-      baud: 9600,
-      dataBits: 8,
-      parity: "none",
-      stopBits: 1,
-    };
+      this.privGet.reset();
 
-    this.board.serialConfig(configA);
-    this.board.serialConfig(configB);
+      this.board.serialWrite("A", this.inBytes);
 
-    test.equal(this.a.callCount, 1);
-    test.equal(this.b.callCount, 1);
+      test.equal(this.privGet.callCount, 1);
+      test.equal(this.privGet.lastCall.args[0], this.board);
+      test.done();
+    },
 
-    test.deepEqual(this.a.lastCall.args[0], {
-      baudrate: 9600,
-      dataBits: 8,
-      parity: "none",
-      stopBits: 1,
-    });
+    writesInBytes: function(test) {
+      test.expect(12);
 
-    test.deepEqual(this.b.lastCall.args[0], {
-      baudrate: 9600,
-      dataBits: 8,
-      parity: "none",
-      stopBits: 1,
-    });
+      this.privGet.restore();
+      this.privGet = this.sandbox.stub(Map.prototype, "get").returns(this.fakeState);
 
-    test.done();
+      this.board.serialWrite("A", this.inBytes);
+      this.board.serialWrite("B", this.inBytes);
+
+      test.equal(this.privGet.callCount, 2);
+      test.equal(this.privGet.firstCall.args[0], this.board);
+      test.equal(this.privGet.secondCall.args[0], this.board);
+
+      test.equal(this.write.callCount, 2);
+      test.equal(this.write.firstCall.args[0][0], 1);
+      test.equal(this.write.firstCall.args[0][1], 2);
+      test.equal(this.write.firstCall.args[0][2], 3);
+      test.equal(this.write.firstCall.args[0][3], 4);
+
+      test.equal(this.write.secondCall.args[0][0], 1);
+      test.equal(this.write.secondCall.args[0][1], 2);
+      test.equal(this.write.secondCall.args[0][2], 3);
+      test.equal(this.write.secondCall.args[0][3], 4);
+      test.done();
+    },
+
+    writesInBytesNonArray: function(test) {
+      test.expect(6);
+
+      this.privGet.restore();
+      this.privGet = this.sandbox.stub(Map.prototype, "get").returns(this.fakeState);
+
+      this.board.serialWrite("A", this.inBytes[0]);
+      this.board.serialWrite("B", this.inBytes[0]);
+
+      test.equal(this.privGet.callCount, 2);
+      test.equal(this.privGet.firstCall.args[0], this.board);
+      test.equal(this.privGet.secondCall.args[0], this.board);
+
+      test.equal(this.write.callCount, 2);
+      test.equal(this.write.firstCall.args[0][0], 1);
+      test.equal(this.write.secondCall.args[0][0], 1);
+      test.done();
+    },
+
   },
+  serialRead: {
+    privateState: function(test) {
+      test.expect(2);
 
-  invalidMissingOptions: function(test) {
-    test.expect(3);
+      this.privGet.reset();
 
-    test.throws(() => {
-      this.board.serialConfig();
-    });
-    test.equal(this.a.callCount, 0);
-    test.equal(this.b.callCount, 0);
+      this.board.serialRead("A", 1, () => {});
 
-    test.done();
+      test.equal(this.privGet.callCount, 1);
+      test.equal(this.privGet.lastCall.args[0], this.board);
+      test.done();
+    },
+
+    data: function(test) {
+      test.expect(8);
+
+      var spy = this.sandbox.spy();
+
+      this.privGet.restore();
+      this.privGet = this.sandbox.stub(Map.prototype, "get").returns(this.fakeState);
+
+      this.on.reset();
+
+      this.board.serialRead("A", 1, spy);
+      this.board.serialRead("B", 1, spy);
+
+      test.equal(this.privGet.callCount, 2);
+      test.equal(this.privGet.firstCall.args[0], this.board);
+      test.equal(this.privGet.secondCall.args[0], this.board);
+
+      test.equal(this.on.callCount, 2);
+      test.equal(this.on.firstCall.args[0], "data");
+      test.equal(this.on.firstCall.args[0], "data");
+      test.equal(this.on.secondCall.args[1], spy);
+      test.equal(this.on.secondCall.args[1], spy);
+
+      test.done();
+    },
   },
+  serialStop: {
+    privateState: function(test) {
+      test.expect(2);
 
-  invalidMissingPortId: function(test) {
-    test.expect(3);
+      this.privGet.reset();
 
-    test.throws(() => {
-      this.board.serialConfig({});
-    });
-    test.equal(this.a.callCount, 0);
-    test.equal(this.b.callCount, 0);
+      this.board.serialStop("A");
 
-    test.done();
+      test.equal(this.privGet.callCount, 1);
+      test.equal(this.privGet.lastCall.args[0], this.board);
+      test.done();
+    },
+
+    stop: function(test) {
+      test.expect(6);
+
+
+      this.removeAllListeners = this.sandbox.stub(SDuplex.prototype, "removeAllListeners");
+
+
+      this.privGet.restore();
+      this.privGet = this.sandbox.stub(Map.prototype, "get").returns(this.fakeState);
+
+      this.removeAllListeners.reset();
+
+      this.board.serialStop("A");
+      this.board.serialStop("B");
+
+      test.equal(this.privGet.callCount, 2);
+      test.equal(this.privGet.firstCall.args[0], this.board);
+      test.equal(this.privGet.secondCall.args[0], this.board);
+
+      test.equal(this.removeAllListeners.callCount, 2);
+      test.equal(this.removeAllListeners.firstCall.args[0], "data");
+      test.equal(this.removeAllListeners.firstCall.args[0], "data");
+
+      test.done();
+    },
   },
+  serialClose: {
+    privateState: function(test) {
+      test.expect(2);
 
-  invalidPortId: function(test) {
-    test.expect(3);
+      this.privGet.reset();
 
-    test.throws(() => {
-      this.board.serialConfig({ portId: "jdfnkjdfnb" });
-    });
-    test.equal(this.a.callCount, 0);
-    test.equal(this.b.callCount, 0);
+      this.board.serialClose("A");
 
-    test.done();
+      test.equal(this.privGet.callCount, 1);
+      test.equal(this.privGet.lastCall.args[0], this.board);
+      test.done();
+    },
+
+    close: function(test) {
+      test.expect(5);
+
+
+      this.privGet.restore();
+      this.privGet = this.sandbox.stub(Map.prototype, "get").returns(this.fakeState);
+
+      this.board.serialClose("A");
+      this.board.serialClose("B");
+
+      test.equal(this.privGet.callCount, 2);
+      test.equal(this.privGet.firstCall.args[0], this.board);
+      test.equal(this.privGet.secondCall.args[0], this.board);
+
+      test.equal(this.fakeState.uart.A.disable.callCount, 1);
+      test.equal(this.fakeState.uart.B.disable.callCount, 1);
+
+      test.done();
+    },
   },
-
 };
+
+
