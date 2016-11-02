@@ -1,4 +1,4 @@
-var Tessel = require("../lib/index");
+var Tessel = require("../lib/");
 var board = new Tessel();
 
 board.on("ready", function() {
