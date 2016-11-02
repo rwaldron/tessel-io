@@ -1,0 +1,11 @@
+{
+  "reporter": [
+    "lcov"
+  ],
+  "include": [
+    "lib/index.js"
+  ],
+  "exclude": [
+    "Gruntfile.js"
+  ]
+}

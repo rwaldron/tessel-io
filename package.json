@@ -4,7 +4,9 @@
   "description": "Tessel 2 IO Plugin for Johnny-Five JavaScript Robotics",
   "main": "lib/index.js",
   "scripts": {
-    "test": "grunt"
+    "test": "grunt",
+    "test-cover": "nyc grunt nodeunit",
+    "coveralls": "nyc --reporter=lcov grunt nodeunit && cat ./coverage/lcov.info | coveralls"
   },
   "repository": {
     "type": "git",
@@ -26,11 +28,13 @@
   "homepage": "https://github.com/rwaldron/tessel-io",
   "devDependencies": {
     "common-tags": "^1.3.1",
+    "coveralls": "^2.11.14",
     "grunt": "^0.4.5",
     "grunt-contrib-jshint": "^1.0.0",
     "grunt-contrib-nodeunit": "^0.4.1",
     "grunt-git-authors": "^3.2.0",
     "grunt-jscs": "~2.3.0",
+    "nyc": "^8.3.2",
     "sinon": "^1.15.3"
   },
   "contributors": [
