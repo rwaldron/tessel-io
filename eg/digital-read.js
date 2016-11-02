@@ -1,5 +1,5 @@
 // process.env.IS_TEST_MODE = true
-var Tessel = require("../lib/tessel");
+var Tessel = require("../lib/index");
 var board = new Tessel();
 
 board.on("ready", function() {
