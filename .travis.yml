@@ -9,3 +9,5 @@ install:
   - npm install
 script:
   - grunt
+after_success:
+  - npm run test-cover && npm run coveralls
