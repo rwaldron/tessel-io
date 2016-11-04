@@ -2,16 +2,14 @@
 
 process.env.IS_TEST_MODE = true;
 
-var Board = require("../");
-var factory = require("../test/tessel-mock");
-var os = require("os");
-var util = require("util");
-var Emitter = require("events").EventEmitter;
-var stream = require("stream");
-var sinon = require("sinon");
-
-
-var Port = {};
+const Board = require("../");
+const factory = require("../test/tessel-mock");
+const os = require("os");
+const util = require("util");
+const Emitter = require("events").EventEmitter;
+const stream = require("stream");
+const sinon = require("sinon");
+const Port = {};
 
 // From t2-firmware/node/tessel.js
 Port.CMD = {
@@ -25,7 +23,7 @@ Port.CMD = {
   STOP: 0x14,
   ANALOG_READ: 0x18,
   ANALOG_WRITE: 0x19,
- };
+};
 
 Port.REPLY = {
   ACK:  0x80,
@@ -41,7 +39,7 @@ Port.REPLY = {
 };
 
 
-var functions = [{
+const functions = [{
   name: "analogRead"
 }, {
   name: "analogWrite"
@@ -81,17 +79,17 @@ var functions = [{
   name: "serialListen"
 }];
 
-var objects = [{
+const objects = [{
   name: "MODES"
 }];
 
-var numbers = [{
+const numbers = [{
   name: "HIGH"
 }, {
   name: "LOW"
 }];
 
-var instance = [{
+const instance = [{
   name: "pins"
 }, {
   name: "analogPins"
@@ -99,23 +97,23 @@ var instance = [{
 
 
 
-var ToPinIndex = Board.ToPinIndex;
-var ToPortIdentity = Board.ToPortIdentity;
-var ToPortI2CBus = Board.ToPortI2CBus;
-var ToI2CBusPort = Board.ToI2CBusPort;
-var Pin = Board.Pin;
-var tessel = Board.tessel;
-var T2 = factory.Tessel;
+const ToPinIndex = Board.ToPinIndex;
+const ToPortIdentity = Board.ToPortIdentity;
+const ToPortI2CBus = Board.ToPortI2CBus;
+const ToI2CBusPort = Board.ToI2CBusPort;
+const Pin = Board.Pin;
+const tessel = Board.tessel;
+const T2 = factory.Tessel;
 
 
 exports["Board.PORTS.*"] = {
-  setUp: function(done) {
+  setUp(done) {
     done();
   },
-  tearDown: function(done) {
+  tearDown(done) {
     done();
   },
-  ports: function(test) {
+  ports(test) {
     test.expect(2);
     test.equal(Board.PORTS.A, tessel.port.A);
     test.equal(Board.PORTS.B, tessel.port.B);
@@ -124,13 +122,13 @@ exports["Board.PORTS.*"] = {
 };
 
 exports["Board.wifi"] = {
-  setUp: function(done) {
+  setUp(done) {
     done();
   },
-  tearDown: function(done) {
+  tearDown(done) {
     done();
   },
-  ports: function(test) {
+  ports(test) {
     test.expect(1);
     test.equal(typeof Board.wifi, "object");
     test.done();
@@ -138,13 +136,13 @@ exports["Board.wifi"] = {
 };
 
 exports["Board.ap"] = {
-  setUp: function(done) {
+  setUp(done) {
     done();
   },
-  tearDown: function(done) {
+  tearDown(done) {
     done();
   },
-  ports: function(test) {
+  ports(test) {
     test.expect(1);
     test.equal(typeof Board.ap, "object");
     test.done();
@@ -152,7 +150,7 @@ exports["Board.ap"] = {
 };
 
 exports["Board Constructor"] = {
-  setUp: function(done) {
+  setUp(done) {
     this.sandbox = sinon.sandbox.create();
     this.hostname = this.sandbox.stub(os, "hostname", _ => "NOT A REAL TESSEL");
     this.set = this.sandbox.spy(Map.prototype, "set");
@@ -160,20 +158,20 @@ exports["Board Constructor"] = {
     this.board = new Board();
     done();
   },
-  tearDown: function(done) {
+  tearDown(done) {
     Board.purge();
     this.sandbox.restore();
     done();
   },
 
-  tesselName: function(test) {
+  tesselName(test) {
     test.expect(1);
     test.equal(this.board.name, "Tessel 2 (NOT A REAL TESSEL)");
     test.done();
   },
 
 
-  // shape: function(test) {
+  // shape(test) {
   //   test.expect(
   //     functions.length +
   //     objects.length +
@@ -200,7 +198,7 @@ exports["Board Constructor"] = {
   //   test.done();
   // },
 
-  state: function(test) {
+  state(test) {
     test.expect(1);
 
     test.deepEqual(this.set.firstCall.args[1], {
@@ -218,18 +216,17 @@ exports["Board Constructor"] = {
       uart: {}
     });
 
-
     test.done();
   },
 
-  pins: function(test) {
+  pins(test) {
     test.expect(2);
     test.equal(this.board.pins.length, 20);
     test.equal(this.board.analogPins.length, 10);
     test.done();
   },
 
-  initialMode: function(test) {
+  initialMode(test) {
     test.expect(20);
 
     test.equal(this.board.pins[0].mode, undefined);
@@ -256,7 +253,7 @@ exports["Board Constructor"] = {
     test.done();
   },
 
-  initialValue: function(test) {
+  initialValue(test) {
     test.expect(20);
 
     test.equal(this.board.pins[0].value, 0);
@@ -286,7 +283,7 @@ exports["Board Constructor"] = {
 };
 
 exports["Board.prototype"] = {
-  setUp: function(done) {
+  setUp(done) {
     this.sandbox = sinon.sandbox.create();
     this.hostname = this.sandbox.stub(os, "hostname", _ => "NOT A REAL TESSEL");
     this.set = this.sandbox.spy(Map.prototype, "set");
@@ -294,13 +291,13 @@ exports["Board.prototype"] = {
     this.board = new Board();
     done();
   },
-  tearDown: function(done) {
+  tearDown(done) {
     Board.purge();
     this.sandbox.restore();
     done();
   },
 
-  modes: function(test) {
+  modes(test) {
     test.expect(1);
     test.deepEqual(Board.prototype.MODES, {
       INPUT:  0x00,
@@ -313,7 +310,7 @@ exports["Board.prototype"] = {
     });
     test.done();
   },
-  i2cBus: function(test) {
+  i2cBus(test) {
     test.expect(1);
 
     test.doesNotThrow(() => {
@@ -325,12 +322,12 @@ exports["Board.prototype"] = {
     });
     test.done();
   },
-  high: function(test) {
+  high(test) {
     test.expect(1);
     test.equal(Board.prototype.HIGH, 1);
     test.done();
   },
-  low: function(test) {
+  low(test) {
     test.expect(1);
     test.equal(Board.prototype.LOW, 0);
     test.done();
@@ -338,32 +335,32 @@ exports["Board.prototype"] = {
 };
 
 exports["Automatic REPL disabling"] = {
-  setUp: function(done) {
+  setUp(done) {
     this.dirName = Board.dirName();
     done();
   },
-  tearDown: function(done) {
+  tearDown(done) {
     Board.purge();
     Board.dirName(this.dirName);
     done();
   },
 
-  checkT2Run: function(test) {
+  checkT2Run(test) {
     test.expect(1);
 
     Board.dirName("/tmp/remote-script");
-    var tessel = new Board();
+    const tessel = new Board();
 
     test.equal(tessel.repl, undefined);
 
     test.done();
   },
 
-  checkT2Push: function(test) {
+  checkT2Push(test) {
     test.expect(1);
 
     Board.dirName("/app/remote-script");
-    var tessel = new Board();
+    const tessel = new Board();
 
     test.equal(tessel.repl, false);
 
@@ -373,13 +370,13 @@ exports["Automatic REPL disabling"] = {
 
 
 exports["ToPinIndex"] = {
-  valid: function(test) {
+  valid(test) {
     test.expect(80);
 
-    var offsetB = 8;
-    var offsetL = 16;
+    const offsetB = 8;
+    const offsetL = 16;
 
-    for (var i = 0; i < 8; i++) {
+    for (let i = 0; i < 8; i++) {
       test.equal(ToPinIndex(`A${i}`), i);
       test.equal(ToPinIndex(`B${i}`), i + offsetB);
 
@@ -403,17 +400,17 @@ exports["ToPinIndex"] = {
     test.done();
   },
 
-  validIndex: function(test) {
+  validIndex(test) {
     test.expect(20);
-    for (var j = 0; j < 20; j++) {
+    for (let j = 0; j < 20; j++) {
       test.equal(ToPinIndex(j), j);
     }
     test.done();
   },
 
-  invalidIndex: function(test) {
+  invalidIndex(test) {
     test.expect(41);
-    for (var j = 1; j < 20; j++) {
+    for (let j = 1; j < 20; j++) {
       test.equal(ToPinIndex(-j), -1);
       test.equal(ToPinIndex(j + 20), -1);
     }
@@ -424,13 +421,13 @@ exports["ToPinIndex"] = {
     test.done();
   },
 
-  valueMatchesPortButOutOfRange: function(test) {
+  valueMatchesPortButOutOfRange(test) {
     test.expect(1);
     test.equal(ToPinIndex(20), -1);
     test.done();
   },
 
-  invalidNonCoercible: function(test) {
+  invalidNonCoercible(test) {
     test.expect(1);
     test.equal(ToPinIndex("c1"), -1);
     test.done();
@@ -438,13 +435,13 @@ exports["ToPinIndex"] = {
 };
 
 exports["ToPortIdentity"] = {
-  valid: function(test) {
+  valid(test) {
     test.expect(20);
 
     var offset = 0;
     var port = "A";
 
-    for (var i = 0; i < 20; i++) {
+    for (let i = 0; i < 20; i++) {
       if (i > 7) {
         port = "B";
         offset = 8;
@@ -459,14 +456,14 @@ exports["ToPortIdentity"] = {
     }
     test.done();
   },
-  invalid: function(test) {
+  invalid(test) {
     test.expect(2);
     test.deepEqual(ToPortIdentity(-1), { port: null, index: -1 });
     test.deepEqual(ToPortIdentity(20), { port: null, index: -1 });
     test.done();
   },
 
-  valueMatchesPortBusOutOfRange: function(test) {
+  valueMatchesPortBusOutOfRange(test) {
     test.expect(1);
     test.deepEqual(ToPortIdentity(20), { port: null, index: -1 });
     test.done();
@@ -475,7 +472,7 @@ exports["ToPortIdentity"] = {
 };
 
 exports["ToPortI2CBus"] = {
-  valid: function(test) {
+  valid(test) {
     test.expect(6);
     test.equal(ToPortI2CBus("A"), 4);
     test.equal(ToPortI2CBus("B"), 2);
@@ -485,23 +482,23 @@ exports["ToPortI2CBus"] = {
     test.equal(ToPortI2CBus(2), 2);
     test.done();
   },
-  validPortButNoBus: function(test) {
+  validPortButNoBus(test) {
     test.expect(1);
     test.equal(ToPortI2CBus("L"), -1);
     test.done();
   },
-  invalid: function(test) {
+  invalid(test) {
     test.expect(2);
     test.equal(ToPortI2CBus("C"), -1);
     test.equal(ToPortI2CBus(0), -1);
     test.done();
   },
-  invalidPort: function(test) {
+  invalidPort(test) {
     test.expect(1);
     test.equal(ToPortI2CBus("C"), -1);
     test.done();
   },
-  invalidBus: function(test) {
+  invalidBus(test) {
     test.expect(1);
     test.equal(ToPortI2CBus(0), -1);
     test.done();
@@ -509,7 +506,7 @@ exports["ToPortI2CBus"] = {
 };
 
 exports["ToI2CBusPort"] = {
-  valid: function(test) {
+  valid(test) {
     test.expect(6);
     test.equal(ToI2CBusPort("A"), "A");
     test.equal(ToI2CBusPort("B"), "B");
@@ -519,12 +516,12 @@ exports["ToI2CBusPort"] = {
     test.equal(ToI2CBusPort(2), "B");
     test.done();
   },
-  validPortButNoBus: function(test) {
+  validPortButNoBus(test) {
     test.expect(1);
     test.equal(ToI2CBusPort("L"), undefined);
     test.done();
   },
-  invalid: function(test) {
+  invalid(test) {
     test.expect(2);
     test.equal(ToI2CBusPort("C"), undefined);
     test.equal(ToI2CBusPort(0), undefined);
@@ -533,16 +530,16 @@ exports["ToI2CBusPort"] = {
 };
 
 exports["Board.prototype.normalize"] = {
-  setUp: function(done) {
+  setUp(done) {
     this.board = new Board();
     done();
   },
-  tearDown: function(done) {
+  tearDown(done) {
     Board.purge();
     done();
   },
 
-  invalid: function(test) {
+  invalid(test) {
     test.expect(3);
     test.equal(this.board.normalize(null), -1);
     test.equal(this.board.normalize(undefined), -1);
@@ -550,13 +547,13 @@ exports["Board.prototype.normalize"] = {
     test.done();
   },
 
-  stringNames: function(test) {
+  stringNames(test) {
     test.expect(40);
 
     var offsetB = 8;
     var offsetL = 16;
 
-    for (var i = 0; i < 8; i++) {
+    for (let i = 0; i < 8; i++) {
 
       test.equal(this.board.normalize(`A${i}`), i);
       test.equal(this.board.normalize(`A-${i}`), i);
@@ -573,10 +570,10 @@ exports["Board.prototype.normalize"] = {
     test.done();
   },
 
-  index: function(test) {
+  index(test) {
     test.expect(20);
 
-    for (var i = 0; i < 20; i++) {
+    for (let i = 0; i < 20; i++) {
       test.equal(this.board.normalize(i), i);
     }
 
@@ -585,7 +582,7 @@ exports["Board.prototype.normalize"] = {
 };
 
 exports["Board.prototype.pinMode"] = {
-  setUp: function(done) {
+  setUp(done) {
     this.sandbox = sinon.sandbox.create();
     this.output = this.sandbox.spy(tessel.port.A.pin[0], "output");
     this.input = this.sandbox.spy(tessel.port.A.pin[0], "input");
@@ -597,13 +594,13 @@ exports["Board.prototype.pinMode"] = {
     this.board = new Board();
     done();
   },
-  tearDown: function(done) {
+  tearDown(done) {
     Board.purge();
     this.sandbox.restore();
     done();
   },
 
-  returns: function(test) {
+  returns(test) {
     test.expect(3);
     test.equal(this.board.pinMode("A0", this.board.MODES.INPUT), this.board);
     test.equal(this.board.pinMode("B0", this.board.MODES.INPUT), this.board);
@@ -611,7 +608,7 @@ exports["Board.prototype.pinMode"] = {
     test.done();
   },
 
-  input: function(test) {
+  input(test) {
     test.expect(18);
 
     var offset = 8;
@@ -619,7 +616,7 @@ exports["Board.prototype.pinMode"] = {
     this.output.reset();
     this.input.reset();
 
-    for (var i = 0; i < 8; i++) {
+    for (let i = 0; i < 8; i++) {
       this.board.pinMode(`A${i}`, this.board.MODES.INPUT);
       this.board.pinMode(`B${i}`, this.board.MODES.INPUT);
       test.equal(this.board.pins[i].mode, this.board.MODES.INPUT);
@@ -632,7 +629,7 @@ exports["Board.prototype.pinMode"] = {
     test.done();
   },
 
-  output: function(test) {
+  output(test) {
     test.expect(38);
 
     var offset = 8;
@@ -640,7 +637,7 @@ exports["Board.prototype.pinMode"] = {
     this.output.reset();
     this.input.reset();
 
-    for (var i = 0; i < 8; i++) {
+    for (let i = 0; i < 8; i++) {
       test.equal(this.board.pinMode(`A${i}`, this.board.MODES.OUTPUT), this.board);
       test.equal(this.board.pinMode(`B${i}`, this.board.MODES.OUTPUT), this.board);
       test.equal(this.board.pins[i].mode, this.board.MODES.OUTPUT);
@@ -658,7 +655,7 @@ exports["Board.prototype.pinMode"] = {
     test.done();
   },
 
-  analogInput: function(test) {
+  analogInput(test) {
     test.expect(26);
 
     var offset = 8;
@@ -666,7 +663,7 @@ exports["Board.prototype.pinMode"] = {
     this.output.reset();
     this.input.reset();
 
-    for (var i = 0; i < 8; i++) {
+    for (let i = 0; i < 8; i++) {
       test.equal(this.board.pinMode(`A${i}`, this.board.MODES.ANALOG), this.board);
       test.equal(this.board.pinMode(`B${i}`, this.board.MODES.ANALOG), this.board);
       test.equal(this.board.pins[i].mode, this.board.MODES.ANALOG);
@@ -678,7 +675,7 @@ exports["Board.prototype.pinMode"] = {
     test.done();
   },
 
-  i2c: function(test) {
+  i2c(test) {
     test.expect(26);
 
     var offset = 8;
@@ -686,7 +683,7 @@ exports["Board.prototype.pinMode"] = {
     this.output.reset();
     this.input.reset();
 
-    for (var i = 0; i < 8; i++) {
+    for (let i = 0; i < 8; i++) {
       test.equal(this.board.pinMode(`A${i}`, this.board.MODES.I2C), this.board);
       test.equal(this.board.pinMode(`B${i}`, this.board.MODES.I2C), this.board);
       test.equal(this.board.pins[i].mode, this.board.MODES.I2C);
@@ -699,7 +696,7 @@ exports["Board.prototype.pinMode"] = {
     test.done();
   },
 
-  pwm: function(test) {
+  pwm(test) {
     test.expect(8);
 
     test.equal(this.board.pinMode("A5", this.board.MODES.PWM), this.board);
@@ -716,7 +713,7 @@ exports["Board.prototype.pinMode"] = {
     test.done();
   },
 
-  servo: function(test) {
+  servo(test) {
     test.expect(8);
 
     test.equal(this.board.pinMode("A5", this.board.MODES.SERVO), this.board);
@@ -733,7 +730,7 @@ exports["Board.prototype.pinMode"] = {
     test.done();
   },
 
-  oldFashionedPullups: function(test) {
+  oldFashionedPullups(test) {
     test.expect(18);
 
     this.write.reset();
@@ -756,7 +753,7 @@ exports["Board.prototype.pinMode"] = {
     });
 
 
-    for (var i = 2; i < 8; i++) {
+    for (let i = 2; i < 8; i++) {
       this.board.pinMode(`A${i}`, this.board.MODES.INPUT);
       this.board.digitalWrite(`A${i}`, this.board.HIGH);
       this.board.pinMode(`B${i}`, this.board.MODES.INPUT);
@@ -768,7 +765,7 @@ exports["Board.prototype.pinMode"] = {
     test.equal(this.write.callCount, 12);
 
 
-    for (var j = 0; j < this.pull.callCount; j++) {
+    for (let j = 0; j < this.pull.callCount; j++) {
       test.equal(this.pull.getCall(j).args[0], "pullup");
     }
 
@@ -780,7 +777,7 @@ exports["Board.prototype.pinMode"] = {
 
 
 exports["Board.prototype.digitalWrite"] = {
-  setUp: function(done) {
+  setUp(done) {
     this.sandbox = sinon.sandbox.create();
 
     this.output_a = this.sandbox.spy(tessel.port.A.pin[0], "output");
@@ -798,13 +795,13 @@ exports["Board.prototype.digitalWrite"] = {
     done();
   },
 
-  tearDown: function(done) {
+  tearDown(done) {
     Board.purge();
     this.sandbox.restore();
     done();
   },
 
-  returns: function(test) {
+  returns(test) {
     test.expect(3);
     test.equal(this.board.digitalWrite("A0", 1), this.board);
     test.equal(this.board.digitalWrite("B0", 1), this.board);
@@ -812,7 +809,7 @@ exports["Board.prototype.digitalWrite"] = {
     test.done();
   },
 
-  high: function(test) {
+  high(test) {
     test.expect(3);
 
     this.write_a.reset();
@@ -849,7 +846,7 @@ exports["Board.prototype.digitalWrite"] = {
     test.done();
   },
 
-  low: function(test) {
+  low(test) {
     test.expect(2);
 
     this.write_a.reset();
@@ -878,7 +875,7 @@ exports["Board.prototype.digitalWrite"] = {
 };
 
 exports["Board.prototype.digitalRead"] = {
-  setUp: function(done) {
+  setUp(done) {
     this.sandbox = sinon.sandbox.create();
     this.clock = this.sandbox.useFakeTimers();
     this.on = this.sandbox.spy(Board.prototype, "on");
@@ -888,20 +885,20 @@ exports["Board.prototype.digitalRead"] = {
     done();
   },
 
-  tearDown: function(done) {
+  tearDown(done) {
     Board.purge();
     this.sandbox.restore();
     done();
   },
 
-  returns: function(test) {
+  returns(test) {
     test.expect(2);
     test.equal(this.board.digitalRead("A0", function() {}), this.board);
     test.equal(this.board.digitalRead("B0", function() {}), this.board);
     test.done();
   },
 
-  isDigitalReadChangeFilter: function(test) {
+  isDigitalReadChangeFilter(test) {
     test.expect(8);
 
     this.tpinOn = this.sandbox.spy(Board.Pin.prototype, "on");
@@ -929,7 +926,7 @@ exports["Board.prototype.digitalRead"] = {
     test.done();
   },
 
-  emitterCallBackIsNotTheChangeFilter: function(test) {
+  emitterCallBackIsNotTheChangeFilter(test) {
     test.expect(16);
 
     this.tpinOn = this.sandbox.spy(Board.Pin.prototype, "on");
@@ -966,7 +963,7 @@ exports["Board.prototype.digitalRead"] = {
     test.done();
   },
 
-  handlersForNonInterruptPins: function(test) {
+  handlersForNonInterruptPins(test) {
     test.expect(6);
 
     var spy = sinon.spy();
@@ -998,7 +995,7 @@ exports["Board.prototype.digitalRead"] = {
     test.done();
   },
 
-  handlersForInterruptPins: function(test) {
+  handlersForInterruptPins(test) {
     test.expect(8);
 
 
@@ -1035,7 +1032,7 @@ exports["Board.prototype.digitalRead"] = {
     test.done();
   },
 
-  newListener: function(test) {
+  newListener(test) {
     test.expect(3);
 
     var spy = this.sandbox.spy();
@@ -1050,7 +1047,7 @@ exports["Board.prototype.digitalRead"] = {
     test.done();
   },
 
-  event: function(test) {
+  event(test) {
     test.expect(6);
 
     var spy = this.sandbox.spy();
@@ -1077,7 +1074,7 @@ exports["Board.prototype.digitalRead"] = {
     test.done();
   },
 
-  poll: function(test) {
+  poll(test) {
     test.expect(23);
 
     var sockWriteCommand = new Buffer([Port.CMD.GPIO_IN, 7]);
@@ -1145,7 +1142,7 @@ exports["Board.prototype.digitalRead"] = {
 };
 
 exports["Board.prototype.analogRead"] = {
-  setUp: function(done) {
+  setUp(done) {
     this.sandbox = sinon.sandbox.create();
 
     this.clock = this.sandbox.useFakeTimers();
@@ -1156,20 +1153,20 @@ exports["Board.prototype.analogRead"] = {
     done();
   },
 
-  tearDown: function(done) {
+  tearDown(done) {
     Board.purge();
     this.sandbox.restore();
     done();
   },
 
-  returns: function(test) {
+  returns(test) {
     test.expect(2);
     test.equal(this.board.analogRead("A7", function() {}), this.board);
     test.equal(this.board.analogRead("B0", function() {}), this.board);
     test.done();
   },
 
-  invalidPins: function(test) {
+  invalidPins(test) {
     test.expect(6);
 
     var spy = this.sandbox.spy();
@@ -1195,7 +1192,7 @@ exports["Board.prototype.analogRead"] = {
 
     test.done();
   },
-  validPins: function(test) {
+  validPins(test) {
     test.expect(10);
 
     var spy = this.sandbox.spy();
@@ -1234,7 +1231,7 @@ exports["Board.prototype.analogRead"] = {
     test.done();
   },
 
-  callback: function(test) {
+  callback(test) {
     test.expect(6);
 
     var spy = this.sandbox.spy();
@@ -1266,7 +1263,7 @@ exports["Board.prototype.analogRead"] = {
     test.done();
   },
 
-  event: function(test) {
+  event(test) {
     test.expect(6);
 
     var spy = this.sandbox.spy();
@@ -1293,7 +1290,7 @@ exports["Board.prototype.analogRead"] = {
     test.done();
   },
 
-  poll: function(test) {
+  poll(test) {
     test.expect(23);
 
     var sockWriteCommand = new Buffer([Port.CMD.ANALOG_READ, 7]);
@@ -1363,7 +1360,7 @@ exports["Board.prototype.analogRead"] = {
 };
 
 exports["Board.prototype.pwmWrite"] = {
-  setUp: function(done) {
+  setUp(done) {
     this.sandbox = sinon.sandbox.create();
     this.write = this.sandbox.spy(tessel.port.B.pin[7]._port.sock, "write");
     this.pwmFrequency = this.sandbox.spy(tessel, "pwmFrequency");
@@ -1374,19 +1371,19 @@ exports["Board.prototype.pwmWrite"] = {
     done();
   },
 
-  tearDown: function(done) {
+  tearDown(done) {
     Board.purge();
     this.sandbox.restore();
     done();
   },
 
-  returns: function(test) {
+  returns(test) {
     test.expect(1);
     test.equal(this.board.pwmWrite("b7", 255), this.board);
     test.done();
   },
 
-  dacUpper: function(test) {
+  dacUpper(test) {
     test.expect(2);
 
     this.board.pinMode("b7", this.board.MODES.PWM);
@@ -1407,7 +1404,7 @@ exports["Board.prototype.pwmWrite"] = {
     test.done();
   },
 
-  dacLower: function(test) {
+  dacLower(test) {
     test.expect(2);
 
     this.board.pinMode("b7", this.board.MODES.PWM);
@@ -1427,7 +1424,7 @@ exports["Board.prototype.pwmWrite"] = {
     test.done();
   },
 
-  dacScales: function(test) {
+  dacScales(test) {
     test.expect(3);
 
     this.board.pinMode("b7", this.board.MODES.PWM);
@@ -1443,7 +1440,7 @@ exports["Board.prototype.pwmWrite"] = {
     test.done();
   },
 
-  pwmUpper: function(test) {
+  pwmUpper(test) {
     test.expect(3);
 
     this.board.pinMode("a5", this.board.MODES.PWM);
@@ -1464,7 +1461,7 @@ exports["Board.prototype.pwmWrite"] = {
     test.done();
   },
 
-  pwmLower: function(test) {
+  pwmLower(test) {
     test.expect(3);
 
     this.board.pinMode("a5", this.board.MODES.PWM);
@@ -1485,7 +1482,7 @@ exports["Board.prototype.pwmWrite"] = {
     test.done();
   },
 
-  pwmScales: function(test) {
+  pwmScales(test) {
     test.expect(3);
 
     this.board.pinMode("a5", this.board.MODES.PWM);
@@ -1505,7 +1502,7 @@ exports["Board.prototype.pwmWrite"] = {
 
 
 exports["Board.prototype.servoWrite"] = {
-  setUp: function(done) {
+  setUp(done) {
     this.sandbox = sinon.sandbox.create();
     this.write = this.sandbox.spy(tessel.port.B.pin[7]._port.sock, "write");
     this.pwmFrequency = this.sandbox.spy(tessel, "pwmFrequency");
@@ -1516,13 +1513,13 @@ exports["Board.prototype.servoWrite"] = {
     done();
   },
 
-  tearDown: function(done) {
+  tearDown(done) {
     Board.purge();
     this.sandbox.restore();
     done();
   },
 
-  upper: function(test) {
+  upper(test) {
     test.expect(10  );
 
     this.board.pinMode("a5", this.board.MODES.SERVO);
@@ -1550,7 +1547,7 @@ exports["Board.prototype.servoWrite"] = {
     test.done();
   },
 
-  lower: function(test) {
+  lower(test) {
     test.expect(10);
 
     this.board.pinMode("a5", this.board.MODES.SERVO);
@@ -1578,7 +1575,7 @@ exports["Board.prototype.servoWrite"] = {
     test.done();
   },
 
-  scales: function(test) {
+  scales(test) {
     test.expect(6);
 
     this.board.pinMode("a5", this.board.MODES.SERVO);
@@ -1599,7 +1596,7 @@ exports["Board.prototype.servoWrite"] = {
 };
 
 exports["Board.prototype.i2cConfig"] = {
-  setUp: function(done) {
+  setUp(done) {
     this.sandbox = sinon.sandbox.create();
 
     this.clock = this.sandbox.useFakeTimers();
@@ -1612,33 +1609,33 @@ exports["Board.prototype.i2cConfig"] = {
     done();
   },
 
-  tearDown: function(done) {
+  tearDown(done) {
     Board.purge();
     this.sandbox.restore();
     done();
   },
 
-  expectOptions: function(test) {
+  expectOptions(test) {
     test.expect(1);
 
-    test.throws(function() {
+    test.throws(_ => {
       this.board.i2cConfig();
-    }.bind(this), "i2cConfig expected `options` object");
+    }, "i2cConfig expected `options` object");
 
     test.done();
   },
 
-  expectNumber: function(test) {
+  expectNumber(test) {
     test.expect(1);
 
-    test.doesNotThrow(function() {
+    test.doesNotThrow(_ => {
       this.board.i2cConfig(1000);
-    }.bind(this), "i2cConfig accepts a delay number");
+    }, "i2cConfig accepts a delay number");
 
     test.done();
   },
 
-  defaultToA: function(test) {
+  defaultToA(test) {
     test.expect(2);
     this.board.i2cConfig({ address: 0x04 });
     test.equal(this.a.callCount, 1);
@@ -1646,7 +1643,7 @@ exports["Board.prototype.i2cConfig"] = {
     test.done();
   },
 
-  explicitBus: function(test) {
+  explicitBus(test) {
     test.expect(2);
     this.board.i2cConfig({ address: 0x04, bus: "B" });
     test.equal(this.b.callCount, 1);
@@ -1654,7 +1651,7 @@ exports["Board.prototype.i2cConfig"] = {
     test.done();
   },
 
-  maybeTheyCalledItPort: function(test) {
+  maybeTheyCalledItPort(test) {
     test.expect(2);
     this.board.i2cConfig({ address: 0x04, port: "B" });
     test.equal(this.b.callCount, 1);
@@ -1662,7 +1659,7 @@ exports["Board.prototype.i2cConfig"] = {
     test.done();
   },
 
-  calledWithArrayOfAddresses: function(test) {
+  calledWithArrayOfAddresses(test) {
     test.expect(3);
     this.board.i2cConfig({ addresses: [0x04, 0x05], port: "B" });
     // One call for each address
@@ -1672,7 +1669,7 @@ exports["Board.prototype.i2cConfig"] = {
     test.done();
   },
 
-  calledWithObjectOfAddresses: function(test) {
+  calledWithObjectOfAddresses(test) {
     test.expect(3);
     this.board.i2cConfig({ address: { lcd: 0x04, rgb: 0x05 }, port: "B" });
     // One call for each address
@@ -1685,7 +1682,7 @@ exports["Board.prototype.i2cConfig"] = {
 };
 
 exports["Board.prototype.i2cWrite"] = {
-  setUp: function(done) {
+  setUp(done) {
     this.sandbox = sinon.sandbox.create();
 
     this.clock = this.sandbox.useFakeTimers();
@@ -1697,13 +1694,13 @@ exports["Board.prototype.i2cWrite"] = {
     done();
   },
 
-  tearDown: function(done) {
+  tearDown(done) {
     Board.purge();
     this.sandbox.restore();
     done();
   },
 
-  data: function(test) {
+  data(test) {
     test.expect(5);
 
     this.board.i2cConfig({ address: 0x04, bus: "A" });
@@ -1717,7 +1714,7 @@ exports["Board.prototype.i2cWrite"] = {
     test.done();
   },
 
-  regAndData: function(test) {
+  regAndData(test) {
     test.expect(6);
 
     this.board.i2cConfig({ address: 0x04, bus: "A" });
@@ -1732,7 +1729,7 @@ exports["Board.prototype.i2cWrite"] = {
     test.done();
   },
 
-  regAndByte: function(test) {
+  regAndByte(test) {
     test.expect(3);
 
     this.board.i2cConfig({ address: 0x04, bus: "A" });
@@ -1744,7 +1741,7 @@ exports["Board.prototype.i2cWrite"] = {
     test.done();
   },
 
-  regCommandByte: function(test) {
+  regCommandByte(test) {
     test.expect(3);
 
     this.board.i2cConfig({ address: 0x04, bus: "A" });
@@ -1759,7 +1756,7 @@ exports["Board.prototype.i2cWrite"] = {
 
 
 exports["Board.prototype.i2cWriteReg"] = {
-  setUp: function(done) {
+  setUp(done) {
     this.sandbox = sinon.sandbox.create();
 
     this.clock = this.sandbox.useFakeTimers();
@@ -1771,12 +1768,13 @@ exports["Board.prototype.i2cWriteReg"] = {
     done();
   },
 
-  tearDown: function(done) {
+  tearDown(done) {
     Board.purge();
     this.sandbox.restore();
     done();
   },
-  regAndByte: function(test) {
+
+  regAndByte(test) {
     test.expect(3);
 
     this.board.i2cConfig({ address: 0x04, bus: "A" });
@@ -1790,7 +1788,7 @@ exports["Board.prototype.i2cWriteReg"] = {
 };
 
 exports["Board.prototype.i2cReadOnce"] = {
-  setUp: function(done) {
+  setUp(done) {
     this.sandbox = sinon.sandbox.create();
     this.clock = this.sandbox.useFakeTimers();
     this.on = this.sandbox.spy(Board.prototype, "on");
@@ -1800,13 +1798,13 @@ exports["Board.prototype.i2cReadOnce"] = {
     done();
   },
 
-  tearDown: function(done) {
+  tearDown(done) {
     Board.purge();
     this.sandbox.restore();
     done();
   },
 
-  bytesToRead: function(test) {
+  bytesToRead(test) {
     test.expect(3);
     var handler = this.sandbox.spy();
 
@@ -1825,7 +1823,7 @@ exports["Board.prototype.i2cReadOnce"] = {
     test.done();
   },
 
-  regAndBytesToRead: function(test) {
+  regAndBytesToRead(test) {
     test.expect(4);
     var handler = this.sandbox.spy();
 
@@ -1844,7 +1842,7 @@ exports["Board.prototype.i2cReadOnce"] = {
     test.done();
   },
 
-  readError: function(test) {
+  readError(test) {
     test.expect(1);
     var handler = this.sandbox.spy();
     var expectError = new Error("An Error!");
@@ -1864,7 +1862,7 @@ exports["Board.prototype.i2cReadOnce"] = {
 };
 
 exports["Board.prototype.i2cRead"] = {
-  setUp: function(done) {
+  setUp(done) {
     this.sandbox = sinon.sandbox.create();
     this.clock = this.sandbox.useFakeTimers();
     this.i2cReadOnce = this.sandbox.stub(Board.prototype, "i2cReadOnce", function(address, register, bytesToRead, callback) {
@@ -1880,7 +1878,7 @@ exports["Board.prototype.i2cRead"] = {
 
       callback = typeof callback === "function" ? callback : function() {};
 
-      setImmediate(function() {
+      setImmediate(_ => {
         var buffer = new Buffer(
           Array.from({ length: bytesToRead }, (_, index) => index)
         );
@@ -1893,13 +1891,13 @@ exports["Board.prototype.i2cRead"] = {
     done();
   },
 
-  tearDown: function(done) {
+  tearDown(done) {
     Board.purge();
     this.sandbox.restore();
     done();
   },
 
-  bytesToRead: function(test) {
+  bytesToRead(test) {
     test.expect(6);
 
     var counter = 0;
@@ -1921,7 +1919,7 @@ exports["Board.prototype.i2cRead"] = {
     this.clock.tick(this.board.getSamplingInterval());
   },
 
-  regAndBytesToRead: function(test) {
+  regAndBytesToRead(test) {
     test.expect(6);
 
     var counter = 0;
@@ -1944,29 +1942,29 @@ exports["Board.prototype.i2cRead"] = {
 };
 
 exports["Board.prototype.setSamplingInterval"] = {
-  setUp: function(done) {
+  setUp(done) {
     this.sandbox = sinon.sandbox.create();
     this.clearInterval = this.sandbox.spy(global, "clearInterval");
     this.board = new Board();
     done();
   },
-  tearDown: function(done) {
+  tearDown(done) {
     this.sandbox.restore();
     Board.purge();
     done();
   },
-  samplingIntervalDefault: function(test) {
+  samplingIntervalDefault(test) {
     test.expect(1);
     test.equal(this.board.getSamplingInterval(), Board.defaultSamplingInterval);
     test.done();
   },
-  samplingIntervalCustom: function(test) {
+  samplingIntervalCustom(test) {
     test.expect(1);
     this.board.setSamplingInterval(1000);
     test.equal(this.board.getSamplingInterval(), 1000);
     test.done();
   },
-  samplingIntervalValid: function(test) {
+  samplingIntervalValid(test) {
     test.expect(2);
     this.board.setSamplingInterval(65536);
     test.equal(this.board.getSamplingInterval(), 65535);
@@ -1985,7 +1983,7 @@ class SDuplex extends stream.Duplex {
 }
 
 exports["Board.prototype.serial*"] = {
-  setUp: function(done) {
+  setUp(done) {
     this.sandbox = sinon.sandbox.create();
 
     this.a = this.sandbox.stub(tessel.port.A, "UART");
@@ -2017,14 +2015,14 @@ exports["Board.prototype.serial*"] = {
     this.board = new Board();
     done();
   },
-  tearDown: function(done) {
+  tearDown(done) {
     this.sandbox.restore();
     Board.purge();
     done();
   },
 
   serialConfig: {
-    privateState: function(test) {
+    privateState(test) {
       test.expect(2);
 
       this.privGet.reset();
@@ -2036,7 +2034,7 @@ exports["Board.prototype.serial*"] = {
       test.done();
     },
 
-    validWithDefaults: function(test) {
+    validWithDefaults(test) {
       test.expect(4);
       this.board.serialConfig(this.configA);
       this.board.serialConfig(this.configB);
@@ -2060,7 +2058,7 @@ exports["Board.prototype.serial*"] = {
       test.done();
     },
 
-    validWithExplicit: function(test) {
+    validWithExplicit(test) {
       test.expect(4);
 
       var configA = Object.assign({}, {
@@ -2101,7 +2099,7 @@ exports["Board.prototype.serial*"] = {
       test.done();
     },
 
-    invalidMissingOptions: function(test) {
+    invalidMissingOptions(test) {
       test.expect(3);
 
       test.throws(() => {
@@ -2113,7 +2111,7 @@ exports["Board.prototype.serial*"] = {
       test.done();
     },
 
-    invalidMissingPortId: function(test) {
+    invalidMissingPortId(test) {
       test.expect(3);
 
       test.throws(() => {
@@ -2125,7 +2123,7 @@ exports["Board.prototype.serial*"] = {
       test.done();
     },
 
-    invalidPortId: function(test) {
+    invalidPortId(test) {
       test.expect(3);
 
       test.throws(() => {
@@ -2139,7 +2137,7 @@ exports["Board.prototype.serial*"] = {
   },
 
   serialWrite: {
-    privateState: function(test) {
+    privateState(test) {
       test.expect(2);
 
       this.privGet.reset();
@@ -2151,9 +2149,8 @@ exports["Board.prototype.serial*"] = {
       test.done();
     },
 
-    writesInBytes: function(test) {
+    writesInBytes(test) {
       test.expect(12);
-
       this.privGet.restore();
       this.privGet = this.sandbox.stub(Map.prototype, "get").returns(this.fakeState);
 
@@ -2177,9 +2174,8 @@ exports["Board.prototype.serial*"] = {
       test.done();
     },
 
-    writesInBytesNonArray: function(test) {
+    writesInBytesNonArray(test) {
       test.expect(6);
-
       this.privGet.restore();
       this.privGet = this.sandbox.stub(Map.prototype, "get").returns(this.fakeState);
 
@@ -2198,7 +2194,7 @@ exports["Board.prototype.serial*"] = {
 
   },
   serialRead: {
-    privateState: function(test) {
+    privateState(test) {
       test.expect(2);
 
       this.privGet.reset();
@@ -2210,11 +2206,10 @@ exports["Board.prototype.serial*"] = {
       test.done();
     },
 
-    data: function(test) {
+    data(test) {
       test.expect(8);
 
       var spy = this.sandbox.spy();
-
       this.privGet.restore();
       this.privGet = this.sandbox.stub(Map.prototype, "get").returns(this.fakeState);
 
@@ -2237,7 +2232,7 @@ exports["Board.prototype.serial*"] = {
     },
   },
   serialStop: {
-    privateState: function(test) {
+    privateState(test) {
       test.expect(2);
 
       this.privGet.reset();
@@ -2249,12 +2244,10 @@ exports["Board.prototype.serial*"] = {
       test.done();
     },
 
-    stop: function(test) {
+    stop(test) {
       test.expect(6);
 
-
       this.removeAllListeners = this.sandbox.stub(SDuplex.prototype, "removeAllListeners");
-
 
       this.privGet.restore();
       this.privGet = this.sandbox.stub(Map.prototype, "get").returns(this.fakeState);
@@ -2276,7 +2269,7 @@ exports["Board.prototype.serial*"] = {
     },
   },
   serialClose: {
-    privateState: function(test) {
+    privateState(test) {
       test.expect(2);
 
       this.privGet.reset();
@@ -2288,9 +2281,8 @@ exports["Board.prototype.serial*"] = {
       test.done();
     },
 
-    close: function(test) {
+    close(test) {
       test.expect(5);
-
 
       this.privGet.restore();
       this.privGet = this.sandbox.stub(Map.prototype, "get").returns(this.fakeState);
