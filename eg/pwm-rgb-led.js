@@ -13,7 +13,7 @@ board.on("ready", function(){
 	this.repl.inject({
 	  led: led
 	});
-	colors = [
+	var colors = [
 		'red',
 		'orange',
 		'yellow',
@@ -33,7 +33,7 @@ board.on("ready", function(){
 			led.color(colors[index]);
 			index++;	
 		}
-	})
+	});
 
 });
 
