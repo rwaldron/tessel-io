@@ -52,7 +52,7 @@ When ready for use, deploy to flash:
 
 
 ```
-t2 run <program file name>
+t2 push <program file name>
 ```
 
 
