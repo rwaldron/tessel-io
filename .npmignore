@@ -5,10 +5,9 @@ node_modules/
 wips/
 notes
 Gruntfile.js
-.jscsrc
-.travis.yml
-.gitignore
 upgrade-firmware.sh
 upload-tar.sh
 watch.js
 send.sh
+coverage/
+.*
