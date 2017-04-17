@@ -1,6 +1,6 @@
 {
   "name": "tessel-io",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "Tessel 2 IO Plugin for Johnny-Five JavaScript Robotics",
   "main": "lib/index.js",
   "scripts": {
