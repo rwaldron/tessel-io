@@ -42,17 +42,17 @@ board.on("ready", function() {
 
 ## Deploying Your Program To Tessel 2
 
-For testing, deploy to RAM: 
+For testing and development, run in RAM: 
 
 ```
 t2 run <program file name>
 ```
 
-When ready for use, deploy to flash: 
+When your program is ready for deployment, push to flash: 
 
 
 ```
-t2 run <program file name>
+t2 push <program file name>
 ```
 
 
