@@ -1,15 +1,20 @@
 // process.env.IS_TEST_MODE = true;
-var Tessel = require("../lib/");
-var board = new Tessel();
+"use strict";
 
-board.on("ready", function() {
+const Tessel = require("../lib/");
+const board = new Tessel();
+
+board.on("ready", () => {
   console.log("Ready");
 
-  var leds = ["L0", "L1", "L2", "L3"];
+  const leds = ["L0", "L1", "L2", "L3"];
+  let state = 1;
 
-  leds.forEach(led => this.digitalWrite(led, this.HIGH));
 
-  setTimeout(() => {
-    leds.forEach(led => this.digitalWrite(led, this.LOW));
+  leds.forEach(led => board.digitalWrite(led, state));
+
+  setInterval(() => {
+    state ^= 1;
+    leds.forEach(led => board.digitalWrite(led, state));
   }, 1000);
 });

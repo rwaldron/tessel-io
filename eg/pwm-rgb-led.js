@@ -1,39 +1,32 @@
-var Tessel = require('../lib/');
-var five = require('johnny-five');
+"use strict";
 
-var board = new five.Board({
-	io: new Tessel()
+const Tessel = require("../lib/");
+const five = require("johnny-five");
+
+const board = new five.Board({
+  io: new Tessel()
 });
 
-board.on("ready", function(){
-  var led = new five.Led.RGB(["a5","a6","b5"]);
+board.on("ready", () => {
+  const rgb = new five.Led.RGB(["a5", "a6", "b5"]);
+  const colors = [
+    "red",
+    "orange",
+    "yellow",
+    "green",
+    "blue"
+  ];
 
-  // use led.<function> in repl
-	// after color step-through is over
-	this.repl.inject({
-	  led: led
-	});
-	var colors = [
-		'red',
-		'orange',
-		'yellow',
-		'green',
-		'blue'
-	];
-	
-	led.on();
+  rgb.on();
 
-	var index = 0;
-	this.loop(1000, function(done){
-
-		if (index >= colors.length){
-			led.off();
-			done();
-		} else {
-			led.color(colors[index]);
-			index++;	
-		}
-	});
-
+  let index = 0;
+  board.loop(1000, (done) => {
+    if (index >= colors.length) {
+      rgb.off();
+      done();
+    } else {
+      rgb.color(colors[index]);
+      index++;
+    }
+  });
 });
-

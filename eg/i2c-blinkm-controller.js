@@ -1,24 +1,20 @@
 // process.env.IS_TEST_MODE = true;
-var Tessel = require("../lib/");
-var board = new Tessel();
+"use strict";
 
-var BlinkM = {
-  0x09: "ADDRESS",
-  0x63: "FADE_TO_RGB",
-  0x43: "FADE_TO_RANDOM_RGB",
-  0x70: "SCRIPT_PLAY",
-  0x6f: "SCRIPT_STOP",
-  0x6e: "SET_RGB",
-  0x67: "GET_RGB",
+const Tessel = require("../lib/");
+const board = new Tessel();
+
+const BlinkM = {
+  ADDRESS: 0x09,
+  FADE_TO_RGB: 0x63,
+  FADE_TO_RANDOM_RGB: 0x43,
+  SCRIPT_PLAY: 0x70,
+  SCRIPT_STOP: 0x6f,
+  SET_RGB: 0x6e,
+  GET_RGB: 0x67,
 };
 
-Object.keys(BlinkM).forEach(function(key) {
-  // Turn the value into a key and
-  // the key into an int value
-  BlinkM[BlinkM[key]] = key | 0;
-});
-
-var rgb = {
+const rgb = {
   red:    [0xff, 0x00, 0x00],
   orange: [0xff, 0x7f, 0x00],
   yellow: [0xff, 0xff, 0x00],
@@ -29,48 +25,42 @@ var rgb = {
   white:  [0xff, 0xff, 0xff],
 };
 
-var rainbow = Object.keys(rgb).reduce(function(colors, color) {
+const rainbow = Object.keys(rgb).reduce((colors, color) => {
   // While testing, I found that the BlinkM produced
   // more vibrant colors when provided a 7 bit value.
-  return (colors[color] = rgb[color].map(to7bit), colors);
+  return (colors[color] = rgb[color].map(v => v >> 1), colors);
 }, {});
 
-var colors = Object.keys(rainbow);
-var index = 0;
+const colors = Object.keys(rainbow);
+let index = 0;
 
-board.on("ready", function() {
+board.on("ready", () => {
   console.log("READY");
 
-  this.i2cConfig({
+  board.i2cConfig({
     address: BlinkM.ADDRESS,
     bus: "A"
   });
 
   // http://thingm.com/fileadmin/thingm/downloads/BlinkM_datasheet.pdf
-  this.i2cWrite(BlinkM.ADDRESS, BlinkM.SCRIPT_STOP);
+  board.i2cWrite(BlinkM.ADDRESS, BlinkM.SCRIPT_STOP);
+  board.i2cWrite(BlinkM.ADDRESS, BlinkM.SET_RGB, [0, 0, 0]);
 
-  this.i2cWrite(BlinkM.ADDRESS, BlinkM.SET_RGB, [0, 0, 0]);
-
-  setInterval(function() {
-    var color = colors[index++];
-
-    this.i2cWrite(BlinkM.ADDRESS, BlinkM.FADE_TO_RGB, rainbow[color]);
-
-    this.i2cReadOnce(BlinkM.ADDRESS, BlinkM.GET_RGB, 3, function(data) {
-      console.log("(%d) RGB: [%s]", Date.now(), data);
-    });
-
+  const cycle = () => {
     if (index === colors.length) {
       index = 0;
     }
-  }.bind(this), 1000);
+
+    const color = colors[index++];
+
+    board.i2cWrite(BlinkM.ADDRESS, BlinkM.FADE_TO_RGB, rainbow[color]);
+    board.i2cReadOnce(BlinkM.ADDRESS, BlinkM.GET_RGB, 3, (data) => {
+      console.log(`(${Date.now()}) RGB: [${data}]`, Date.now());
+
+      setTimeout(() => cycle, 1000);
+    });
+  };
+
+  cycle();
 });
 
-function to7bit(value) {
-  return scale(value, 0, 255, 0, 127) | 0;
-}
-
-function scale(value, inMin, inMax, outMin, outMax) {
-  return (value - inMin) * (outMax - outMin) /
-    (inMax - inMin) + outMin;
-}

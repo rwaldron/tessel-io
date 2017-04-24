@@ -1,28 +1,30 @@
-var Tessel = require("../lib/");
-var board = new Tessel();
+"use strict";
 
-board.on("ready", function() {
+const Tessel = require("../lib/");
+const board = new Tessel();
+
+board.on("ready", () => {
   console.log("Ready");
 
   // LED -> PORT A Pin 5
-  this.pinMode("a5", this.MODES.OUTPUT);
+  board.pinMode("a5", board.MODES.OUTPUT);
   // Button -> PORT A Pin 6
-  this.pinMode("a6", this.MODES.INPUT);
-  this.digitalRead("a6", function(data) {
-    if (this.pins[5].value === 0 && data === 1) {
-      this.digitalWrite("a5", this.HIGH);
+  board.pinMode("a6", board.MODES.INPUT);
+  board.digitalRead("a6", data => {
+    if (board.pins[5].value === 0 && data === 1) {
+      board.digitalWrite("a5", board.HIGH);
     } else {
-      if (this.pins[5].value === 1 && data === 0) {
-        this.digitalWrite("a5", this.LOW);
+      if (board.pins[5].value === 1 && data === 0) {
+        board.digitalWrite("a5", board.LOW);
       }
     }
   });
 
   // LED -> PORT B Pin 7
-  this.pinMode("b7", this.MODES.PWM);
+  board.pinMode("b7", board.MODES.PWM);
   // Potentiometer -> PORT A Pin 7
-  this.pinMode("a7", this.MODES.ANALOG);
-  this.analogRead("a7", function(data) {
-    this.pwmWrite("b7", data >> 2);
+  board.pinMode("a7", board.MODES.ANALOG);
+  board.analogRead("a7", data => {
+    board.pwmWrite("b7", data >> 2);
   });
 });

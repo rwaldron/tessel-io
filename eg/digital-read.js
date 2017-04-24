@@ -1,12 +1,14 @@
 // process.env.IS_TEST_MODE = true
-var Tessel = require("../lib/");
-var board = new Tessel();
+"use strict";
 
-board.on("ready", function() {
+const Tessel = require("../lib/");
+const board = new Tessel();
+
+board.on("ready", () => {
   console.log("Ready");
 
-  this.pinMode("b2", this.MODES.INPUT);
-  this.digitalRead("b2", function(data) {
+  board.pinMode("b2", board.MODES.INPUT);
+  board.digitalRead("b2", data => {
     // Connect a button or some similar digital signal control
     console.log(data);
   });

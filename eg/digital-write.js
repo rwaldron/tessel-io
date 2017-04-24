@@ -1,15 +1,17 @@
 // process.env.IS_TEST_MODE = true;
-var Tessel = require("../lib/");
-var board = new Tessel();
+"use strict";
 
-board.on("ready", function() {
+const Tessel = require("../lib/");
+const board = new Tessel();
+
+board.on("ready", () => {
   console.log("Ready");
 
-  this.pinMode("b0", this.MODES.OUTPUT);
-  this.digitalWrite("b0", this.HIGH);
+  board.pinMode("b0", board.MODES.OUTPUT);
+  board.digitalWrite("b0", board.HIGH);
 
-  setTimeout(function() {
-    this.digitalWrite("b0", this.LOW);
+  setTimeout(() => {
+    board.digitalWrite("b0", board.LOW);
     process.exit(0);
-  }.bind(this), 1000);
+  }, 1000);
 });

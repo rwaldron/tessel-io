@@ -1,14 +1,16 @@
 // process.env.IS_TEST_MODE = true;
-var Tessel = require("../lib/");
-var board = new Tessel();
+"use strict";
 
-board.on("ready", function() {
+const Tessel = require("../lib/");
+const board = new Tessel();
+
+board.on("ready", () => {
   console.log("Ready");
 
-  this.pinMode("a7", this.MODES.ANALOG);
-  this.pinMode("b7", this.MODES.PWM);
+  board.pinMode("a7", board.MODES.ANALOG);
+  board.pinMode("b7", board.MODES.PWM);
 
-  this.analogRead("a7", function(data) {
-    this.pwmWrite("b7", data >> 2);
+  board.analogRead("a7", data => {
+    board.pwmWrite("b7", data >> 2);
   });
 });

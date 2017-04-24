@@ -1,16 +1,17 @@
 // process.env.IS_TEST_MODE = true;
-var Tessel = require("../lib/");
-var board = new Tessel();
+"use strict";
 
-board.on("ready", function() {
+const Tessel = require("../lib/");
+const board = new Tessel();
+board.on("ready", () => {
   console.log("Ready");
-  this.pinMode("a7", this.MODES.ANALOG);
-  this.analogRead("a7", function(data) {
-    process.stdout.write("\r \033[36mA\033[m " + padLeft(data, 4, 0));
+  board.pinMode("a7", board.MODES.ANALOG);
+  board.analogRead("a7", (data) => {
+    process.stdout.write(`\r \u001b[36mA\u001b[39m ${padStart(data, 4, 0)}`);
   });
 });
 
-function padLeft(value, l, c) {
-  value = String(value);
-  return Array(l - value.length + 1).join(c || " ") + value;
+function padStart(v, l, c) {
+  v = String(v);
+  return Array(l - v.length + 1).join(c || " ") + v;
 }
