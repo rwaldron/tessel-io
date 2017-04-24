@@ -34,6 +34,7 @@
     "grunt-contrib-nodeunit": "^0.4.1",
     "grunt-git-authors": "^3.2.0",
     "grunt-jscs": "~2.3.0",
+    "johnny-five": "^0.10.3",
     "nyc": "^8.3.2",
     "sinon": "^1.15.3"
   },
