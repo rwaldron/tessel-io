@@ -72,9 +72,9 @@ module.exports = function(grunt) {
 
 
 
-  grunt.registerTask('changelog', '"changelog", "changelog:v0.0.0..v0.0.2" or "changelog:v0.0.0"', (arg) => {
+  grunt.registerTask("changelog", "changelog', 'changelog:v0.0.0..v0.0.2' or 'changelog:v0.0.0'", (arg) => {
     var done = grunt.task.current.async();
-    var tags = cp.execSync('git tag --sort version:refname').toString().split('\n');
+    var tags = cp.execSync("git tag --sort version:refname").toString().split("\n");
     var tagIndex = -1;
     var range;
     var revisionRange;
@@ -83,17 +83,17 @@ module.exports = function(grunt) {
       // grunt changelog
       range = tags.filter(Boolean).slice(-2);
     } else {
-      if (arg.includes('..')) {
+      if (arg.includes("..")) {
         // grunt changelog:<revision-range>
-        if (!arg.startsWith('v') || !arg.includes('..v')) {
-          range = arg.split('..').map(tag => tag.startsWith('v') ? tag : `v${tag}`);
+        if (!arg.startsWith("v") || !arg.includes("..v")) {
+          range = arg.split("..").map(tag => tag.startsWith("v") ? tag : `v${tag}`);
         } else {
           // arg is a well formed <revision-range>
           revisionRange = arg;
         }
       } else {
         // grunt changelog:<revision>
-        if (!arg.startsWith('v')) {
+        if (!arg.startsWith("v")) {
           arg = `v${arg}`;
         }
 
@@ -103,7 +103,7 @@ module.exports = function(grunt) {
     }
 
     if (!range && revisionRange) {
-      range = revisionRange.split('..');
+      range = revisionRange.split("..");
     }
 
     if (!revisionRange && (range && range.length)) {
@@ -116,8 +116,8 @@ module.exports = function(grunt) {
         return;
       }
 
-      var rows = result.split('\n').filter(commit => {
-        return !commit.includes('|Merge ') && !commit.includes(range[0]);
+      var rows = result.split("\n").filter(commit => {
+        return !commit.includes("|Merge ") && !commit.includes(range[0]);
       });
 
       // Extra whitespace above and below makes it easier to quickly copy/paste from terminal
@@ -132,7 +132,7 @@ function changelog(rows) {
   return tags.stripIndent `
 | Commit | Message/Description |
 | ------ | ------------------- |
-${rows.join('\n')}
+${rows.join("\n")}
 `;
 }
 
