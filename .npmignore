@@ -1,12 +1,11 @@
+.*
 coverage/
 eg/
 fritzing/
-Gruntfile.js
 node_modules/
+Gruntfile.js
 notes
+send.sh
 upgrade-firmware.sh
 upload-tar.sh
 watch.js
-send.sh
-coverage/
-.*
