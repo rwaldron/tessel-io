@@ -29,13 +29,15 @@ If you have limited prior experience with Johnny-Five, or are generally new to N
 ## Boilerplate Program
 
 ```js
-var five = require("johnny-five");
-var Tessel = require("tessel-io");
-var board = new five.Board({
+"use strict";
+
+const five = require("johnny-five");
+const Tessel = require("tessel-io");
+const board = new five.Board({
   io: new Tessel()
 });
 
-board.on("ready", function() {
+board.on("ready", () => {
   // Write your program locally and push to the Tessel 2 when ready!  
 });
 ```
@@ -63,26 +65,26 @@ There are two primary ports on the Tessel2: Port "A" and Port "B". There is also
 
 | Port | Number | Johnny-Five Compatible Name |
 |------|--------|-----------------------------|
-|A|0|`"a0"` or `"A0"`|
-|A|1|`"a1"` or `"A1"`|
-|A|2|`"a2"` or `"A2"`|
-|A|3|`"a3"` or `"A3"`|
-|A|4|`"a4"` or `"A4"`|
-|A|5|`"a5"` or `"A5"`|
-|A|6|`"a6"` or `"A6"`|
-|A|7|`"a7"` or `"A7"`|
-|B|0|`"b0"` or `"B0"`|
-|B|1|`"b1"` or `"B1"`|
-|B|2|`"b2"` or `"B2"`|
-|B|3|`"b3"` or `"B3"`|
-|B|4|`"b4"` or `"B4"`|
-|B|5|`"b5"` or `"B5"`|
-|B|6|`"b6"` or `"B6"`|
-|B|7|`"b7"` or `"B7"`|
-|L|0|`"l0"` or `"L0"`|
-|L|1|`"l1"` or `"L1"`|
-|L|2|`"l2"` or `"L2"`|
-|L|3|`"l3"` or `"L3"`|
+| A    | 0      | `"a0"` or `"A0"`            |
+| A    | 1      | `"a1"` or `"A1"`            |
+| A    | 2      | `"a2"` or `"A2"`            |
+| A    | 3      | `"a3"` or `"A3"`            |
+| A    | 4      | `"a4"` or `"A4"`            |
+| A    | 5      | `"a5"` or `"A5"`            |
+| A    | 6      | `"a6"` or `"A6"`            |
+| A    | 7      | `"a7"` or `"A7"`            |
+| B    | 0      | `"b0"` or `"B0"`            |
+| B    | 1      | `"b1"` or `"B1"`            |
+| B    | 2      | `"b2"` or `"B2"`            |
+| B    | 3      | `"b3"` or `"B3"`            |
+| B    | 4      | `"b4"` or `"B4"`            |
+| B    | 5      | `"b5"` or `"B5"`            |
+| B    | 6      | `"b6"` or `"B6"`            |
+| B    | 7      | `"b7"` or `"B7"`            |
+| L    | 0      | `"l0"` or `"L0"`            |
+| L    | 1      | `"l1"` or `"L1"`            |
+| L    | 2      | `"l2"` or `"L2"`            |
+| L    | 3      | `"l3"` or `"L3"`            |
 
 See [examples](https://github.com/rwaldron/tessel-io/tree/master/eg) for basic, non-Johnny-Five examples.
 
@@ -111,6 +113,10 @@ See [examples](https://github.com/rwaldron/tessel-io/tree/master/eg) for basic, 
 | B | 5 | ✓ |   |   | ✓ |   | ✓ |   | ✓ | ✓ |
 | B | 6 | ✓ |   |   |   | ✓ | ✓ |   | ✓ | ✓ |
 | B | 7 | ✓ |   |   |   |   | ✓ | ✓ | ✓ |   |
+
+Notes: 
+
+- Whenever possible, avoid using pins AO, A1, B0 and B1 for digital or analog input. 
 
 
 ## Examples
