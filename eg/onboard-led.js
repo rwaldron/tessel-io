@@ -16,5 +16,5 @@ board.on("ready", () => {
   setInterval(() => {
     state ^= 1;
     leds.forEach(led => board.digitalWrite(led, state));
-  }, 1000);
+  }, 100);
 });
