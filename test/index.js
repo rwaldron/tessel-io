@@ -152,7 +152,7 @@ exports["Board.ap"] = {
 exports["Board Constructor"] = {
   setUp(done) {
     this.sandbox = sinon.sandbox.create();
-    this.hostname = this.sandbox.stub(os, "hostname", _ => "NOT A REAL TESSEL");
+    this.hostname = this.sandbox.stub(os, "hostname").callsFake(_ => "NOT A REAL TESSEL");
     this.set = this.sandbox.spy(Map.prototype, "set");
     this.output = this.sandbox.stub(T2.Pin.prototype, "output");
     this.board = new Board();
@@ -285,7 +285,7 @@ exports["Board Constructor"] = {
 exports["Board.prototype"] = {
   setUp(done) {
     this.sandbox = sinon.sandbox.create();
-    this.hostname = this.sandbox.stub(os, "hostname", _ => "NOT A REAL TESSEL");
+    this.hostname = this.sandbox.stub(os, "hostname").callsFake(_ => "NOT A REAL TESSEL");
     this.set = this.sandbox.spy(Map.prototype, "set");
     this.output = this.sandbox.stub(T2.Pin.prototype, "output");
     this.board = new Board();
@@ -1082,10 +1082,10 @@ exports["Board.prototype.digitalRead"] = {
     this.board.pinMode("b7", this.board.MODES.INPUT);
 
     this.read = this.sandbox.spy(Board.Pin.prototype, "read");
-    this.portSockWrite = this.sandbox.spy(tessel.port.B.pin[7]._port.sock, "write");
-    this.portCork = this.sandbox.spy(tessel.port.B.pin[7]._port, "cork");
-    this.portUncork = this.sandbox.spy(tessel.port.B.pin[7]._port, "uncork");
-    this.portEnqueue = this.sandbox.spy(tessel.port.B.pin[7]._port, "enqueue");
+    this.portSockWrite = this.sandbox.spy(tessel.port.B.pin[7].port.sock, "write");
+    this.portCork = this.sandbox.spy(tessel.port.B.pin[7].port, "cork");
+    this.portUncork = this.sandbox.spy(tessel.port.B.pin[7].port, "uncork");
+    this.portEnqueue = this.sandbox.spy(tessel.port.B.pin[7].port, "enqueue");
 
     this.spy = this.sandbox.spy();
 
@@ -1298,10 +1298,10 @@ exports["Board.prototype.analogRead"] = {
     this.board.pinMode("b7", this.board.MODES.ANALOG);
 
     this.read = this.sandbox.spy(Board.Pin.prototype, "read");
-    this.portSockWrite = this.sandbox.spy(tessel.port.B.pin[7]._port.sock, "write");
-    this.portCork = this.sandbox.spy(tessel.port.B.pin[7]._port, "cork");
-    this.portUncork = this.sandbox.spy(tessel.port.B.pin[7]._port, "uncork");
-    this.portEnqueue = this.sandbox.spy(tessel.port.B.pin[7]._port, "enqueue");
+    this.portSockWrite = this.sandbox.spy(tessel.port.B.pin[7].port.sock, "write");
+    this.portCork = this.sandbox.spy(tessel.port.B.pin[7].port, "cork");
+    this.portUncork = this.sandbox.spy(tessel.port.B.pin[7].port, "uncork");
+    this.portEnqueue = this.sandbox.spy(tessel.port.B.pin[7].port, "enqueue");
 
     this.spy = this.sandbox.spy();
 
@@ -1362,7 +1362,7 @@ exports["Board.prototype.analogRead"] = {
 exports["Board.prototype.pwmWrite"] = {
   setUp(done) {
     this.sandbox = sinon.sandbox.create();
-    this.write = this.sandbox.spy(tessel.port.B.pin[7]._port.sock, "write");
+    this.write = this.sandbox.spy(tessel.port.B.pin[7].port.sock, "write");
     this.pwmFrequency = this.sandbox.spy(tessel, "pwmFrequency");
     this.pwmDutyCycle = this.sandbox.spy(T2.Pin.prototype, "pwmDutyCycle");
 
@@ -1504,7 +1504,7 @@ exports["Board.prototype.pwmWrite"] = {
 exports["Board.prototype.servoWrite"] = {
   setUp(done) {
     this.sandbox = sinon.sandbox.create();
-    this.write = this.sandbox.spy(tessel.port.B.pin[7]._port.sock, "write");
+    this.write = this.sandbox.spy(tessel.port.B.pin[7].port.sock, "write");
     this.pwmFrequency = this.sandbox.spy(tessel, "pwmFrequency");
     this.pwmDutyCycle = this.sandbox.spy(T2.Pin.prototype, "pwmDutyCycle");
 
@@ -1848,7 +1848,7 @@ exports["Board.prototype.i2cReadOnce"] = {
     var expectError = new Error("An Error!");
 
     this.transfer.restore();
-    this.transfer = this.sandbox.stub(T2.I2C.prototype, "transfer", (buffer, bytesToRead, handler) => {
+    this.transfer = this.sandbox.stub(T2.I2C.prototype, "transfer").callsFake((buffer, bytesToRead, handler) => {
       handler(expectError);
     });
 
@@ -1865,7 +1865,7 @@ exports["Board.prototype.i2cRead"] = {
   setUp(done) {
     this.sandbox = sinon.sandbox.create();
     this.clock = this.sandbox.useFakeTimers();
-    this.i2cReadOnce = this.sandbox.stub(Board.prototype, "i2cReadOnce", function(address, register, bytesToRead, callback) {
+    this.i2cReadOnce = this.sandbox.stub(Board.prototype, "i2cReadOnce").callsFake((address, register, bytesToRead, callback) => {
 
       // Fix arguments if called with Firmata.js API
       if (arguments.length === 3 &&
