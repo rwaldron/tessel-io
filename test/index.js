@@ -6,10 +6,13 @@ const Board = require("../");
 const factory = require("../test/tessel-mock");
 const os = require("os");
 const util = require("util");
-const Emitter = require("events").EventEmitter;
+const events = require("events");
 const stream = require("stream");
 const sinon = require("sinon");
 const Port = {};
+
+const { EventEmitter: Emitter } = events;
+const { Duplex } = stream;
 
 // From t2-firmware/node/tessel.js
 Port.CMD = {
@@ -96,15 +99,16 @@ const instance = [{
 }];
 
 
+const {
+  ToPinIndex,
+  ToPortIdentity,
+  ToPortI2CBus,
+  ToI2CBusPort,
+  Pin,
+  tessel,
+} = Board;
 
-const ToPinIndex = Board.ToPinIndex;
-const ToPortIdentity = Board.ToPortIdentity;
-const ToPortI2CBus = Board.ToPortI2CBus;
-const ToI2CBusPort = Board.ToI2CBusPort;
-const Pin = Board.Pin;
-const tessel = Board.tessel;
 const T2 = factory.Tessel;
-
 
 exports["Board.PORTS.*"] = {
   setUp(done) {
@@ -153,7 +157,7 @@ exports["Board Constructor"] = {
   setUp(done) {
     this.sandbox = sinon.sandbox.create();
     this.hostname = this.sandbox.stub(os, "hostname").callsFake(_ => "NOT A REAL TESSEL");
-    this.set = this.sandbox.spy(Map.prototype, "set");
+    this.set = this.sandbox.spy(WeakMap.prototype, "set");
     this.output = this.sandbox.stub(T2.Pin.prototype, "output");
     this.board = new Board();
     done();
@@ -286,7 +290,7 @@ exports["Board.prototype"] = {
   setUp(done) {
     this.sandbox = sinon.sandbox.create();
     this.hostname = this.sandbox.stub(os, "hostname").callsFake(_ => "NOT A REAL TESSEL");
-    this.set = this.sandbox.spy(Map.prototype, "set");
+    this.set = this.sandbox.spy(WeakMap.prototype, "set");
     this.output = this.sandbox.stub(T2.Pin.prototype, "output");
     this.board = new Board();
     done();
@@ -330,6 +334,11 @@ exports["Board.prototype"] = {
   low(test) {
     test.expect(1);
     test.equal(Board.prototype.LOW, 0);
+    test.done();
+  },
+  resolution(test) {
+    test.expect(1);
+    test.equal(Board.prototype.RESOLUTION.ADC, 4096);
     test.done();
   },
 };
@@ -438,8 +447,8 @@ exports["ToPortIdentity"] = {
   valid(test) {
     test.expect(20);
 
-    var offset = 0;
-    var port = "A";
+    let offset = 0;
+    let port = "A";
 
     for (let i = 0; i < 20; i++) {
       if (i > 7) {
@@ -550,8 +559,8 @@ exports["Board.prototype.normalize"] = {
   stringNames(test) {
     test.expect(40);
 
-    var offsetB = 8;
-    var offsetL = 16;
+    let offsetB = 8;
+    let offsetL = 16;
 
     for (let i = 0; i < 8; i++) {
 
@@ -611,7 +620,7 @@ exports["Board.prototype.pinMode"] = {
   input(test) {
     test.expect(18);
 
-    var offset = 8;
+    let offset = 8;
 
     this.output.reset();
     this.input.reset();
@@ -632,7 +641,7 @@ exports["Board.prototype.pinMode"] = {
   output(test) {
     test.expect(38);
 
-    var offset = 8;
+    let offset = 8;
 
     this.output.reset();
     this.input.reset();
@@ -658,7 +667,7 @@ exports["Board.prototype.pinMode"] = {
   analogInput(test) {
     test.expect(26);
 
-    var offset = 8;
+    let offset = 8;
 
     this.output.reset();
     this.input.reset();
@@ -678,7 +687,7 @@ exports["Board.prototype.pinMode"] = {
   i2c(test) {
     test.expect(26);
 
-    var offset = 8;
+    let offset = 8;
 
     this.output.reset();
     this.input.reset();
@@ -966,11 +975,11 @@ exports["Board.prototype.digitalRead"] = {
   handlersForNonInterruptPins(test) {
     test.expect(6);
 
-    var spy = sinon.spy();
+    let spy = sinon.spy();
 
     this.board.digitalRead("a0", spy);
 
-    var a0 = this.on.lastCall.args[1];
+    let a0 = this.on.lastCall.args[1];
 
     a0(1);
     a0(0);
@@ -983,7 +992,7 @@ exports["Board.prototype.digitalRead"] = {
 
     this.board.digitalRead("b0", spy);
 
-    var b0 = this.on.lastCall.args[1];
+    let b0 = this.on.lastCall.args[1];
 
     b0(1);
     b0(0);
@@ -1003,11 +1012,11 @@ exports["Board.prototype.digitalRead"] = {
     test.equal(this.board.pins[5].isInterrupt, true);
 
 
-    var spy = sinon.spy();
+    let spy = sinon.spy();
 
     this.board.digitalRead("a2", spy);
 
-    var a2 = this.on.lastCall.args[1];
+    let a2 = this.on.lastCall.args[1];
 
     a2(1);
     a2(0);
@@ -1020,7 +1029,7 @@ exports["Board.prototype.digitalRead"] = {
 
     this.board.digitalRead("a5", spy);
 
-    var a5 = this.on.lastCall.args[1];
+    let a5 = this.on.lastCall.args[1];
 
     a5(1);
     a5(0);
@@ -1035,7 +1044,7 @@ exports["Board.prototype.digitalRead"] = {
   newListener(test) {
     test.expect(3);
 
-    var spy = this.sandbox.spy();
+    let spy = this.sandbox.spy();
     this.on = this.sandbox.stub(T2.instance.ports.A.pin[0], "on");
 
     this.board.pins[0].on("change", spy);
@@ -1050,7 +1059,7 @@ exports["Board.prototype.digitalRead"] = {
   event(test) {
     test.expect(6);
 
-    var spy = this.sandbox.spy();
+    let spy = this.sandbox.spy();
 
     this.board.digitalRead("a0", spy);
 
@@ -1077,7 +1086,7 @@ exports["Board.prototype.digitalRead"] = {
   poll(test) {
     test.expect(23);
 
-    var sockWriteCommand = new Buffer([Port.CMD.GPIO_IN, 7]);
+    let sockWriteCommand = new Buffer([Port.CMD.GPIO_IN, 7]);
 
     this.board.pinMode("b7", this.board.MODES.INPUT);
 
@@ -1096,7 +1105,7 @@ exports["Board.prototype.digitalRead"] = {
     test.equal(this.portSockWrite.lastCall.args[0].equals(sockWriteCommand), true);
 
     // Capture command buffer to compare to the next two
-    var capturedCommand = this.portSockWrite.lastCall.args[0];
+    let capturedCommand = this.portSockWrite.lastCall.args[0];
 
     test.equal(this.portCork.callCount, 1);
     test.equal(this.portUncork.callCount, 1);
@@ -1104,7 +1113,7 @@ exports["Board.prototype.digitalRead"] = {
     test.equal(this.portEnqueue.lastCall.args[0].size, 0);
 
 
-    var first = this.portEnqueue.lastCall.args[0].callback;
+    let first = this.portEnqueue.lastCall.args[0].callback;
     first(null, Port.REPLY.HIGH);
 
     test.equal(this.spy.callCount, 1);
@@ -1121,7 +1130,7 @@ exports["Board.prototype.digitalRead"] = {
     test.equal(this.portEnqueue.callCount, 2);
 
 
-    var second = this.portEnqueue.lastCall.args[0].callback;
+    let second = this.portEnqueue.lastCall.args[0].callback;
     second(null, Port.REPLY.LOW);
 
     test.equal(this.spy.callCount, 2);
@@ -1169,7 +1178,7 @@ exports["Board.prototype.analogRead"] = {
   invalidPins(test) {
     test.expect(6);
 
-    var spy = this.sandbox.spy();
+    let spy = this.sandbox.spy();
 
     test.throws(_ => {
       this.board.analogRead("a0", spy);
@@ -1195,7 +1204,7 @@ exports["Board.prototype.analogRead"] = {
   validPins(test) {
     test.expect(10);
 
-    var spy = this.sandbox.spy();
+    let spy = this.sandbox.spy();
 
     test.doesNotThrow(_ => {
       this.board.analogRead("a4", spy);
@@ -1234,11 +1243,11 @@ exports["Board.prototype.analogRead"] = {
   callback(test) {
     test.expect(6);
 
-    var spy = this.sandbox.spy();
+    let spy = this.sandbox.spy();
 
     this.board.analogRead("a7", spy);
 
-    var a7 = this.on.lastCall.args[1];
+    let a7 = this.on.lastCall.args[1];
 
     a7(1023);
     a7(0);
@@ -1251,7 +1260,7 @@ exports["Board.prototype.analogRead"] = {
 
     this.board.analogRead("b0", spy);
 
-    var b0 = this.on.lastCall.args[1];
+    let b0 = this.on.lastCall.args[1];
 
     b0(1023);
     b0(0);
@@ -1266,7 +1275,7 @@ exports["Board.prototype.analogRead"] = {
   event(test) {
     test.expect(6);
 
-    var spy = this.sandbox.spy();
+    let spy = this.sandbox.spy();
 
     this.board.analogRead("a7", spy);
 
@@ -1293,7 +1302,7 @@ exports["Board.prototype.analogRead"] = {
   poll(test) {
     test.expect(23);
 
-    var sockWriteCommand = new Buffer([Port.CMD.ANALOG_READ, 7]);
+    let sockWriteCommand = new Buffer([Port.CMD.ANALOG_READ, 7]);
 
     this.board.pinMode("b7", this.board.MODES.ANALOG);
 
@@ -1312,14 +1321,14 @@ exports["Board.prototype.analogRead"] = {
     test.equal(this.portSockWrite.lastCall.args[0].equals(sockWriteCommand), true);
 
     // Capture command buffer to compare to the next two
-    var capturedCommand = this.portSockWrite.lastCall.args[0];
+    let capturedCommand = this.portSockWrite.lastCall.args[0];
 
     test.equal(this.portCork.callCount, 0);
     test.equal(this.portUncork.callCount, 0);
     test.equal(this.portEnqueue.callCount, 1);
     test.equal(this.portEnqueue.lastCall.args[0].size, 2);
 
-    var first = this.portEnqueue.lastCall.args[0].callback;
+    let first = this.portEnqueue.lastCall.args[0].callback;
 
 
     // callback(null, Port.REPLY.HIGH);
@@ -1339,7 +1348,7 @@ exports["Board.prototype.analogRead"] = {
     test.equal(this.portEnqueue.callCount, 2);
 
 
-    var second = this.portEnqueue.lastCall.args[0].callback;
+    let second = this.portEnqueue.lastCall.args[0].callback;
     second(null, new Buffer([0x03, 0x01]));
 
     test.equal(this.spy.callCount, 2);
@@ -1806,7 +1815,7 @@ exports["Board.prototype.i2cReadOnce"] = {
 
   bytesToRead(test) {
     test.expect(3);
-    var handler = this.sandbox.spy();
+    let handler = this.sandbox.spy();
 
     this.board.i2cConfig({ address: 0x04, bus: "A" });
     this.board.i2cReadOnce(0x04, 4, handler);
@@ -1815,7 +1824,7 @@ exports["Board.prototype.i2cReadOnce"] = {
     test.equal(this.transfer.lastCall.args[0].length, 0);
     test.equal(this.transfer.lastCall.args[1], 4);
 
-    var transfer = this.transfer.lastCall.args[2];
+    let transfer = this.transfer.lastCall.args[2];
 
     transfer(null, new Buffer([1, 2, 3, 4]));
 
@@ -1825,7 +1834,7 @@ exports["Board.prototype.i2cReadOnce"] = {
 
   regAndBytesToRead(test) {
     test.expect(4);
-    var handler = this.sandbox.spy();
+    let handler = this.sandbox.spy();
 
     this.board.i2cConfig({ address: 0x04, bus: "A" });
     this.board.i2cReadOnce(0x04, 0xff, 4, handler);
@@ -1834,7 +1843,7 @@ exports["Board.prototype.i2cReadOnce"] = {
     test.deepEqual(this.transfer.lastCall.args[0], [0xff]);
     test.equal(this.transfer.lastCall.args[1], 4);
 
-    var transfer = this.transfer.lastCall.args[2];
+    let transfer = this.transfer.lastCall.args[2];
 
     transfer(null, new Buffer([1, 2, 3, 4]));
 
@@ -1844,8 +1853,8 @@ exports["Board.prototype.i2cReadOnce"] = {
 
   readError(test) {
     test.expect(1);
-    var handler = this.sandbox.spy();
-    var expectError = new Error("An Error!");
+    let handler = this.sandbox.spy();
+    let expectError = new Error("An Error!");
 
     this.transfer.restore();
     this.transfer = this.sandbox.stub(T2.I2C.prototype, "transfer").callsFake((buffer, bytesToRead, handler) => {
@@ -1879,7 +1888,7 @@ exports["Board.prototype.i2cRead"] = {
       callback = typeof callback === "function" ? callback : function() {};
 
       setImmediate(_ => {
-        var buffer = new Buffer(
+        let buffer = new Buffer(
           Array.from({ length: bytesToRead }, (_, index) => index)
         );
 
@@ -1900,8 +1909,8 @@ exports["Board.prototype.i2cRead"] = {
   bytesToRead(test) {
     test.expect(6);
 
-    var counter = 0;
-    var handler = function(buffer) {
+    let counter = 0;
+    let handler = buffer => {
       test.equal(buffer.length, 4);
       if (++counter === 5) {
         test.ok(counter);
@@ -1922,8 +1931,8 @@ exports["Board.prototype.i2cRead"] = {
   regAndBytesToRead(test) {
     test.expect(6);
 
-    var counter = 0;
-    var handler = function(buffer) {
+    let counter = 0;
+    let handler = buffer => {
       test.equal(buffer.length, 4);
       if (++counter === 5) {
         test.ok(counter);
@@ -1996,7 +2005,7 @@ exports["Board.prototype.serial*"] = {
       portId: "B",
     };
 
-    this.privGet = this.sandbox.spy(Map.prototype, "get");
+    this.privGet = this.sandbox.spy(WeakMap.prototype, "get");
     this.inBytes = [1, 2, 3, 4];
 
     this.write = this.sandbox.stub(SDuplex.prototype, "write");
@@ -2061,14 +2070,14 @@ exports["Board.prototype.serial*"] = {
     validWithExplicit(test) {
       test.expect(4);
 
-      var configA = Object.assign({}, {
+      const configA = Object.assign({}, {
         portId: "A",
         baud: 9600,
         dataBits: 8,
         parity: "none",
         stopBits: 1,
       });
-      var configB = Object.assign({}, {
+      const configB = Object.assign({}, {
         portId: "B",
         baud: 9600,
         dataBits: 8,
@@ -2152,7 +2161,7 @@ exports["Board.prototype.serial*"] = {
     writesInBytes(test) {
       test.expect(12);
       this.privGet.restore();
-      this.privGet = this.sandbox.stub(Map.prototype, "get").returns(this.fakeState);
+      this.privGet = this.sandbox.stub(WeakMap.prototype, "get").returns(this.fakeState);
 
       this.board.serialWrite("A", this.inBytes);
       this.board.serialWrite("B", this.inBytes);
@@ -2177,7 +2186,7 @@ exports["Board.prototype.serial*"] = {
     writesInBytesNonArray(test) {
       test.expect(6);
       this.privGet.restore();
-      this.privGet = this.sandbox.stub(Map.prototype, "get").returns(this.fakeState);
+      this.privGet = this.sandbox.stub(WeakMap.prototype, "get").returns(this.fakeState);
 
       this.board.serialWrite("A", this.inBytes[0]);
       this.board.serialWrite("B", this.inBytes[0]);
@@ -2209,9 +2218,9 @@ exports["Board.prototype.serial*"] = {
     data(test) {
       test.expect(8);
 
-      var spy = this.sandbox.spy();
+      const spy = this.sandbox.spy();
       this.privGet.restore();
-      this.privGet = this.sandbox.stub(Map.prototype, "get").returns(this.fakeState);
+      this.privGet = this.sandbox.stub(WeakMap.prototype, "get").returns(this.fakeState);
 
       this.on.reset();
 
@@ -2250,7 +2259,7 @@ exports["Board.prototype.serial*"] = {
       this.removeAllListeners = this.sandbox.stub(SDuplex.prototype, "removeAllListeners");
 
       this.privGet.restore();
-      this.privGet = this.sandbox.stub(Map.prototype, "get").returns(this.fakeState);
+      this.privGet = this.sandbox.stub(WeakMap.prototype, "get").returns(this.fakeState);
 
       this.removeAllListeners.reset();
 
@@ -2285,7 +2294,7 @@ exports["Board.prototype.serial*"] = {
       test.expect(5);
 
       this.privGet.restore();
-      this.privGet = this.sandbox.stub(Map.prototype, "get").returns(this.fakeState);
+      this.privGet = this.sandbox.stub(WeakMap.prototype, "get").returns(this.fakeState);
 
       this.board.serialClose("A");
       this.board.serialClose("B");
