@@ -1,9 +1,9 @@
 // System Objects
-var cp = require("child_process");
-var path = require("path");
+const cp = require("child_process");
+const path = require("path");
 
 // Third Party Dependencies
-var tags = require("common-tags");
+const tags = require("common-tags");
 
 
 module.exports = function(grunt) {
@@ -73,11 +73,11 @@ module.exports = function(grunt) {
 
 
   grunt.registerTask("changelog", "changelog', 'changelog:v0.0.0..v0.0.2' or 'changelog:v0.0.0'", (arg) => {
-    var done = grunt.task.current.async();
-    var tags = cp.execSync("git tag --sort version:refname").toString().split("\n");
-    var tagIndex = -1;
-    var range;
-    var revisionRange;
+    let done = grunt.task.current.async();
+    let tags = cp.execSync("git tag --sort version:refname").toString().split("\n");
+    let tagIndex = -1;
+    let range;
+    let revisionRange;
 
     if (!arg) {
       // grunt changelog
@@ -116,7 +116,7 @@ module.exports = function(grunt) {
         return;
       }
 
-      var rows = result.split("\n").filter(commit => {
+      let rows = result.split("\n").filter(commit => {
         return !commit.includes("|Merge ") && !commit.includes(range[0]);
       });
 
