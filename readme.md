@@ -10,6 +10,15 @@
 Tessel-IO is an IO Plugin that enables writing JavaScript Robotics programs with Johnny-Five, that run on a Tessel 2. This project was built at [Bocoup](http://bocoup.com)
 
 
+### IMPORTANT VERSION COMPATIBILTY INFORMATION
+
+| Tessel 2 Firmware Version | Tessel-IO Version |
+| ------------------------- | ----------------- |
+| >= 0.1.0                  | >= 1.0.0          |
+| <= 0.0.16                 | <= 0.11.0         |
+
+
+
 ![Tessel 2](https://raw.githubusercontent.com/rwaldron/tessel-io/master/fritzing/tessel.png)
 
 
