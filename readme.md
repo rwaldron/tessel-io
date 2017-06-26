@@ -11,7 +11,7 @@ Tessel-IO is an IO Plugin that enables writing JavaScript Robotics programs with
 ![Tessel 2](https://raw.githubusercontent.com/rwaldron/tessel-io/master/fritzing/tessel.png)
 
 
-### IMPORTANT VERSION COMPATIBILTY INFORMATION
+## IMPORTANT VERSION COMPATIBILTY INFORMATION
 
 | Tessel 2 Firmware Version | Tessel-IO Version |
 | ------------------------- | ----------------- |
