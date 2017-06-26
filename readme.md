@@ -1,7 +1,6 @@
 # Tessel-IO
 
 [![Travis-CI Build Status](https://travis-ci.org/rwaldron/tessel-io.svg?branch=master)](https://travis-ci.org/rwaldron/tessel-io)
-
 [![Coverage Status](https://coveralls.io/repos/github/rwaldron/tessel-io/badge.svg?branch=master)](https://coveralls.io/github/rwaldron/tessel-io?branch=master)
 
 
