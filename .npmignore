@@ -1,4 +1,7 @@
-.*
+.gitignore
+.jscsrc
+.nycrc
+.travis.yml
 coverage/
 eg/
 fritzing/
