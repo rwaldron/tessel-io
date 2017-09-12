@@ -1529,7 +1529,7 @@ exports["Board.prototype.servoWrite"] = {
   },
 
   upper(test) {
-    test.expect(10  );
+    test.expect(12);
 
     this.board.pinMode("a5", this.board.MODES.SERVO);
 
@@ -1537,27 +1537,32 @@ exports["Board.prototype.servoWrite"] = {
 
     this.board.servoWrite("a5", 180);
     this.board.servoWrite("a5", 255);
+    this.board.servoWrite("a5", 2400);
     this.board.servoWrite("a5", true);
 
     this.board.servoWrite(5, 180);
     this.board.servoWrite(5, 255);
+    this.board.servoWrite(5, 2400);
     this.board.servoWrite(5, true);
+
 
     test.equal(this.write.callCount, 0);
     test.equal(this.pwmFrequency.callCount, 1);
     test.equal(this.pwmFrequency.lastCall.args[0], 50);
-    test.equal(this.pwmDutyCycle.callCount, 6);
+    test.equal(this.pwmDutyCycle.callCount, 8);
     test.equal(this.pwmDutyCycle.getCall(0).args[0], 0.12);
     test.equal(this.pwmDutyCycle.getCall(1).args[0], 0.12);
-    test.equal(this.pwmDutyCycle.getCall(2).args[0], 0.0305);
-    test.equal(this.pwmDutyCycle.getCall(3).args[0], 0.12);
+    test.equal(this.pwmDutyCycle.getCall(2).args[0], 0.12);
+    test.equal(this.pwmDutyCycle.getCall(3).args[0], 0.0305);
     test.equal(this.pwmDutyCycle.getCall(4).args[0], 0.12);
-    test.equal(this.pwmDutyCycle.getCall(5).args[0], 0.0305);
+    test.equal(this.pwmDutyCycle.getCall(5).args[0], 0.12);
+    test.equal(this.pwmDutyCycle.getCall(6).args[0], 0.12);
+    test.equal(this.pwmDutyCycle.getCall(7).args[0], 0.0305);
     test.done();
   },
 
   lower(test) {
-    test.expect(10);
+    test.expect(12);
 
     this.board.pinMode("a5", this.board.MODES.SERVO);
 
@@ -1565,27 +1570,31 @@ exports["Board.prototype.servoWrite"] = {
 
     this.board.servoWrite("a5", 0);
     this.board.servoWrite("a5", -1);
+    this.board.servoWrite("a5", 600);
     this.board.servoWrite("a5", false);
 
     this.board.servoWrite(5, 0);
     this.board.servoWrite(5, -1);
+    this.board.servoWrite(5, 600);
     this.board.servoWrite(5, false);
 
     test.equal(this.write.callCount, 0);
     test.equal(this.pwmFrequency.callCount, 1);
     test.equal(this.pwmFrequency.lastCall.args[0], 50);
-    test.equal(this.pwmDutyCycle.callCount, 6);
+    test.equal(this.pwmDutyCycle.callCount, 8);
     test.equal(this.pwmDutyCycle.getCall(0).args[0], 0.03);
     test.equal(this.pwmDutyCycle.getCall(1).args[0], 0.03);
     test.equal(this.pwmDutyCycle.getCall(2).args[0], 0.03);
     test.equal(this.pwmDutyCycle.getCall(3).args[0], 0.03);
     test.equal(this.pwmDutyCycle.getCall(4).args[0], 0.03);
     test.equal(this.pwmDutyCycle.getCall(5).args[0], 0.03);
+    test.equal(this.pwmDutyCycle.getCall(6).args[0], 0.03);
+    test.equal(this.pwmDutyCycle.getCall(7).args[0], 0.03);
     test.done();
   },
 
   scales(test) {
-    test.expect(6);
+    test.expect(8);
 
     this.board.pinMode("a5", this.board.MODES.SERVO);
 
@@ -1593,15 +1602,166 @@ exports["Board.prototype.servoWrite"] = {
 
     this.board.servoWrite("a5", 0);
     this.board.servoWrite("a5", 180);
+    this.board.servoWrite("a5", 600);
+    this.board.servoWrite("a5", 2400);
 
     test.equal(this.write.callCount, 0);
     test.equal(this.pwmFrequency.callCount, 1);
     test.equal(this.pwmFrequency.lastCall.args[0], 50);
-    test.equal(this.pwmDutyCycle.callCount, 2);
-    test.equal(this.pwmDutyCycle.firstCall.args[0], 0.03);
-    test.equal(this.pwmDutyCycle.lastCall.args[0], 0.12);
+    test.equal(this.pwmDutyCycle.callCount, 4);
+    test.equal(this.pwmDutyCycle.getCall(0).args[0], 0.03);
+    test.equal(this.pwmDutyCycle.getCall(1).args[0], 0.12);
+    test.equal(this.pwmDutyCycle.getCall(2).args[0], 0.03);
+    test.equal(this.pwmDutyCycle.getCall(3).args[0], 0.12);
     test.done();
   },
+};
+
+exports["Board.prototype.servoConfig"] = {
+  setUp(done) {
+    this.sandbox = sinon.sandbox.create();
+    this.write = this.sandbox.spy(tessel.port.B.pin[7].port.sock, "write");
+    this.pwmFrequency = this.sandbox.spy(tessel, "pwmFrequency");
+    this.pwmDutyCycle = this.sandbox.spy(T2.Pin.prototype, "pwmDutyCycle");
+
+    this.board = new Board();
+
+    done();
+  },
+
+  tearDown(done) {
+    Board.purge();
+    this.sandbox.restore();
+    done();
+  },
+
+  upper(test) {
+    test.expect(12);
+
+    this.board.pinMode("a5", this.board.MODES.SERVO);
+    this.board.pinMode("a6", this.board.MODES.SERVO);
+
+    this.write.reset();
+
+    this.board.servoConfig("a5", 1000, 2000);
+
+    this.board.servoWrite("a5", 180);
+    this.board.servoWrite("a5", 255);
+    this.board.servoWrite("a5", 2400);
+
+    this.board.servoWrite(5, 180);
+    this.board.servoWrite(5, 255);
+    this.board.servoWrite(5, 2400);
+
+    // Pin A4 should still use default servo range
+    this.board.servoWrite("a6", 180);
+    this.board.servoWrite(6, 180);
+
+    test.equal(this.write.callCount, 0);
+    test.equal(this.pwmFrequency.callCount, 1);
+    test.equal(this.pwmFrequency.lastCall.args[0], 50);
+    test.equal(this.pwmDutyCycle.callCount, 8);
+    test.equal(this.pwmDutyCycle.getCall(0).args[0], 0.1);
+    test.equal(this.pwmDutyCycle.getCall(1).args[0], 0.1);
+    test.equal(this.pwmDutyCycle.getCall(2).args[0], 0.1);
+    test.equal(this.pwmDutyCycle.getCall(3).args[0], 0.1);
+    test.equal(this.pwmDutyCycle.getCall(4).args[0], 0.1);
+    test.equal(this.pwmDutyCycle.getCall(5).args[0], 0.1);
+    test.equal(this.pwmDutyCycle.getCall(6).args[0], 0.12);
+    test.equal(this.pwmDutyCycle.getCall(7).args[0], 0.12);
+    test.done();
+  },
+
+  lower(test) {
+    test.expect(14);
+
+    this.board.pinMode("a5", this.board.MODES.SERVO);
+    this.board.pinMode("a6", this.board.MODES.SERVO);
+
+    this.write.reset();
+
+    this.board.servoConfig("a5", 1000, 2000);
+
+    this.board.servoWrite("a5", 0);
+    this.board.servoWrite("a5", -1);
+    this.board.servoWrite("a5", 600);
+    this.board.servoWrite("a5", false);
+
+    this.board.servoWrite(5, 0);
+    this.board.servoWrite(5, -1);
+    this.board.servoWrite(5, 600);
+    this.board.servoWrite(5, false);
+
+    this.board.servoWrite("a6", 0);
+    this.board.servoWrite(6, 0);
+
+    test.equal(this.write.callCount, 0);
+    test.equal(this.pwmFrequency.callCount, 1);
+    test.equal(this.pwmFrequency.lastCall.args[0], 50);
+    test.equal(this.pwmDutyCycle.callCount, 10);
+    test.equal(this.pwmDutyCycle.getCall(0).args[0], 0.05);
+    test.equal(this.pwmDutyCycle.getCall(1).args[0], 0.05);
+    test.equal(this.pwmDutyCycle.getCall(2).args[0], 0.05);
+    test.equal(this.pwmDutyCycle.getCall(3).args[0], 0.05);
+    test.equal(this.pwmDutyCycle.getCall(4).args[0], 0.05);
+    test.equal(this.pwmDutyCycle.getCall(5).args[0], 0.05);
+    test.equal(this.pwmDutyCycle.getCall(6).args[0], 0.05);
+    test.equal(this.pwmDutyCycle.getCall(7).args[0], 0.05);
+    test.equal(this.pwmDutyCycle.getCall(8).args[0], 0.03);
+    test.equal(this.pwmDutyCycle.getCall(9).args[0], 0.03);
+    test.done();
+  },
+
+  scales(test) {
+    test.expect(8);
+
+    this.board.pinMode("a5", this.board.MODES.SERVO);
+
+    this.write.reset();
+
+    this.board.servoConfig("a5", 1000, 2000);
+
+    this.board.servoWrite("a5", 0);
+    this.board.servoWrite("a5", 180);
+    this.board.servoWrite("a5", 600);
+    this.board.servoWrite("a5", 2400);
+
+    test.equal(this.write.callCount, 0);
+    test.equal(this.pwmFrequency.callCount, 1);
+    test.equal(this.pwmFrequency.lastCall.args[0], 50);
+    test.equal(this.pwmDutyCycle.callCount, 4);
+    test.equal(this.pwmDutyCycle.getCall(0).args[0], 0.05);
+    test.equal(this.pwmDutyCycle.getCall(1).args[0], 0.1);
+    test.equal(this.pwmDutyCycle.getCall(2).args[0], 0.05);
+    test.equal(this.pwmDutyCycle.getCall(3).args[0], 0.1);
+    test.done();
+  },
+
+  expectOptions(test) {
+    test.expect(5);
+
+    this.board.pinMode("a5", this.board.MODES.SERVO);
+
+    test.throws(_ => {
+      this.board.servoConfig();
+    }, "servoConfig: pin must be specified");
+
+    test.throws(_ => {
+      this.board.servoConfig("a5");
+    }, "servoConfig: min must be specified");
+
+    test.throws(_ => {
+      this.board.servoConfig("a5", 1000);
+    }, "servoConfig: max must be specified");
+
+    this.board.servoConfig({ pin: "a5", min: 1000,max: 2000});
+    this.board.servoWrite("a5", 0);
+    this.board.servoWrite("a5", 180);
+
+    test.equal(this.pwmDutyCycle.getCall(0).args[0], 0.05);
+    test.equal(this.pwmDutyCycle.getCall(1).args[0], 0.1);
+    test.done();
+  }
 };
 
 exports["Board.prototype.i2cConfig"] = {
