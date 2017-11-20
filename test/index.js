@@ -338,7 +338,7 @@ exports["Board.prototype"] = {
   },
   resolution(test) {
     test.expect(1);
-    test.equal(Board.prototype.RESOLUTION.ADC, 4096);
+    test.equal(Board.prototype.RESOLUTION.ADC, 1024);
     test.done();
   },
 };
