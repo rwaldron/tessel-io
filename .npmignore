@@ -1,3 +1,4 @@
+.DS_Store
 .gitignore
 .jscsrc
 .nycrc
@@ -13,3 +14,4 @@ send.sh
 upgrade-firmware.sh
 upload-tar.sh
 watch.js
+test/
