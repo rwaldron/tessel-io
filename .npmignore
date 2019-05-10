@@ -2,6 +2,7 @@
 .jscsrc
 .nycrc
 .travis.yml
+.nyc_output/
 coverage/
 eg/
 fritzing/
