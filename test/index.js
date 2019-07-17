@@ -337,8 +337,9 @@ exports["Board.prototype"] = {
     test.done();
   },
   resolution(test) {
-    test.expect(1);
+    test.expect(2);
     test.equal(Board.prototype.RESOLUTION.ADC, 1024);
+    test.equal(Board.prototype.RESOLUTION.PWM, 255);
     test.done();
   },
 };
