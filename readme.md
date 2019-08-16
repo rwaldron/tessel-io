@@ -25,7 +25,7 @@ Tessel-IO is an IO Plugin that enables writing JavaScript Robotics programs with
 ## Install & Setup
 
 
-If you have prior experience with Johnny-Five, this is all you need: 
+If you have prior experience with Johnny-Five, this is all you need:
 
 ```js
 npm install t2-cli tessel-io johnny-five
@@ -46,19 +46,19 @@ const board = new five.Board({
 });
 
 board.on("ready", () => {
-  // Write your program locally and push to the Tessel 2 when ready!  
+  // Write your program locally and push to the Tessel 2 when ready!
 });
 ```
 
 ## Deploying Your Program To Tessel 2
 
-For testing and development, run in RAM: 
+For testing and development, run in RAM:
 
 ```
 t2 run <program file name>
 ```
 
-When your program is ready for deployment, push to flash: 
+When your program is ready for deployment, push to flash:
 
 
 ```
@@ -103,28 +103,28 @@ See [examples](https://github.com/rwaldron/tessel-io/tree/master/eg) for basic, 
 
 
 
-| Port | Pin | Digital I/O | SCL | SDA | TX | RX | Analog In | Analog Out | Interrupt | PWM |
-|---|---|---|---|---|---|---|---|---|---|---|
-| A | 0 | ✓ | ✓ |   |   |   |   |   |   |   |
-| A | 1 | ✓ |   | ✓ |   |   |   |   |   |   |
-| A | 2 | ✓ |   |   |   |   |   |   | ✓ |   |
-| A | 3 | ✓ |   |   |   |   |   |   |   |   |
-| A | 4 | ✓ |   |   |   |   | ✓ |   |   |   |
-| A | 5 | ✓ |   |   | ✓ |   |   |   | ✓ | ✓ |
-| A | 6 | ✓ |   |   |   | ✓ |   |   | ✓ | ✓ |
-| A | 7 | ✓ |   |   |   |   | ✓ |   | ✓ |   |
-| B | 0 | ✓ | ✓ |   |   |   | ✓ |   |   |   |
-| B | 1 | ✓ |   | ✓ |   |   | ✓ |   |   |   |
-| B | 2 | ✓ |   |   |   |   | ✓ |   | ✓ |   |
-| B | 3 | ✓ |   |   |   |   | ✓ |   |   |   |
-| B | 4 | ✓ |   |   |   |   | ✓ |   |   |   |
-| B | 5 | ✓ |   |   | ✓ |   | ✓ |   | ✓ | ✓ |
-| B | 6 | ✓ |   |   |   | ✓ | ✓ |   | ✓ | ✓ |
-| B | 7 | ✓ |   |   |   |   | ✓ | ✓ | ✓ |   |
+| Port | Pin | Digital I/O | SCL | SDA | TX | RX | Analog In | Analog Out | Interrupt | PWM | Pull Up/Down |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| A | 0 | ✓ | ✓ |   |   |   |   |   |   |   |   |
+| A | 1 | ✓ |   | ✓ |   |   |   |   |   |   |   |
+| A | 2 | ✓ |   |   |   |   |   |   | ✓ |   | ✓ |
+| A | 3 | ✓ |   |   |   |   |   |   |   |   | ✓ |
+| A | 4 | ✓ |   |   |   |   | ✓ |   |   |   | ✓ |
+| A | 5 | ✓ |   |   | ✓ |   |   |   | ✓ | ✓ | ✓ |
+| A | 6 | ✓ |   |   |   | ✓ |   |   | ✓ | ✓ | ✓ |
+| A | 7 | ✓ |   |   |   |   | ✓ |   | ✓ |   | ✓ |
+| B | 0 | ✓ | ✓ |   |   |   | ✓ |   |   |   |   |
+| B | 1 | ✓ |   | ✓ |   |   | ✓ |   |   |   |   |
+| B | 2 | ✓ |   |   |   |   | ✓ |   | ✓ |   | ✓ |
+| B | 3 | ✓ |   |   |   |   | ✓ |   |   |   | ✓ |
+| B | 4 | ✓ |   |   |   |   | ✓ |   |   |   | ✓ |
+| B | 5 | ✓ |   |   | ✓ |   | ✓ |   | ✓ | ✓ | ✓ |
+| B | 6 | ✓ |   |   |   | ✓ | ✓ |   | ✓ | ✓ | ✓ |
+| B | 7 | ✓ |   |   |   |   | ✓ | ✓ | ✓ |   | ✓ |
 
-Notes: 
+Notes:
 
-- Whenever possible, avoid using pins AO, A1, B0 and B1 for digital or analog input. 
+- Whenever possible, avoid using pins AO, A1, B0 and B1 for digital or analog input.
 
 
 ## Examples
